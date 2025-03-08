@@ -78,7 +78,7 @@ dtjoin_semi_i <- function(
     is_joincol_DT[idx_DT] <- TRUE
     is_joincol_i[idx_i] <- TRUE
 
-    if (!match.na && s[2] == "==") {
+    if (!match.na && allows_equi(s[2])) {
       equi_names_DT <- c(equi_names_DT, s[1])
       equi_names_i  <- c(equi_names_i, s[3])
     }

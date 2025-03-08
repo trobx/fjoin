@@ -76,7 +76,7 @@ dtjoin_anti_DT <- function(
     is_joincol_DT[idx_DT] <- TRUE
     is_joincol_i[idx_i]   <- TRUE
 
-    if (s[2] == "==") {
+    if (allows_equi(s[2])) {
       if (!match.na) equi_names_DT <- c(equi_names_DT, s[1])
       equi_names_i  <- c(equi_names_i, s[3])
     }

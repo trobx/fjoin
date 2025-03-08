@@ -129,6 +129,14 @@ strsplit_predicate <- function(x) {
 #strsplit_predicate("id1 >= ")
 
 # ------------------------------------------------------------------------------
+allows_equi <- function(x) {
+  # Whether operator is equality/weak inequality
+  x %in% c("==", ">=", "<=")
+}
+#allows_equi(">=")
+#allows_equi(">")
+
+# ------------------------------------------------------------------------------
 make_mock_tables <- function(on) {
   # Create mock data.frames from an 'on' expression
   tmp <- lapply(on, \(x) strsplit_predicate(x))
