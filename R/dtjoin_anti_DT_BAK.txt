@@ -1,0 +1,150 @@
+#' Return the anti-join of the \code{DT}-table in a \code{DT[i]}-style data.table join
+#'
+#' @description
+#' Write (and optionally run) \code{data.table} code to return the anti-join of the
+#'     \code{i}-table in an enhanced \code{DT[i]}-style join. The arguments are as for
+#'     \code{dtjoin}, except for those controlling the output columns, which do not
+#'     apply here.
+#'
+#' @inheritParams dtjoin
+#'
+#' @returns A \code{data.table} (the resulting anti-join), or \code{NULL} if \code{do} is \code{FALSE}.
+#'     The data.table code is always printed to the console.
+#'
+#' @details
+#' # TODO - explain difference from a data.table not-join
+#'
+#' @examples
+#' # TODO
+#'
+#' @export
+dtjoin_anti_DT <- function(
+    .DT,
+    .i,
+    on,
+    match.na = FALSE,
+    mult     = "all",
+    mult.DT   = "all",
+    do       = TRUE,
+    verbose  = FALSE,
+    on.first = FALSE,
+    i.main   = FALSE,
+    prefix   = if (i.main) "x." else "i."
+) {
+
+  check_TF(match.na)
+  check_mult(mult)
+  check_mult(mult.DT)
+  check_TF(do)
+  check_TF(verbose)
+  check_TF(on.first)
+  check_TF(i.main)
+
+  check_setup(do, .DT, .i)
+
+  has_mult   <- mult != "all"
+  has_mult.DT <- mult.DT != "all"
+
+  if (has_mult.DT)
+    stop(sprintf("%s doesn't yet implement the argument 'mult.DT'", as.character(match.call()[[1]])))
+
+  # ----------------------------------------------------------------------------
+
+  names_DT      <- as.character(names(.DT))
+  is_joincol_DT <- rep(FALSE, length(names_DT))
+  jvars         <- names_DT
+
+  if (!match.na) {
+    equi_names_DT <- character(0)
+    equi_names_i  <- character(0)
+  }
+
+  for (i in seq_along(on)) {
+
+    s <- strsplit_predicate(on[i])
+
+    idx_DT <- match(s[1], names(.DT))
+    if (is.na(idx_DT)) stop(sprintf("No column named \"%s\" found in `.DT`", s[1]))
+
+    idx_i <- match(s[3], names(.i))
+    if (is.na(idx_i)) stop(sprintf("No column named \"%s\" found in `.i`", s[3]))
+
+    is_joincol_DT[idx_DT] <- TRUE
+
+    if (!match.na && s[2] == "==") {
+      equi_names_DT <- c(equi_names_DT, s[1])
+      equi_names_i  <- c(equi_names_i, s[3])
+    }
+
+    if (i.main) {
+      # columns as if the "foreign" table in a join
+      if (s[2] == "==") {
+        # not preserve, same name: "id" (no action)
+        if (s[1] != s[3]) {
+          # not preserve, diff name: "id1 = id2" (i.e. rename)
+          jvars[idx_DT] <- sprintf("%s = %s", s[3], s[1])
+        }
+      } else {
+        if (s[1] == s[3]) {
+          # preserve, same name: "PREF.id=id"
+          jvars[idx_DT] <- sprintf("%s%s = %s", prefix, s[1], s[1])
+        }
+      }
+    }
+  }
+
+  if (i.main) {
+    # prefix colliding names
+    jvars <- ifelse(!is_joincol_DT & jvars %in% names(.i), sprintf("%s%s = %s",prefix,jvars,jvars), jvars)
+  }
+
+  # ----------------------------------------------------------------------------
+
+  if (on.first) jvars <- c(jvars[is_joincol_DT], jvars[!is_joincol_DT])
+  jtext <- paste0("list(", paste(jvars, collapse = ", "), ")")
+
+  # ----------------------------------------------------------------------------
+
+  if (has_mult) argtext_mult <- sprintf("mult = %s, ", deparse(mult))
+  argtext_verbose <- if (verbose) ", verbose = TRUE" else ""
+
+  screen_NAs <-
+    !match.na &&
+    length(equi_names_DT) &&
+    anyNA(.DT[, equi_names_DT, with = FALSE]) &&
+    anyNA(.i[, equi_names_i, with = FALSE])
+
+  .DTtext  <- ".DT"
+  .itext  <- ".i"
+  if (screen_NAs) .itext <- sprintf("na.omit(%s, cols = %s)", .itext, deparse(equi_names_i))
+
+  jointext <-
+    if (has_mult) {
+      # mult present - must use not-which
+      sprintf("%s[!%s[%s, on = %s, nomatch = NULL,%s which = TRUE%s], %s%s]",
+              .DTtext,
+              .DTtext,
+              .itext,
+              deparse(on),
+              argtext_mult,
+              argtext_verbose,
+              jtext,
+              argtext_verbose)
+    } else {
+      # no mult - we can use not-join
+      sprintf("%s[!%s, on = %s, %s%s]",
+              .DTtext,
+              .itext,
+              deparse(on),
+              jtext,
+              argtext_verbose)
+    }
+
+  # ----------------------------------------------------------------------------
+
+  cat(".DT :", deparse(substitute(.DT)), "\n")
+  cat(".i  :", deparse(substitute(.i)), "\n")
+  cat("Join:", jointext, "\n")
+
+  if (do) eval(parse(text=jointext))
+}
