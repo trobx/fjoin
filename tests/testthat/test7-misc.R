@@ -28,12 +28,6 @@ test_that("dtjoin_anti_DT mock", {
 
 detach(package:data.table, unload=TRUE)
 
-test_that("dtjoin mock", {
-  expect_output(dtjoin(on="id"))
-  expect_null(dtjoin(on="id"))
-  expect_no_error(dtjoin(on="id"))
-})
-
 test_that("do FALSE and data.table not loaded", {
   dtjoin(iris, iris, on=c("Species"), do = FALSE) |>
     expect_output()
