@@ -1,9 +1,4 @@
 # ------------------------------------------------------------------------------
-# Applies across the whole package
-# https://stackoverflow.com/questions/69544896/how-can-i-use-data-table-in-a-package-without-importing-all-functions
-.datatable.aware <- TRUE
-
-# ------------------------------------------------------------------------------
 check_TF <- function(x) {
   if (!x %in% c(TRUE, FALSE))
     stop(sprintf("Argument '%s' must be TRUE or FALSE", deparse(substitute(x))))
