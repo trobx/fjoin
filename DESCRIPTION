@@ -1,6 +1,6 @@
 Package: fjoin
 Type: Package
-Title: Fast, Friendly, Fully-featured Joins Built on data.table Code
+Title: Fast, Friendly, Fully-featured Joins
 Version: 0.1.0
 Authors@R: c(
     person(
@@ -10,8 +10,8 @@ Authors@R: c(
     )
   )
 Description: Fast and friendly joins powered by data.table.
-    Offers a comprehensive join API for general use, plus
-    lower-level functions based on greatly extended data.table syntax.
+    Convenient and comprehensive join functionality for general use, built on top of 
+    wrapper functions that greatly extend data.table join syntax.
 License: GPL-3
 Encoding: UTF-8
 Suggests: 
