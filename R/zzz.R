@@ -7,3 +7,5 @@
 # For note/error: "no visible binding for global variable '.SD'". R CMD check gives note on Windows but error On Linux/macOS, where enforces stricter checks, treating undeclared variable bindings as errors.
 
 utils::globalVariables(c(".SD"))
+if (FALSE) { .SD }  # dummy reference to satisfy R CMD check (chatGPT suggestion)
+
