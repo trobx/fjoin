@@ -1,8 +1,5 @@
 library(data.table)
 
-# TODO: get round the fact the we need data.table loaded for the tests - maybe in testthat.R?
-# TODO: see https://testthat.r-lib.org/articles/third-edition.html to set 3e for all tests
-
 # ------------------------------------------------------------------------------
 make_A <- function() {
   data.table::data.table(id=as.integer(c(1,2,2,3,NA,NA)))[, c := paste0("I'm row A", .I)]

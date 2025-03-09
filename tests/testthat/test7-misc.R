@@ -1,11 +1,3 @@
-# TODO: get round the fact the we need data.table loaded for the tests - maybe in testthat.R?
-# TODO: see https://testthat.r-lib.org/articles/third-edition.html to set 3e for all tests
-
-#library(testthat)
-#local_edition(3)
-#library(dplyr)
-#library(data.table)
-
 library(data.table)
 
 dt <- setDT(iris[1:5])
@@ -63,23 +55,24 @@ test_that("do FALSE but .i not a data.frame", {
     expect_error("'.i' must have class \"data.frame\"")
 })
 
+detach("package:data.table", unload=TRUE)
+
 test_that("do FALSE and data.table not loaded", {
-  detach("package:data.table", unload=TRUE)
   dtjoin(iris, iris, on=c("Species"), do = FALSE) |>
     expect_output()
   dtjoin(iris, iris, on=c("Species"), do = FALSE) |>
     expect_null()
   dtjoin(iris, iris, on=c("Species"), do = FALSE) |>
     expect_no_error()
-  library(data.table)
 })
 
 test_that("do TRUE but data.table not loaded", {
   detach("package:data.table", unload=TRUE)
   dtjoin(iris, iris, on=c("Species", "foo == Petal.Length")) |>
     expect_error("data.table is not loaded")
-  library(data.table)
 })
+
+library(data.table)
 
 # ------------------------------------------------------------------------------
 # non-existent join columns
