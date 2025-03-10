@@ -1,6 +1,6 @@
 library(data.table)
 
-df <- iris[1:5]
+df <- data.frame(Species = letters[1:3], Petal.Length = 1:3L)
 dt <- as.data.table(df)
 
 # ------------------------------------------------------------------------------
