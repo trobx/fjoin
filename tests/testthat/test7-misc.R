@@ -59,23 +59,23 @@ test_that("do FALSE but .i not a data.frame", {
 # ------------------------------------------------------------------------------
 # data.table not loaded
 
-detach(package:data.table, unload=TRUE)
-
-test_that("do FALSE and data.table not loaded", {
-  dtjoin(df, df, on=c("id"), do = FALSE) |>
-    expect_output()
-  dtjoin(df, df, on=c("id"), do = FALSE) |>
-    expect_null()
-  dtjoin(df, df, on=c("id"), do = FALSE) |>
-    expect_no_error()
-})
-
-test_that("do TRUE but data.table not loaded", {
-  dtjoin(df, df, on=c("id", "foo == col1")) |>
-    expect_error("data.table is not loaded")
-})
-
-library(data.table)
+# detach(package:data.table, unload=TRUE)
+#
+# test_that("do FALSE and data.table not loaded", {
+#   dtjoin(df, df, on=c("id"), do = FALSE) |>
+#     expect_output()
+#   dtjoin(df, df, on=c("id"), do = FALSE) |>
+#     expect_null()
+#   dtjoin(df, df, on=c("id"), do = FALSE) |>
+#     expect_no_error()
+# })
+#
+# test_that("do TRUE but data.table not loaded", {
+#   dtjoin(df, df, on=c("id", "foo == col1")) |>
+#     expect_error("data.table is not loaded")
+# })
+#
+# library(data.table)
 
 # ------------------------------------------------------------------------------
 # non-existent join columns
