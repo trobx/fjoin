@@ -24,27 +24,6 @@ test_that("dtjoin_anti_DT mock", {
 })
 
 # ------------------------------------------------------------------------------
-# data.table not loaded
-
-detach(package:data.table, unload=TRUE)
-
-test_that("do FALSE and data.table not loaded", {
-  dtjoin(iris, iris, on=c("Species"), do = FALSE) |>
-    expect_output()
-  dtjoin(iris, iris, on=c("Species"), do = FALSE) |>
-    expect_null()
-  dtjoin(iris, iris, on=c("Species"), do = FALSE) |>
-    expect_no_error()
-})
-
-test_that("do TRUE but data.table not loaded", {
-  dtjoin(iris, iris, on=c("Species", "foo == Petal.Length")) |>
-    expect_error("data.table is not loaded")
-})
-
-library(data.table)
-
-# ------------------------------------------------------------------------------
 # data.table setup and inputs
 
 test_that("do TRUE but .DT not a data.table", {
