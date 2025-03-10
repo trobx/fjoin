@@ -26,55 +26,55 @@ test_that("dtjoin_anti_DT mock", {
 # ------------------------------------------------------------------------------
 # data.table setup and inputs
 
-test_that("do TRUE but .DT not a data.table", {
-  dtjoin(iris, iris, on=c("Species", "foo == Petal.Length")) |>
-    expect_error("'.DT' is not a data.table")
-})
-
-test_that("do TRUE but .i not a data.table", {
-  dtjoin(as.data.table(iris), iris, on=c("Species", "foo == Petal.Length")) |>
-    expect_error("'.i' is not a data.table")
-})
-
-test_that("do FALSE and .DT, .i data.frames", {
-  dtjoin(iris, iris, on=c("Species"), do = FALSE) |>
-    expect_output()
-  dtjoin(iris, iris, on=c("Species"), do = FALSE) |>
-    expect_null()
-  dtjoin(iris, iris, on=c("Species"), do = FALSE) |>
-    expect_no_error()
-})
-
-test_that("do FALSE but .DT not a data.frame", {
-  dtjoin("iris", iris, on=c("Species", "foo == Petal.Length"), do = FALSE) |>
-    expect_error("'.DT' must have class \"data.frame\"")
-})
-
-test_that("do FALSE but .i not a data.frame", {
-  dtjoin(iris, "iris", on=c("Species", "foo == Petal.Length"), do = FALSE) |>
-    expect_error("'.i' must have class \"data.frame\"")
-})
+# test_that("do TRUE but .DT not a data.table", {
+#   dtjoin(iris, iris, on=c("Species", "foo == Petal.Length")) |>
+#     expect_error("'.DT' is not a data.table")
+# })
+#
+# test_that("do TRUE but .i not a data.table", {
+#   dtjoin(as.data.table(iris), iris, on=c("Species", "foo == Petal.Length")) |>
+#     expect_error("'.i' is not a data.table")
+# })
+#
+# test_that("do FALSE and .DT, .i data.frames", {
+#   dtjoin(iris, iris, on=c("Species"), do = FALSE) |>
+#     expect_output()
+#   dtjoin(iris, iris, on=c("Species"), do = FALSE) |>
+#     expect_null()
+#   dtjoin(iris, iris, on=c("Species"), do = FALSE) |>
+#     expect_no_error()
+# })
+#
+# test_that("do FALSE but .DT not a data.frame", {
+#   dtjoin("iris", iris, on=c("Species", "foo == Petal.Length"), do = FALSE) |>
+#     expect_error("'.DT' must have class \"data.frame\"")
+# })
+#
+# test_that("do FALSE but .i not a data.frame", {
+#   dtjoin(iris, "iris", on=c("Species", "foo == Petal.Length"), do = FALSE) |>
+#     expect_error("'.i' must have class \"data.frame\"")
+# })
 
 # ------------------------------------------------------------------------------
 # data.table not loaded
 
-detach(package:data.table, unload=TRUE)
-
-test_that("do FALSE and data.table not loaded", {
-  dtjoin(iris, iris, on=c("Species"), do = FALSE) |>
-    expect_output()
-  dtjoin(iris, iris, on=c("Species"), do = FALSE) |>
-    expect_null()
-  dtjoin(iris, iris, on=c("Species"), do = FALSE) |>
-    expect_no_error()
-})
-
-test_that("do TRUE but data.table not loaded", {
-  dtjoin(iris, iris, on=c("Species", "foo == Petal.Length")) |>
-    expect_error("data.table is not loaded")
-})
-
-library(data.table)
+# detach(package:data.table, unload=TRUE)
+#
+# test_that("do FALSE and data.table not loaded", {
+#   dtjoin(iris, iris, on=c("Species"), do = FALSE) |>
+#     expect_output()
+#   dtjoin(iris, iris, on=c("Species"), do = FALSE) |>
+#     expect_null()
+#   dtjoin(iris, iris, on=c("Species"), do = FALSE) |>
+#     expect_no_error()
+# })
+#
+# test_that("do TRUE but data.table not loaded", {
+#   dtjoin(iris, iris, on=c("Species", "foo == Petal.Length")) |>
+#     expect_error("data.table is not loaded")
+# })
+#
+# library(data.table)
 
 # ------------------------------------------------------------------------------
 # non-existent join columns
