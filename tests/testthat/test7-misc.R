@@ -59,6 +59,9 @@ test_that("do FALSE but .i not a data.frame", {
 # ------------------------------------------------------------------------------
 # data.table not loaded
 
+# THIS SECTION SEEMS TO BE THE CAUSE OF R CMD CHECK FAILURES ON GITHUB
+# ALTHOUGH THEY ARE FINE WHEN RUN LOCALLY VIA DEVTOOLS
+
 # detach(package:data.table, unload=TRUE)
 #
 # test_that("do FALSE and data.table not loaded", {
