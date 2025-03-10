@@ -14,3 +14,4 @@ test_that("do TRUE but data.table not loaded", {
   dtjoin(iris, iris, on=c("Species", "foo == Petal.Length")) |>
     expect_error("data.table is not loaded")
 })
+
