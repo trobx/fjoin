@@ -1,6 +1,6 @@
 library(data.table)
 
-df <- data.frame(Species = letters[1:3], Petal.Length = 1:3L)
+df <- data.frame(id = letters[1:3], col1 = 1:3L)
 dt <- as.data.table(df)
 
 # ------------------------------------------------------------------------------
@@ -28,31 +28,31 @@ test_that("dtjoin_anti_DT mock", {
 # data.table setup and inputs
 
 test_that("do TRUE but .DT not a data.table", {
-  dtjoin(df, dt, on=c("Species", "foo == Petal.Length")) |>
+  dtjoin(df, dt, on=c("id", "foo == col1")) |>
     expect_error("'.DT' is not a data.table")
 })
 
 test_that("do TRUE but .i not a data.table", {
-  dtjoin(dt, df, on=c("Species", "foo == Petal.Length")) |>
+  dtjoin(dt, df, on=c("id", "foo == col1")) |>
     expect_error("'.i' is not a data.table")
 })
 
 test_that("do FALSE and .DT, .i data.frames", {
-  dtjoin(df, df, on=c("Species"), do = FALSE) |>
+  dtjoin(df, df, on=c("id"), do = FALSE) |>
     expect_output()
-  dtjoin(df, df, on=c("Species"), do = FALSE) |>
+  dtjoin(df, df, on=c("id"), do = FALSE) |>
     expect_null()
-  dtjoin(df, df, on=c("Species"), do = FALSE) |>
+  dtjoin(df, df, on=c("id"), do = FALSE) |>
     expect_no_error()
 })
 
 test_that("do FALSE but .DT not a data.frame", {
-  dtjoin("foo", df, on=c("Species", "foo == Petal.Length"), do = FALSE) |>
+  dtjoin("foo", df, on=c("id", "foo == col1"), do = FALSE) |>
     expect_error("'.DT' must have class \"data.frame\"")
 })
 
 test_that("do FALSE but .i not a data.frame", {
-  dtjoin(df, "foo", on=c("Species", "foo == Petal.Length"), do = FALSE) |>
+  dtjoin(df, "foo", on=c("id", "foo == col1"), do = FALSE) |>
     expect_error("'.i' must have class \"data.frame\"")
 })
 
@@ -62,16 +62,16 @@ test_that("do FALSE but .i not a data.frame", {
 detach(package:data.table, unload=TRUE)
 
 test_that("do FALSE and data.table not loaded", {
-  dtjoin(df, df, on=c("Species"), do = FALSE) |>
+  dtjoin(df, df, on=c("id"), do = FALSE) |>
     expect_output()
-  dtjoin(df, df, on=c("Species"), do = FALSE) |>
+  dtjoin(df, df, on=c("id"), do = FALSE) |>
     expect_null()
-  dtjoin(df, df, on=c("Species"), do = FALSE) |>
+  dtjoin(df, df, on=c("id"), do = FALSE) |>
     expect_no_error()
 })
 
 test_that("do TRUE but data.table not loaded", {
-  dtjoin(df, df, on=c("Species", "foo == Petal.Length")) |>
+  dtjoin(df, df, on=c("id", "foo == col1")) |>
     expect_error("data.table is not loaded")
 })
 
@@ -81,32 +81,32 @@ library(data.table)
 # non-existent join columns
 
 test_that("dtjoin non-existent join column .DT", {
-  dtjoin(dt, dt, on=c("Species", "foo == Petal.Length")) |>
+  dtjoin(dt, dt, on=c("id", "foo == col1")) |>
     expect_error("No column named \"foo\" found in `.DT`")
 })
 
 test_that("dtjoin non-existent join column .i", {
-  dtjoin(dt, dt, on=c("Species", "Petal.Length == foo")) |>
+  dtjoin(dt, dt, on=c("id", "col1 == foo")) |>
     expect_error("No column named \"foo\" found in `.i`")
 })
 
 test_that("dtjoin_semi_i non-existent join column .DT", {
-  dtjoin_semi_i(dt, dt, on=c("Species", "foo == Petal.Length")) |>
+  dtjoin_semi_i(dt, dt, on=c("id", "foo == col1")) |>
     expect_error("No column named \"foo\" found in `.DT`")
 })
 
 test_that("dtjoin_semi_i non-existent join column .i", {
-  dtjoin_semi_i(dt, dt, on=c("Species", "Petal.Length == foo")) |>
+  dtjoin_semi_i(dt, dt, on=c("id", "col1 == foo")) |>
     expect_error("No column named \"foo\" found in `.i`")
 })
 
 test_that("dtjoin_anti_DT non-existent join column .DT", {
-  dtjoin_anti_DT(dt, dt, on=c("Species", "foo == Petal.Length")) |>
+  dtjoin_anti_DT(dt, dt, on=c("id", "foo == col1")) |>
     expect_error("No column named \"foo\" found in `.DT`")
 })
 
 test_that("dtjoin_anti_DT non-existent join column .i", {
-  dtjoin_anti_DT(dt, dt, on=c("Species", "Petal.Length == foo")) |>
+  dtjoin_anti_DT(dt, dt, on=c("id", "col1 == foo")) |>
     expect_error("No column named \"foo\" found in `.i`")
 })
 
@@ -114,11 +114,11 @@ test_that("dtjoin_anti_DT non-existent join column .i", {
 # argument checks
 
 test_that("order arg check", {
-  fjoin_left(dt, dt, on = "Species", order = "x") |>
+  fjoin_left(dt, dt, on = "id", order = "x") |>
     expect_no_error()
-  fjoin_left(dt, dt, on = "Species", order = "y") |>
+  fjoin_left(dt, dt, on = "id", order = "y") |>
     expect_no_error()
-  fjoin_left(dt, dt, on = "Species", order = TRUE) |>
+  fjoin_left(dt, dt, on = "id", order = TRUE) |>
     expect_error("Argument 'order' must be \"x\" or \"y\"")
 })
 
