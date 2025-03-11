@@ -242,7 +242,8 @@ fjoin_full <- function(
 #' Left semi-join
 #'
 #' @description
-#' The semi-join of \code{x} in a join of \code{x} and \code{y}
+#' The semi-join of \code{x} in a join of \code{x} and \code{y}. The alias
+#'   \code{semi_join} can be used instead.
 #'
 #' @inheritParams fjoin_inner
 #'
@@ -318,7 +319,8 @@ fjoin_right_semi <- function(
 #' Left anti-join
 #'
 #' @description
-#' The anti-join of \code{x} in a join of \code{x} and \code{y}
+#' The anti-join of \code{x} in a join of \code{x} and \code{y}.  The alias
+#'   \code{anti_join} can be used instead.
 #'
 #' @inheritParams fjoin_inner
 #'
