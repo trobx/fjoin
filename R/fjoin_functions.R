@@ -61,42 +61,25 @@ fjoin_inner <- function(
 ) {
 
   check_arg_order(order)
+  order.x <- order == "x"
 
-  if (order == "x") {
-    dtjoin(
-      .DT        = y,
-      .i         = x,
-      on         = flip_on(on),
-      mult       = mult.x,
-      mult.DT    = mult.y,
-      nomatch    = NULL,
-      nomatch.DT = NULL,
-      i.main     = TRUE,
-      match.na   = match.na,
-      on.first   = on.first,
-      preserve   = preserve,
-      indicate   = indicate,
-      prefix     = prefix,
-      do         = do
-    )
-  } else {
-    dtjoin(
-      .DT        = x,
-      .i         = y,
-      on         = on,
-      mult       = mult.y,
-      mult.DT    = mult.x,
-      nomatch    = NULL,
-      nomatch.DT = NULL,
-      i.main     = FALSE,
-      match.na   = match.na,
-      on.first   = on.first,
-      preserve   = preserve,
-      indicate   = indicate,
-      prefix     = prefix,
-      do         = do
-    )
-  }
+  dtjoin(
+    .DT        = if (order.x) y else x,
+    .i         = if (order.x) x else y,
+    on         = if (order.x) flip_on(on) else on,
+    mult       = mult.x,
+    mult.DT    = mult.y,
+    nomatch    = NULL,
+    nomatch.DT = NULL,
+    i.main     = order.x,
+    match.na   = match.na,
+    on.first   = on.first,
+    preserve   = preserve,
+    indicate   = indicate,
+    prefix     = prefix,
+    do         = do
+  )
+
 }
 
 # ------------------------------------------------------------------------------
@@ -131,42 +114,24 @@ fjoin_left <- function(
 ) {
 
   check_arg_order(order)
+  order.x <- order == "x"
 
-  if (order == "x") {
-    dtjoin(
-      .DT        = y,
-      .i         = x,
-      on         = flip_on(on),
-      mult       = mult.x,
-      mult.DT    = mult.y,
-      nomatch    = NA,
-      nomatch.DT = NULL,
-      i.main     = TRUE,
-      match.na   = match.na,
-      on.first   = on.first,
-      preserve   = preserve,
-      indicate   = indicate,
-      prefix     = prefix,
-      do         = do
-    )
-  } else {
-    dtjoin(
-      .DT        = x,
-      .i         = y,
-      on         = on,
-      mult       = mult.y,
-      mult.DT    = mult.x,
-      nomatch    = NULL,
-      nomatch.DT = NA,
-      i.main     = FALSE,
-      match.na   = match.na,
-      on.first   = on.first,
-      preserve   = preserve,
-      indicate   = indicate,
-      prefix     = prefix,
-      do         = do
-    )
-  }
+  dtjoin(
+    .DT        = if (order.x) y else x,
+    .i         = if (order.x) x else y,
+    on         = if (order.x) flip_on(on) else on,
+    mult       = mult.x,
+    mult.DT    = mult.y,
+    nomatch    = if (order.x) NA else NULL,
+    nomatch.DT = if (order.x) NULL else NA,
+    i.main     = order.x,
+    match.na   = match.na,
+    on.first   = on.first,
+    preserve   = preserve,
+    indicate   = indicate,
+    prefix     = prefix,
+    do         = do
+  )
 }
 
 # ------------------------------------------------------------------------------
@@ -201,42 +166,24 @@ fjoin_right <- function(
 ) {
 
   check_arg_order(order)
+  order.y <- order == "y"
 
-  if (order == "y") {
-    dtjoin(
-      .DT        = x,
-      .i         = y,
-      on         = on,
-      mult       = mult.y,
-      mult.DT    = mult.x,
-      nomatch    = NA,
-      nomatch.DT = NULL,
-      i.main     = FALSE,
-      match.na   = match.na,
-      on.first   = on.first,
-      preserve   = preserve,
-      indicate   = indicate,
-      prefix     = prefix,
-      do         = do
-    )
-  } else {
-    dtjoin(
-      .DT        = y,
-      .i         = x,
-      on         = flip_on(on),
-      mult       = mult.x,
-      mult.DT    = mult.y,
-      nomatch    = NULL,
-      nomatch.DT = NA,
-      i.main     = TRUE,
-      match.na   = match.na,
-      on.first   = on.first,
-      preserve   = preserve,
-      indicate   = indicate,
-      prefix     = prefix,
-      do         = do
-    )
-  }
+  dtjoin(
+    .DT        = if (order.y) x else y,
+    .i         = if (order.y) y else x,
+    on         = if (order.y) on else flip_on(on),
+    mult       = mult.y,
+    mult.DT    = mult.x,
+    nomatch    = if (order.y) NA else NULL,
+    nomatch.DT = if (order.y) NULL else NA,
+    i.main     = !order.y,
+    match.na   = match.na,
+    on.first   = on.first,
+    preserve   = preserve,
+    indicate   = indicate,
+    prefix     = prefix,
+    do         = do
+  )
 }
 
 # ------------------------------------------------------------------------------
@@ -271,42 +218,24 @@ fjoin_full <- function(
 ) {
 
   check_arg_order(order)
+  order.x <- order == "x"
 
-  if (order == "x") {
-    dtjoin(
-      .DT        = y,
-      .i         = x,
-      on         = flip_on(on),
-      mult       = mult.x,
-      mult.DT    = mult.y,
-      nomatch    = NA,
-      nomatch.DT = NA,
-      i.main     = TRUE,
-      match.na   = match.na,
-      on.first   = on.first,
-      preserve   = preserve,
-      indicate   = indicate,
-      prefix     = prefix,
-      do         = do
-    )
-  } else {
-    dtjoin(
-      .DT        = x,
-      .i         = y,
-      on         = on,
-      mult       = mult.y,
-      mult.DT    = mult.x,
-      nomatch    = NA,
-      nomatch.DT = NA,
-      i.main     = FALSE,
-      match.na   = match.na,
-      on.first   = on.first,
-      preserve   = preserve,
-      indicate   = indicate,
-      prefix     = prefix,
-      do         = do
-    )
-  }
+  dtjoin(
+    .DT        = if (order.x) y else x,
+    .i         = if (order.x) x else y,
+    on         = if (order.x) flip_on(on) else on,
+    mult       = if (order.x) mult.x else mult.y,
+    mult.DT    = if (order.x) mult.y else mult.x,
+    nomatch    = NA,
+    nomatch.DT = NA,
+    i.main     = order.x,
+    match.na   = match.na,
+    on.first   = on.first,
+    preserve   = preserve,
+    indicate   = indicate,
+    prefix     = prefix,
+    do         = do
+  )
 }
 
 # ------------------------------------------------------------------------------
@@ -492,22 +421,13 @@ fjoin_cross <- function(
 ) {
 
   check_arg_order(order)
+  order.x <- order == "x"
 
-  if (order == "x") {
-    dtjoin_cross(
-      .DT        = y,
-      .i         = x,
-      i.main     = TRUE,
-      prefix     = prefix,
-      do         = do
-    )
-  } else {
-    dtjoin_cross(
-      .DT        = x,
-      .i         = y,
-      i.main     = FALSE,
-      prefix     = prefix,
-      do         = do
-    )
-  }
+  dtjoin_cross(
+    .DT        = if (order.x) y else x,
+    .i         = if (order.x) x else y,
+    i.main     = order.x,
+    prefix     = prefix,
+    do         = do
+  )
 }
