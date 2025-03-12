@@ -46,8 +46,8 @@
 #'
 #' @export
 fjoin_inner <- function(
-    x,
-    y,
+    x         = NULL,
+    y         = NULL,
     on,
     match.na  = FALSE,
     mult.x    = "all",
@@ -57,7 +57,7 @@ fjoin_inner <- function(
     prefix    = "R.",
     on.first  = FALSE,
     preserve  = FALSE,
-    do        = TRUE
+    do        = !(is.null(x) && is.null(y))
 ) {
 
   check_arg_order(order)
@@ -99,8 +99,8 @@ fjoin_inner <- function(
 #'
 #' @export
 fjoin_left <- function(
-    x,
-    y,
+    x         = NULL,
+    y         = NULL,
     on,
     match.na  = FALSE,
     mult.x    = "all",
@@ -110,7 +110,7 @@ fjoin_left <- function(
     prefix    = "R.",
     on.first  = FALSE,
     preserve  = FALSE,
-    do        = TRUE
+    do        = !(is.null(x) && is.null(y))
 ) {
 
   check_arg_order(order)
@@ -151,8 +151,8 @@ fjoin_left <- function(
 #'
 #' @export
 fjoin_right <- function(
-    x,
-    y,
+    x         = NULL,
+    y         = NULL,
     on,
     match.na  = FALSE,
     mult.x    = "all",
@@ -162,7 +162,7 @@ fjoin_right <- function(
     prefix    = "R.",
     on.first  = FALSE,
     preserve  = FALSE,
-    do        = TRUE
+    do        = !(is.null(x) && is.null(y))
 ) {
 
   check_arg_order(order)
@@ -203,8 +203,8 @@ fjoin_right <- function(
 #'
 #' @export
 fjoin_full <- function(
-    x,
-    y,
+    x         = NULL,
+    y         = NULL,
     on,
     match.na  = FALSE,
     mult.x    = "all",
@@ -214,7 +214,7 @@ fjoin_full <- function(
     indicate  = FALSE,
     prefix    = "R.",
     preserve  = FALSE,
-    do        = TRUE
+    do        = !(is.null(x) && is.null(y))
 ) {
 
   check_arg_order(order)
@@ -257,13 +257,13 @@ fjoin_full <- function(
 #' @aliases fjoin_semi
 #' @export
 fjoin_left_semi <- function(
-    x,
-    y,
+    x         = NULL,
+    y         = NULL,
     on,
     match.na  = FALSE,
     mult.x    = "all",
     mult.y    = "all",
-    do        = TRUE
+    do        = !(is.null(x) && is.null(y))
 ) {
   dtjoin_semi_i(
     .DT       = y,
@@ -296,13 +296,13 @@ fjoin_semi <- fjoin_left_semi
 #'
 #' @export
 fjoin_right_semi <- function(
-    x,
-    y,
+    x         = NULL,
+    y         = NULL,
     on,
     match.na  = FALSE,
     mult.x    = "all",
     mult.y    = "all",
-    do        = TRUE
+    do        = !(is.null(x) && is.null(y))
 ) {
   dtjoin_semi_i(
     .DT       = x,
@@ -334,8 +334,8 @@ fjoin_right_semi <- function(
 #' @aliases fjoin_anti
 #' @export
 fjoin_left_anti <- function(
-    x,
-    y,
+    x         = NULL,
+    y         = NULL,
     on,
     match.na  = FALSE,
     mult.x    = "all",
@@ -343,7 +343,7 @@ fjoin_left_anti <- function(
     preserve  = FALSE,
     indicate  = FALSE,
     prefix    = "R.",
-    do        = TRUE
+    do        = !(is.null(x) && is.null(y))
 ) {
   dtjoin_anti_DT(
     .DT       = x,
@@ -376,8 +376,8 @@ fjoin_anti <- fjoin_left_anti
 #'
 #' @export
 fjoin_right_anti <- function(
-    x,
-    y,
+    x         = NULL,
+    y         = NULL,
     on,
     match.na  = FALSE,
     mult.x    = "all",
@@ -385,7 +385,7 @@ fjoin_right_anti <- function(
     preserve  = FALSE,
     indicate  = FALSE,
     prefix    = "R.",
-    do        = TRUE
+    do        = !(is.null(x) && is.null(y))
 ) {
   dtjoin_anti_DT(
     .DT       = y,
