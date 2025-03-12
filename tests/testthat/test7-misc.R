@@ -59,8 +59,8 @@ test_that("do FALSE but .i not a data.frame", {
 # ------------------------------------------------------------------------------
 # data.table not loaded
 
-# THIS SECTION SEEMS TO BE THE CAUSE OF R CMD CHECK FAILURES ON GITHUB
-# ALTHOUGH THEY ARE FINE WHEN RUN LOCALLY VIA DEVTOOLS
+# This section isolated as the cause of R CMD check segfault errors on github
+# (though they run fine on locally on Windows)
 
 # detach(package:data.table, unload=TRUE)
 #
@@ -152,7 +152,6 @@ test_that("true/false arg check", {
     expect_error("Argument 'match.na' must be TRUE or FALSE")
 })
 
-
 # ------------------------------------------------------------------------------
 # strsplit_predicate and flip_on
 
@@ -161,22 +160,3 @@ flip_on("id1>=id2")
 
 strsplit_predicate("    id1   >=id2")
 flip_on("    id1   >=id2")
-
-# ------------------------------------------------------------------------------
-# .DT taller than .i
-
-# ------------------------------------------------------------------------------
-# i.main
-
-# ------------------------------------------------------------------------------
-# on.first
-
-# ------------------------------------------------------------------------------
-# preserve
-
-# ------------------------------------------------------------------------------
-# no garbling
-
-# ------------------------------------------------------------------------------
-# indicate
-
