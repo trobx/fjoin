@@ -340,7 +340,7 @@ dtjoin <- function(
       }
     }
     jointext <-
-      sprintf("setDT(%s%s[%s, on = %s, %s%s%s%s%s])",
+      sprintf("setDT(%s%s[%s, on = %s, %s%s%s%s%s])[]",
               .DTtext,
               argtext_indicate,
               .itext,
@@ -365,7 +365,7 @@ dtjoin <- function(
       }
     }
     jointext <-
-      sprintf("setDT(setDT(%s[%s, on = %s, nomatch = NULL, mult = %s, data.frame(%s%s, fjoin.i.rn)%s])[%s, on = \"fjoin.i.rn\", %s%s%s])",
+      sprintf("setDT(setDT(%s[%s, on = %s, nomatch = NULL, mult = %s, data.frame(%s%s, fjoin.i.rn)%s])[%s, on = \"fjoin.i.rn\", %s%s%s])[]",
               .itext,
               .DTtext,
               deparse(flip_on(on)),
@@ -394,7 +394,7 @@ dtjoin <- function(
         }
       }
       jointext <-
-        sprintf("setDT(setDT(%s[%s, on = %s, nomatch = NULL, %s%s%s])[%s%s]%s)",
+        sprintf("setDT(setDT(%s[%s, on = %s, nomatch = NULL, %s%s%s])[%s%s]%s)[]",
         .DTtext,
                 .itext,
                 deparse(on),
