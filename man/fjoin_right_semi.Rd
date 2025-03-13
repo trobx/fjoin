@@ -5,17 +5,19 @@
 \title{Right semi-join}
 \usage{
 fjoin_right_semi(
-  x,
-  y,
+  x = NULL,
+  y = NULL,
   on,
   match.na = FALSE,
   mult.x = "all",
   mult.y = "all",
-  do = TRUE
+  do = !(is.null(x) && is.null(y))
 )
 }
 \arguments{
-\item{x, y}{\code{data.table}s}
+\item{x, y}{If \code{do} is \code{TRUE}, i.e. you intend to run the join, a
+pair of \code{data.table}s. Otherwise any kind of data.frames, or else
+both omitted (\code{NULL}) for a mock join statement with no data.}
 
 \item{on}{A character vector of join predicates, e.g. \code{c("id", "col_x ==
 col_y", "date < date")}, passed to the \code{on} argument of

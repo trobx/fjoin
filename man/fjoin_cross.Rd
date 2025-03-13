@@ -7,7 +7,9 @@
 fjoin_cross(x, y, order = "x", prefix = "R.", do = TRUE)
 }
 \arguments{
-\item{x, y}{\code{data.table}s}
+\item{x, y}{If \code{do} is \code{TRUE}, i.e. you intend to run the join, a
+pair of \code{data.table}s. Otherwise any kind of data.frames, or else
+both omitted (\code{NULL}) for a mock join statement with no data.}
 
 \item{order}{Whether the row order of the result should reflect \code{x} then
 \code{y} (\code{"x"}) or \code{y} then \code{x} (\code{"y"}). Default is
@@ -15,7 +17,7 @@ fjoin_cross(x, y, order = "x", prefix = "R.", do = TRUE)
 joins.}
 
 \item{prefix}{A prefix to attach to column names in \code{y} that are the
-same as a column name in \code{x}. Default \code{"R"}.}
+same as a column name in \code{x}. Default \code{"R."}.}
 
 \item{do}{Whether to execute the join. Default is \code{TRUE} unless \code{x}
 and \code{y} are both omitted/\code{NULL}, in which case a mock join

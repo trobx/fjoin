@@ -5,8 +5,8 @@
 \title{Right anti-join}
 \usage{
 fjoin_right_anti(
-  x,
-  y,
+  x = NULL,
+  y = NULL,
   on,
   match.na = FALSE,
   mult.x = "all",
@@ -14,11 +14,13 @@ fjoin_right_anti(
   preserve = FALSE,
   indicate = FALSE,
   prefix = "R.",
-  do = TRUE
+  do = !(is.null(x) && is.null(y))
 )
 }
 \arguments{
-\item{x, y}{\code{data.table}s}
+\item{x, y}{If \code{do} is \code{TRUE}, i.e. you intend to run the join, a
+pair of \code{data.table}s. Otherwise any kind of data.frames, or else
+both omitted (\code{NULL}) for a mock join statement with no data.}
 
 \item{on}{A character vector of join predicates, e.g. \code{c("id", "col_x ==
 col_y", "date < date")}, passed to the \code{on} argument of
@@ -47,7 +49,7 @@ joined from both tables. C.f. the _merge option in Stata. Default
 \code{FALSE}.}
 
 \item{prefix}{A prefix to attach to column names in \code{y} that are the
-same as a column name in \code{x}. Default \code{"R"}.}
+same as a column name in \code{x}. Default \code{"R."}.}
 
 \item{do}{Whether to execute the join. Default is \code{TRUE} unless \code{x}
 and \code{y} are both omitted/\code{NULL}, in which case a mock join
