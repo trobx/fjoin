@@ -3,7 +3,9 @@
 #' @description
 #' Inner join of \code{x} and \code{y}
 #'
-#' @param x,y \code{data.table}s
+#' @param x,y If \code{do} is \code{TRUE}, i.e. you intend to run the join, a
+#'   pair of \code{data.table}s. Otherwise any kind of data.frames, or else
+#'   both omitted (\code{NULL}) for a mock join statement with no data.
 #' @param on A character vector of join predicates, e.g. \code{c("id", "col_x ==
 #'   col_y", "date < date")}, passed to the \code{on} argument of
 #'   \code{[.data.table}.
@@ -27,7 +29,7 @@
 #' @param on.first Whether to place the join columns first in the join result.
 #'   Default \code{FALSE}.
 #' @param prefix A prefix to attach to column names in \code{y} that are the
-#'   same as a column name in \code{x}. Default \code{"R"}.
+#'   same as a column name in \code{x}. Default \code{"R."}.
 #' @param preserve (rarely used) Whether to include \code{y}'s equality join
 #'   column(s) in addition to \code{x}'s (equivalent to "keep" in dplyr).
 #'   Default \code{FALSE}. Note that non-equality join columns from \code{x} are
