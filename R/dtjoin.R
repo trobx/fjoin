@@ -5,8 +5,8 @@
 #'     join with efficient enhancements. Permits left, right, inner, and full
 #'     joins, prevents unwanted matches on \code{NA} and \code{NaN} by default,
 #'     does not garble join columns in non-equality joins, allows 'mult' on both
-#'     sides of the join, and provides convenience options to control column
-#'     order and prefixing.
+#'     sides of the join, creates an optional join indicator column, and
+#'     provides convenience options to control column order and prefixing.
 #'
 #' @param .DT,.i If \code{do} is \code{TRUE}, i.e. you intend to run the join, a
 #'   pair of \code{data.table}s. Otherwise any kind of data.frames, or else
