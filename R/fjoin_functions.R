@@ -184,7 +184,7 @@ fjoin_right <- function(
     nomatch    = if (order.y) NA else NULL,
     nomatch.DT = if (order.y) NULL else NA,
     i.main     = !order.y,
-    .labels    = if (order.x) rev(xylabels) else xylabels,
+    .labels    = if (order.y) rev(xylabels) else xylabels,
     match.na   = match.na,
     on.first   = on.first,
     preserve   = preserve,
