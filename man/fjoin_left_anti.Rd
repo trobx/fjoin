@@ -17,6 +17,19 @@ fjoin_left_anti(
   prefix = "R.",
   do = !(is.null(x) && is.null(y))
 )
+
+fjoin_anti(
+  x = NULL,
+  y = NULL,
+  on,
+  match.na = FALSE,
+  mult.x = "all",
+  mult.y = "all",
+  preserve = FALSE,
+  indicate = FALSE,
+  prefix = "R.",
+  do = !(is.null(x) && is.null(y))
+)
 }
 \arguments{
 \item{x, y}{If \code{do} is \code{TRUE}, i.e. you intend to run the join, a
@@ -64,7 +77,7 @@ A \code{data.table} (the result of the join), or \code{NULL} if
 }
 \description{
 The anti-join of \code{x} in a join of \code{x} and \code{y}.  The alias
-  \code{anti_join} can be used instead.
+  \code{fjoin_anti} can be used instead.
 }
 \examples{
 # TO DO

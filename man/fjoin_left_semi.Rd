@@ -14,6 +14,16 @@ fjoin_left_semi(
   mult.y = "all",
   do = !(is.null(x) && is.null(y))
 )
+
+fjoin_semi(
+  x = NULL,
+  y = NULL,
+  on,
+  match.na = FALSE,
+  mult.x = "all",
+  mult.y = "all",
+  do = !(is.null(x) && is.null(y))
+)
 }
 \arguments{
 \item{x, y}{If \code{do} is \code{TRUE}, i.e. you intend to run the join, a
@@ -48,7 +58,7 @@ A \code{data.table} (the result of the join), or \code{NULL} if
 }
 \description{
 The semi-join of \code{x} in a join of \code{x} and \code{y}. The alias
-  \code{semi_join} can be used instead.
+  \code{fjoin_semi} can be used instead.
 }
 \examples{
 # TO DO
