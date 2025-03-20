@@ -70,18 +70,18 @@ fjoin_inner <- function(
     .DT        = if (order.x) y else x,
     .i         = if (order.x) x else y,
     on         = if (order.x) flip_on(on) else on,
-    mult       = mult.x,
-    mult.DT    = mult.y,
+    mult       = if (order.x) mult.x else mult.y,
+    mult.DT    = if (order.x) mult.y else mult.x,
     nomatch    = NULL,
     nomatch.DT = NULL,
     i.main     = order.x,
+    .labels    = if (order.x) rev(xylabels) else xylabels,
     match.na   = match.na,
     on.first   = on.first,
     preserve   = preserve,
     indicate   = indicate,
     prefix     = prefix,
-    do         = do,
-    .labels    = if (order.x) rev(xylabels) else xylabels
+    do         = do
   )
 
 }
@@ -125,18 +125,18 @@ fjoin_left <- function(
     .DT        = if (order.x) y else x,
     .i         = if (order.x) x else y,
     on         = if (order.x) flip_on(on) else on,
-    mult       = mult.x,
-    mult.DT    = mult.y,
+    mult       = if (order.x) mult.x else mult.y,
+    mult.DT    = if (order.x) mult.y else mult.x,
     nomatch    = if (order.x) NA else NULL,
     nomatch.DT = if (order.x) NULL else NA,
     i.main     = order.x,
+    .labels    = if (order.x) rev(xylabels) else xylabels,
     match.na   = match.na,
     on.first   = on.first,
     preserve   = preserve,
     indicate   = indicate,
     prefix     = prefix,
-    do         = do,
-    .labels    = if (order.x) rev(xylabels) else xylabels
+    do         = do
   )
 }
 
@@ -179,18 +179,18 @@ fjoin_right <- function(
     .DT        = if (order.y) x else y,
     .i         = if (order.y) y else x,
     on         = if (order.y) on else flip_on(on),
-    mult       = mult.y,
-    mult.DT    = mult.x,
+    mult       = if (order.y) mult.y else mult.x,
+    mult.DT    = if (order.y) mult.x else mult.y,
     nomatch    = if (order.y) NA else NULL,
     nomatch.DT = if (order.y) NULL else NA,
     i.main     = !order.y,
+    .labels    = if (order.x) rev(xylabels) else xylabels,
     match.na   = match.na,
     on.first   = on.first,
     preserve   = preserve,
     indicate   = indicate,
     prefix     = prefix,
-    do         = do,
-    .labels    = if (order.y) xylabels else rev(xylabels)
+    do         = do
   )
 }
 
@@ -238,13 +238,13 @@ fjoin_full <- function(
     nomatch    = NA,
     nomatch.DT = NA,
     i.main     = order.x,
+    .labels    = if (order.x) rev(xylabels) else xylabels,
     match.na   = match.na,
     on.first   = on.first,
     preserve   = preserve,
     indicate   = indicate,
     prefix     = prefix,
-    do         = do,
-    .labels    = if (order.x) rev(xylabels) else xylabels
+    do         = do
   )
 }
 
