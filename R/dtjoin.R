@@ -59,6 +59,7 @@
 #'   equality join column(s) in addition to the "home" table's (equivalent to
 #'   "keep" in dplyr). Default \code{FALSE}. Note that non-equality join columns
 #'   from the foreign table are always included separately.
+#' @param ... Additional arguments (for internal use).
 #'
 #' @returns A \code{data.table} (the result of the join), or \code{NULL} if
 #'   \code{do} is \code{FALSE}. The data.table code is always printed to the
@@ -88,8 +89,11 @@ dtjoin <- function(
     i.main     = FALSE,
     i.first    = i.main,
     prefix     = if (i.main) "x." else "i.",
-    preserve   = FALSE
+    preserve   = FALSE,
+    ...
 ) {
+
+  dot_args <- list(...)
 
   check_TF(match.na)
   check_mult(mult)
@@ -114,6 +118,13 @@ dtjoin <- function(
   rename.DT_anti <- outer.DT && i.main
 
   on <- clean_on(on)
+
+  .labels <-
+    if (".labels" %in% names(dot_args)) {
+      dot_args$.labels
+    } else {
+      c(make_label_dtjoin(.DT, substitute(.DT)), make_label_dtjoin(.i, substitute(.i)))
+    }
 
   # ----------------------------------------------------------------------------
 
@@ -448,10 +459,8 @@ dtjoin <- function(
 
   # --------------------------------------------------------------------------
 
-  if (!mock) {
-    cat(".DT :", deparse(substitute(.DT)), "\n")
-    cat(".i  :", deparse(substitute(.i)), "\n")
-  }
+  cat(".DT :", .labels[[1]], "\n")
+  cat(".i  :", .labels[[2]], "\n")
   cat("Join:", jointext, "\n")
 
   if (do) {

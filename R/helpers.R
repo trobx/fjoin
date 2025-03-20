@@ -132,6 +132,17 @@ allows_equi <- function(x) {
 #allows_equi(">")
 
 # ------------------------------------------------------------------------------
+make_label_fjoin <- function(t, sub_t) {
+  # for calling in fjoin_*(): table label for printing, e.g. "x = A", "x (unnamed)"
+  paste0(deparse(substitute(t)), if (!is.null(t) & is.name(sub_t)) sprintf(" = %s", deparse(sub_t)) else " (unnamed)")
+}
+
+make_label_dtjoin <- function(t, sub_t) {
+  # for calling in dtjoin*(): table label for printing, e.g. "A", "(unnamed)"
+  if (!is.null(t) & is.name(sub_t)) deparse(sub_t) else "(unnamed)"
+}
+
+# ------------------------------------------------------------------------------
 make_mock_tables <- function(on) {
   # Create mock data.frames from an 'on' expression
   tmp <- lapply(on, \(x) strsplit_predicate(x))

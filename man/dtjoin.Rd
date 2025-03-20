@@ -20,7 +20,8 @@ dtjoin(
   i.main = FALSE,
   i.first = i.main,
   prefix = if (i.main) "x." else "i.",
-  preserve = FALSE
+  preserve = FALSE,
+  ...
 )
 }
 \arguments{
@@ -89,6 +90,8 @@ are the same as a column name in the "home" table. The default is
 equality join column(s) in addition to the "home" table's (equivalent to
 "keep" in dplyr). Default \code{FALSE}. Note that non-equality join columns
 from the foreign table are always included separately.}
+
+\item{...}{Additional arguments (for internal use).}
 }
 \value{
 A \code{data.table} (the result of the join), or \code{NULL} if
@@ -100,8 +103,8 @@ Write (and optionally run) \code{data.table} code for a \code{DT[i]}-style
     join with efficient enhancements. Permits left, right, inner, and full
     joins, prevents unwanted matches on \code{NA} and \code{NaN} by default,
     does not garble join columns in non-equality joins, allows 'mult' on both
-    sides of the join, and provides convenience options to control column
-    order and prefixing.
+    sides of the join, creates an optional join indicator column, and
+    provides convenience options to control column order and prefixing.
 }
 \examples{
 # Simple mock joins

@@ -64,6 +64,7 @@ fjoin_inner <- function(
 
   check_arg_order(order)
   order.x <- order == "x"
+  xylabels <- c(make_label_fjoin(x, substitute(x)), make_label_fjoin(y, substitute(y)))
 
   dtjoin(
     .DT        = if (order.x) y else x,
@@ -79,7 +80,8 @@ fjoin_inner <- function(
     preserve   = preserve,
     indicate   = indicate,
     prefix     = prefix,
-    do         = do
+    do         = do,
+    .labels    = if (order.x) rev(xylabels) else xylabels
   )
 
 }
@@ -117,6 +119,7 @@ fjoin_left <- function(
 
   check_arg_order(order)
   order.x <- order == "x"
+  xylabels <- c(make_label_fjoin(x, substitute(x)), make_label_fjoin(y, substitute(y)))
 
   dtjoin(
     .DT        = if (order.x) y else x,
@@ -132,7 +135,8 @@ fjoin_left <- function(
     preserve   = preserve,
     indicate   = indicate,
     prefix     = prefix,
-    do         = do
+    do         = do,
+    .labels    = if (order.x) rev(xylabels) else xylabels
   )
 }
 
@@ -169,6 +173,7 @@ fjoin_right <- function(
 
   check_arg_order(order)
   order.y <- order == "y"
+  xylabels <- c(make_label_fjoin(x, substitute(x)), make_label_fjoin(y, substitute(y)))
 
   dtjoin(
     .DT        = if (order.y) x else y,
@@ -184,7 +189,8 @@ fjoin_right <- function(
     preserve   = preserve,
     indicate   = indicate,
     prefix     = prefix,
-    do         = do
+    do         = do,
+    .labels    = if (order.y) xylabels else rev(xylabels)
   )
 }
 
@@ -221,6 +227,7 @@ fjoin_full <- function(
 
   check_arg_order(order)
   order.x <- order == "x"
+  xylabels <- c(make_label_fjoin(x, substitute(x)), make_label_fjoin(y, substitute(y)))
 
   dtjoin(
     .DT        = if (order.x) y else x,
@@ -236,7 +243,8 @@ fjoin_full <- function(
     preserve   = preserve,
     indicate   = indicate,
     prefix     = prefix,
-    do         = do
+    do         = do,
+    .labels    = if (order.x) rev(xylabels) else xylabels
   )
 }
 
