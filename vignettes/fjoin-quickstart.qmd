@@ -29,7 +29,7 @@ dt2 <- data.table(id=4:2, v2=LETTERS[4:2])
 ```
 
 ```{r}
-fjoin_left(dt1, dt2, indicate = TRUE)
+fjoin_left(dt1, dt2, on = "id", indicate = TRUE)
 ```
 
 
