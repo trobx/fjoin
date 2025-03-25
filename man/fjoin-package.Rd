@@ -4,7 +4,10 @@
 \name{fjoin-package}
 \alias{fjoin}
 \alias{fjoin-package}
-\title{fjoin: Fast, Friendly, Fully-featured Joins}
+\title{Vignettes:
+\itemize{
+  \item \href{../doc/fjoin-quickstart.html}{Quickstart Guide}
+}}
 \description{
 Fast and Friendly Joins Powered by data.table. TODO fuller description.
 }

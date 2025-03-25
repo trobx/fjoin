@@ -1,3 +1,8 @@
+#' Vignettes:
+#' \itemize{
+#'   \item \href{../doc/fjoin-quickstart.html}{Quickstart Guide}
+#' }
+#'
 #' @keywords internal
 "_PACKAGE"
 
@@ -7,10 +12,6 @@
 utils::globalVariables(c(".SD"))
 if (FALSE) .SD  # dummy reference
 
-#' ## Vignettes
-#' - \link{vignette("fjoin-quickstart")}: A hands-on introduction
-
 
 ## usethis namespace: start
 ## usethis namespace: end
-NULL
