@@ -1,6 +1,9 @@
 ---
 title: "Dummy vignette in Quarto"
 format: html
+vignette: >
+  %\VignetteEngine{quarto::html}
+  %\VignetteIndexEntry{Dummy vignette in Quarto}
 ---
 
 

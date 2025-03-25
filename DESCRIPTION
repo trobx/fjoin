@@ -22,5 +22,5 @@ Suggests:
 URL: https://github.com/trobx/fjoin
 BugReports: https://github.com/trobx/fjoin/issues
 Config/testthat/edition: 3
-VignetteBuilder: quarto
+VignetteBuilder: knitr, quarto
 RoxygenNote: 7.3.2
