@@ -1,0 +1,12 @@
+---
+title: "Dummy vignette in Quarto"
+format: html
+---
+
+
+This is garbage text.
+
+```{r}
+fjoin::fjoin_inner(on="id")
+```
+

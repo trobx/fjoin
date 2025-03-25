@@ -1,8 +1,8 @@
 ---
-title: "getting-started"
+title: "Dummy vignette in Rmarkdown"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{getting-started}
+  %\VignetteIndexEntry{Dummy vignette in Rmarkdown}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -17,3 +17,9 @@ knitr::opts_chunk$set(
 ```{r setup}
 library(fjoin)
 ```
+
+Some dummy text.
+```{r}
+fjoin_full(on="t>t", mult.x="last")
+```
+
