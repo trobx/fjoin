@@ -4,6 +4,7 @@ format: html
 vignette: >
   %\VignetteEngine{quarto::html}
   %\VignetteIndexEntry{Quickstart Guide to fjoin}
+  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r setup, include=FALSE}
