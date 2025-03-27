@@ -18,6 +18,7 @@ Suggests:
     testthat (>= 3.0.0),
     dplyr (>= 1.0.0),
     knitr,
+    quarto,
     rmarkdown
 URL: https://github.com/trobx/fjoin
 BugReports: https://github.com/trobx/fjoin/issues
