@@ -2,8 +2,8 @@
 title: "Performance check of fjoin against merge.data.table, dplyr, and collapse"
 format: html
 vignette: >
-  %\VignetteEngine{quarto::html}
-  %\VignetteIndexEntry{Quickstart Guide to fjoin}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{Performance check against merge.data.table, dplyr, collapse}
   %\VignetteEncoding{UTF-8}
 ---
 
@@ -140,14 +140,14 @@ as.MB <- function(x) sprintf("%.0fMB", x/1024^2) # actually these are MiB
 ```
 
 - Two tables `big` and `small`, with an integer join column `id`. Other columns are numeric.
-  - `big`: `{r} as.M(info$nr_big)` rows, `{r} info$nc_big` columns, size `{r} as.GB(info$objsize_big)`
-  - `small`: `{r} as.K(info$nr_small)` rows, `{r} info$nc_small` columns, size `{r} as.MB(info$objsize_small)`
+  - `big`: `r as.M(info$nr_big)` rows, `r info$nc_big` columns, size `r as.GB(info$objsize_big)`
+  - `small`: `r as.K(info$nr_small)` rows, `r info$nc_small` columns, size `r as.MB(info$objsize_small)`
 
-- The cardinality is M:1 from `big` to `small`. Both tables have `{r} info$ndistinct` distinct values of `id`. In `small` these are unique while in `big` each `id` is present `{r} info$nr_big/info$ndistinct` times.
+- The cardinality is M:1 from `big` to `small`. Both tables have `r info$ndistinct` distinct values of `id`. In `small` these are unique while in `big` each `id` is present `r info$nr_big/info$ndistinct` times.
 
-- In each table `{r} 100*(1-info$propn_anti)`% of the distinct `id`s (and hence of the rows) have a match in the other table.
+- In each table `r 100*(1-info$propn_anti)`% of the distinct `id`s (and hence of the rows) have a match in the other table.
 
-- Initially both tables are randomly ordered and there are no missing `id`s in either table. In scenarios with missing `id`s, `{r} 100*info$propn_NA`% of the values of `id` in each table are `NA`.
+- Initially both tables are randomly ordered and there are no missing `id`s in either table. In scenarios with missing `id`s, `r 100*info$propn_NA`% of the values of `id` in each table are `NA`.
 
 ##### Solutions
 All solutions are tested with like-for-like arguments, suspending any differences in their defaults:
@@ -163,17 +163,14 @@ In the scenario with missing values, the *dplyr* solutions are run with the furt
 
 ##### Version and system info
 ```{r echo=FALSE}
-lapply(info$packages, \(x) cat(x, "\n"))
-cat(
-  info$rversion, "\n",
-  info$sysinfo, "\n",
-  info$cpu, "\n",
-  "Cores:", info$cores, "\n",
-  "Threads:", info$threads, "\n",
-  "RAM (GB):", info$ram, "\n" 
-)
+cat(paste(info$packages,collapse="\n"))
+cat(info$rversion, "\n")
+cat(info$sysname, "\n")
+cat(info$cpu, "\n")
+cat("Cores:", info$cores, "\n")
+cat("Threads:", info$threads, "\n")
+cat("RAM (GB):", info$ram, "\n")
 ```
-
 ```{r eval=FALSE, include=FALSE}
 
 LEFT <- data.table(id=1:3, L=paste0("L",1:3))
