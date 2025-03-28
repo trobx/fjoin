@@ -139,14 +139,11 @@ as.GB <- function(x) sprintf("%.1fGB", x/1024^3) # actually these are GiB
 as.MB <- function(x) sprintf("%.0fMB", x/1024^2) # actually these are MiB
 ```
 
-- Two tables `big` and `small`, with an integer join column `id`. Other columns are numeric.
+- Two tables, each with an integer join column `id` and other columns numeric.
   - `big`: `r as.M(info$nr_big)` rows, `r info$nc_big` columns, size `r as.GB(info$objsize_big)`
   - `small`: `r as.K(info$nr_small)` rows, `r info$nc_small` columns, size `r as.MB(info$objsize_small)`
-
 - The cardinality is M:1 from `big` to `small`. Both tables have `r info$ndistinct` distinct values of `id`. In `small` these are unique while in `big` each `id` is present `r info$nr_big/info$ndistinct` times.
-
 - In each table `r 100*(1-info$propn_anti)`% of the distinct `id`s (and hence of the rows) have a match in the other table.
-
 - Initially both tables are randomly ordered and there are no missing `id`s in either table. In scenarios with missing `id`s, `r 100*info$propn_NA`% of the values of `id` in each table are `NA`.
 
 ##### Solutions
