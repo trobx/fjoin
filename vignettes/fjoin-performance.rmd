@@ -1,0 +1,203 @@
+---
+title: "Performance check of fjoin against merge.data.table, dplyr, and collapse"
+format: html
+vignette: >
+  %\VignetteEngine{quarto::html}
+  %\VignetteIndexEntry{Quickstart Guide to fjoin}
+  %\VignetteEncoding{UTF-8}
+---
+
+This exercise is a comfort check on the performance of *fjoin* against alternatives on simple equality joins with moderately large laptop-size data. The solutions tested are: *fjoin*, *data.table* `merge()` (i.e `merge.data.table`), *dplyr*, and *collapse*. It does not do justice to the much more comprehensive join functionality offered by *fjoin* and *dplyr* as compared with the other two.
+
+*fjoin* emerges as the most robust and fastest-performing solution, faster than `merge()` in some joins. This fact, combined with its versatility out of the box, its convenience features, and sensible defaults, confirms the strength of *fjoin* as a one-stop shop for joins in R.
+
+### Description
+Details plus version and system information are at the bottom of this note. The setup consists of two tables, one "big" (>4GB, 100M rows) and one "small" (100K rows), joined by equality on a single integer column. We look at the four true joins (inner, left, right, full), swapping the argument positions of the big and small tables. Both tables are randomly ordered in the first set of runs, and keyed in the second. All solutions are tested with like-for-like arguments.
+
+The exercise is then repeated for the case where there are missing values in the join column on each side, which must not be treated as matches (but whose rows must be retained in the result where appropriate). This comparison is limited to *fjoin* and *dplyr*, which are the only two where this is possible, although it is standard outside R.
+
+### Results
+
+#### Main observations
+
+- *fjoin* is the fastest solution overall (while *dplyr* is the least fast), and is never appreciably slower than another solution in any of the ~40 joins considered  
+
+- not suprisingly, its performance is similar to `merge.data.table()` (where comparison is possible) since both use equivalent *data.table* code for inner and left joins. However, it is faster for right and full joins when the cost of the join is large, because it avoids recomputing it for the anti-join of the right table.
+
+- these two *data.table* solutions are much more robust to switching the order of the tables than *collapse* and *dplyr*.
+
+- when the data are ordered, the differences among the solutions are small: all solutions are fast.
+
+- disallowing NA matches is very fast (this is the case for *dplyr* also). There is essentially no difference in execution time when missing values are introduced and matches on them are excluded. 
+
+```{r echo=FALSE}
+data_dir <- file.path("fjoin-performance_data") # relative to "vignettes" folder
+library(data.table)
+```
+
+```{r  echo=FALSE}
+store1 <- qs::qread(file.path(data_dir, "store1.qs"))
+store2 <- qs::qread(file.path(data_dir, "store2.qs"))
+store3 <- qs::qread(file.path(data_dir, "store3.qs"))
+store4 <- qs::qread(file.path(data_dir, "store4.qs"))
+
+for (d in list(store3,store4)) setnames(d,"position","xyargs",skip_absent=TRUE)
+for (d in list(store3,store4)) d[, soln := factor(soln, levels=c("fjoin","merge","dplyr","collapse"))]
+
+k <- 27 # y-axis height
+```
+
+```{r echo=FALSE}
+
+pal <- c(
+  "#B8860B",
+  "grey60",
+  "#66C2A5",
+  "#1B9E77"
+)
+
+pl <- function(x) {
+  library(ggplot2)
+  ggplot(x, aes(x = soln, y = ifelse(is.na(median_secs), 0, median_secs), fill = soln)) +
+    geom_bar(stat = "identity", position = "dodge") +
+    geom_text(aes(label = sprintf("%.1f", median_secs)), vjust = -0.3, size = 3) +
+    facet_grid(forcats::fct_inorder(style) ~ forcats::fct_inorder(xyargs), switch = "y") +
+    scale_fill_manual(values = pal) +
+    #facet_wrap(~ interaction(forcats::fct_inorder(position), forcats::fct_inorder(style)), scales = "free_x", ncol = 2) +
+    #facet_wrap(~ interaction(forcats::fct_inorder(style), forcats::fct_inorder(position)), scales = "free_x", ncol = 4) +
+    scale_y_continuous(limits = c(0, k)) +
+    #theme_minimal() +
+    theme(
+      legend.position = "none",
+      axis.title.y = element_blank(),
+      axis.text.y = element_blank(),
+      axis.ticks.y = element_blank(),
+      #strip.placement.y = "left",
+      strip.text.y.left = element_text(angle = 0),
+    ) +
+    labs(
+      x = NULL,
+      title = x[, unique(description)],
+      subtitle = sprintf("median time in secs, %s runs per join",x[, unique(na.omit(N))])
+      )
+}
+
+kt <- function(dat) {
+  kableExtra::kbl(dat[, .(total_secs = round(sum(median_secs), 1)), keyby=.(solution=soln)],
+                  format="html") |>
+    kableExtra::kable_styling(full_width = FALSE)
+}
+
+tab <- function(dat) dat[, .(total_secs = round(sum(median_secs), 1)), keyby=.(solution=soln)]
+```
+
+##### 1a: No missing values, tables unordered
+Total is sum of median times for inner, left and full joins. Right joins excluded as not comparable among the non-*fjoin* solutions.
+```{r echo=FALSE}
+kt(store1[!style %ilike% "right join"])
+```
+```{r echo=FALSE}
+pl(store1)
+```
+
+##### 1b: No missing values, both tables keyed
+Total is sum of median times for inner, left and full joins. Right joins excluded as not comparable among the non-*fjoin* solutions.
+```{r echo=FALSE}
+kt(store2[!style %ilike% "right join"])
+```
+```{r echo=FALSE}
+pl(store2)
+```
+
+##### 2a: Missing values (matches disallowed), tables unordered
+Total is sum of median times for inner, left and full joins. Right joins excluded for comparability with the previous scenario.
+```{r echo=FALSE}
+kt(store3[!style %ilike% "right join"])
+```
+```{r echo=FALSE}
+pl(store3)
+```
+
+##### 2b: Missing values (matches disallowed), both tables keyed
+Total is sum of median times for inner, left and full joins. Right joins excluded for comparability with the previous scenario.
+```{r echo=FALSE}
+kt(store4[!style %ilike% "right join"])
+```
+```{r echo=FALSE}
+pl(store4)
+```
+
+### Setup details
+```{r echo=FALSE}
+load(file.path(data_dir,"info.RData"))
+```
+##### Data
+```{r echo=FALSE}
+as.M <- function(x) {stopifnot(x/1e6==round(x/1e6)); sprintf("%dM", x/1e6)}
+as.K <- function(x) {stopifnot(x/1e3==round(x/1e3)); sprintf("%dK", x/1e3)}
+as.GB <- function(x) sprintf("%.1fGB", x/1024^3) # actually these are GiB
+as.MB <- function(x) sprintf("%.0fMB", x/1024^2) # actually these are MiB
+```
+
+- Two tables `big` and `small`, with an integer join column `id`. Other columns are numeric.
+  - `big`: `{r} as.M(info$nr_big)` rows, `{r} info$nc_big` columns, size `{r} as.GB(info$objsize_big)`
+  - `small`: `{r} as.K(info$nr_small)` rows, `{r} info$nc_small` columns, size `{r} as.MB(info$objsize_small)`
+
+- The cardinality is M:1 from `big` to `small`. Both tables have `{r} info$ndistinct` distinct values of `id`. In `small` these are unique while in `big` each `id` is present `{r} info$nr_big/info$ndistinct` times.
+
+- In each table `{r} 100*(1-info$propn_anti)`% of the distinct `id`s (and hence of the rows) have a match in the other table.
+
+- Initially both tables are randomly ordered and there are no missing `id`s in either table. In scenarios with missing `id`s, `{r} 100*info$propn_NA`% of the values of `id` in each table are `NA`.
+
+##### Solutions
+All solutions are tested with like-for-like arguments, suspending any differences in their defaults:
+
+- no cardinality checks (`dplyr::*_join(..., relationship = "many-to-many")`)
+- no post-join sorting (`merge(..., sort = FALSE)`)
+- no tests for `NA`/`NaN` values (`fjoin::fjoin_*(..., match.na = TRUE)`)
+- multiple matches accepted (`collapse::join(..., multiple = TRUE)`)
+
+(*fjoin*'s `match.na = FALSE` default check for missing values actually has negligible cost, and in practice it is not worth suspending even when the data are known to be free of missing values.)
+
+In the scenario with missing values, the *dplyr* solutions are run with the further argument `na.matches = "never"`, while *fjoin* is run on default arguments, which exclude such matches.
+
+##### Version and system info
+```{r echo=FALSE}
+lapply(info$packages, \(x) cat(x, "\n"))
+cat(
+  info$rversion, "\n",
+  info$sysinfo, "\n",
+  info$cpu, "\n",
+  "Cores:", info$cores, "\n",
+  "Threads:", info$threads, "\n",
+  "RAM (GB):", info$ram, "\n" 
+)
+```
+
+```{r eval=FALSE, include=FALSE}
+
+LEFT <- data.table(id=1:3, L=paste0("L",1:3))
+RIGHT <- data.table(id=4:2, R=paste0("R",1:3))
+LEFT
+RIGHT
+
+# all joins order by LEFT...
+fjoin_left_no_NA_check(LEFT, RIGHT)
+merge_left_no_NA_check(LEFT, RIGHT)
+dplyr_left_no_NA_check(LEFT, RIGHT)
+collapse_left_no_NA_check(LEFT, RIGHT)
+
+fjoin_full_no_NA_check(LEFT, RIGHT)
+merge_full_no_NA_check(LEFT, RIGHT)
+dplyr_full_no_NA_check(LEFT, RIGHT)
+collapse_full_no_NA_check(LEFT, RIGHT)
+
+# except for right joins where behaviour differs
+fjoin_right_no_NA_check(LEFT, RIGHT)
+fjoin_right_order_left_no_NA_check(LEFT, RIGHT) # sorts left (using order="x")
+merge_right_no_NA_check(LEFT, RIGHT) # sorts left
+dplyr_right_no_NA_check(LEFT, RIGHT) # sorts left
+collapse_right_no_NA_check(LEFT, RIGHT)
+fjoin_right_no_NA_check(LEFT, RIGHT)
+```
+
