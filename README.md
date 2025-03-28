@@ -1,4 +1,4 @@
-# fjoin
+# fjoin <img src="man/figures/logo.png" align="right" height="138" alt="" />
 Fast, friendly, fully-featured joins built with data.table
 
 <!-- badges: start -->
