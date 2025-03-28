@@ -2,3 +2,41 @@ url: ~
 template:
   bootstrap: 5
 
+reference:
+
+- title: The `fjoin_*` family
+  desc: >
+    Fast joins in a familiar style
+- subtitle: True joins
+  contents:
+  - fjoin_inner
+  - fjoin_left
+  - fjoin_right
+  - fjoin_full
+- subtitle: Semi-joins
+  contents:
+  - fjoin_left_semi
+  - fjoin_right_semi
+- subtitle: Anti-joins
+  contents:
+  - fjoin_left_anti
+  - fjoin_right_anti
+- subtitle: Cross-joins
+  contents:
+  - fjoin_cross
+
+- title: The `dtjoin*` family
+  desc: >
+    An extended interface for `DT[i]`-style data.table joins
+- subtitle: True joins
+  contents:
+  - dtjoin
+- subtitle: Semi-joins
+  contents:
+  - dtjoin_semi_i
+- subtitle: Anti-joins
+  contents:
+  - dtjoin_anti_DT
+- subtitle: Cross-joins
+  contents:
+  - dtjoin_cross

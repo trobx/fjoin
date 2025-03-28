@@ -2,7 +2,7 @@
 % Please edit documentation in R/dtjoin.R
 \name{dtjoin}
 \alias{dtjoin}
-\title{Enhanced and friendlier \code{DT[i]}-style data.table joins}
+\title{Enhanced and extended \code{DT[i]}-style data.table joins}
 \usage{
 dtjoin(
   .DT = NULL,

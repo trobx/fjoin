@@ -1,4 +1,4 @@
-#' Enhanced and friendlier \code{DT[i]}-style data.table joins
+#' Enhanced and extended \code{DT[i]}-style data.table joins
 #'
 #' @description
 #' Write (and optionally run) \code{data.table} code for a \code{DT[i]}-style
