@@ -36,10 +36,10 @@ library(data.table)
 ```
 
 ```{r  echo=FALSE}
-store1 <- qs::qread(file.path(data_dir, "store1.qs"))
-store2 <- qs::qread(file.path(data_dir, "store2.qs"))
-store3 <- qs::qread(file.path(data_dir, "store3.qs"))
-store4 <- qs::qread(file.path(data_dir, "store4.qs"))
+store1 <- readRDS(file.path(data_dir, "store1.rds"))
+store2 <- readRDS(file.path(data_dir, "store2.rds"))
+store3 <- readRDS(file.path(data_dir, "store3.rds"))
+store4 <- readRDS(file.path(data_dir, "store4.rds"))
 
 for (d in list(store3,store4)) setnames(d,"position","xyargs",skip_absent=TRUE)
 for (d in list(store3,store4)) d[, soln := factor(soln, levels=c("fjoin","merge","dplyr","collapse"))]
