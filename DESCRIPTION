@@ -17,7 +17,6 @@ Suggests:
     data.table,
     testthat (>= 3.0.0),
     dplyr (>= 1.0.0),
-    qs,
     kableExtra,
     ggplot2,
     forcats,
