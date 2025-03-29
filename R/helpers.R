@@ -51,15 +51,6 @@ clean_up <- function(.DT, .i) {
   suppressWarnings(data.table::set(.i, j = "fjoin.i.rn", value = NULL))
 }
 
-# This was:
-# if (is.name(substitute(.DT))) {
-#   if (add_DT_dummy_col) suppressWarnings(set(.DT, j = "fjoin.ind", value = NULL))
-#   if (has_mult.i) {
-#     suppressWarnings(set(.DT, j = "fjoin.DT.rn", value = NULL))
-#     suppressWarnings(set(.i, j = "fjoin.i.rn", value = NULL))
-#   }
-# }
-
 # ------------------------------------------------------------------------------
 # much faster than trimws
 fast_trimws <- function(x) gsub("^\\s+|\\s+$", "", x)
