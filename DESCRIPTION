@@ -13,8 +13,9 @@ Description: Fast and Friendly Joins Powered by data.table.
     TODO fuller description.
 License: GPL-3
 Encoding: UTF-8
+Imports: 
+    data.table
 Suggests: 
-    data.table,
     testthat (>= 3.0.0),
     dplyr (>= 1.0.0),
     kableExtra,

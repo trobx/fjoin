@@ -25,8 +25,6 @@ check_nomatch <- function(x) {
 # ------------------------------------------------------------------------------
 check_setup <- function(do, .DT, .i) {
   if (do) {
-    if (!isNamespaceLoaded("data.table"))
-      stop("Argument 'do' is TRUE but data.table is not loaded")
     if (!data.table::is.data.table(.DT))
       stop("Argument 'do' is TRUE but '.DT' is not a data.table")
     if (!data.table::is.data.table(.i))
@@ -155,20 +153,3 @@ na_omit_cost_rc <- function(nr, nc) {
   (10L + nc) * (nr / 1e9L)
 }
 
-# # ------------------------------------------------------------------------------
-# dots_to_list <- function(valid_names,...) {
-#   # No longer used. Check for valid args in ... and return them as a list
-#   # note that list() evaluates the args (they are not substituted)
-#   args <- list(...)
-#   if (length(args)) {
-#     invalid_names <- setdiff(names(args), valid_names)
-#     if (length(invalid_names))
-#       stop(sprintf("Unused additional argument(s): %s. Valid additional arguments are: %s",
-#                    paste(invalid_names, collapse = ", "), paste(valid_names, collapse = ", ")))
-#   }
-#   return(args)
-# }
-#
-# # ------------------------------------------------------------------------------
-# vcat <- function(v) cat(sprintf("%s :", deparse(substitute(v))), v, "\n")
-#
