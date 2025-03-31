@@ -25,8 +25,9 @@ dtjoin(
 )
 }
 \arguments{
-\item{.DT, .i}{`data.frame`-like objects (plain, `tibble`, `data.table` etc.),
-or else both omitted (\code{NULL}) for a mock join statement with no data.}
+\item{.DT, .i}{\code{data.frame}-like objects (plain, \code{tibble},
+\code{data.table} etc.), or else both omitted (\code{NULL}) for a mock join
+statement with no data.}
 
 \item{on}{A character vector of join predicates acceptable to the \code{on}
 argument of \code{[.data.table}, e.g. \code{c("id", "col_x == col_y", "date
@@ -100,12 +101,12 @@ A \code{data.table} (the result of the join), or \code{NULL} if
 \description{
 Write (and optionally run) \code{data.table} code for a join
   using \code{DT[i]}-style syntax with many with efficient enhancements.
-  Accepts any `data.frame`-like inputs (not only `data.table`s), permits
-  left, right, inner, and full joins, prevents unwanted matches on \code{NA}
-  and \code{NaN} by default, does not garble join columns in non-equality
-  joins, allows 'mult' on both sides of the join, creates an optional join
-  indicator column, and provides convenience options to control column order
-  and prefixing.
+  Accepts any \code{data.frame}-like inputs (not only \code{data.table}s),
+  permits left, right, inner, and full joins, prevents unwanted matches on
+  \code{NA} and \code{NaN} by default, does not garble join columns in
+  non-equality joins, allows 'mult' on both sides of the join, creates an
+  optional join indicator column, and provides convenience options to control
+  column order and prefixing.
 }
 \examples{
 # Simple mock joins

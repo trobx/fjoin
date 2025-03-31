@@ -14,8 +14,9 @@ dtjoin_cross(
 )
 }
 \arguments{
-\item{.DT, .i}{`data.frame`-like objects (plain, `tibble`, `data.table` etc.),
-or else both omitted (\code{NULL}) for a mock join statement with no data.}
+\item{.DT, .i}{\code{data.frame}-like objects (plain, \code{tibble},
+\code{data.table} etc.), or else both omitted (\code{NULL}) for a mock join
+statement with no data.}
 
 \item{i.first}{Whether to place \code{.i}'s columns before \code{.DT}'s in
 the join result. The default is to use the value of \code{i.main}, i.e.
