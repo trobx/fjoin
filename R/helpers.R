@@ -23,35 +23,30 @@ check_nomatch <- function(x) {
 }
 
 # ------------------------------------------------------------------------------
-check_setup <- function(do, .DT, .i) {
-  if (do) {
-    if (!data.table::is.data.table(.DT))
-      stop("Argument 'do' is TRUE but '.DT' is not a data.table")
-    if (!data.table::is.data.table(.i))
-      stop("Argument 'do' is TRUE but '.i' is not a data.table")
-  } else {
-    if (!(is.null(.DT) && is.null(.i))) {
-      if (!is.data.frame(.DT))
-        stop("'.DT' must have class \"data.frame\"")
-      if (!is.data.frame(.i))
-        stop("'.i' must have class \"data.frame\"")
-    }
-  }
+check_input_class <- function(x) {
+  # Check x is a list or data.frame (data.table etc.)
+  if (!(is.data.frame(x) || is.list(x)))
+    stop(sprintf("Argument '%s' must be a data.frame-like object or list", deparse(substitute(x))))
 }
 
 # ------------------------------------------------------------------------------
-clean_up <- function(.DT, .i) {
-  # innocuous and convenient compared to trying to check for named objects and
-  # track which dummy columns added
-  suppressWarnings(data.table::set(.DT, j = "fjoin.ind", value = NULL))
-  suppressWarnings(data.table::set(.i, j = "fjoin.ind", value = NULL))
-  suppressWarnings(data.table::set(.DT, j = "fjoin.DT.rn", value = NULL))
-  suppressWarnings(data.table::set(.i, j = "fjoin.i.rn", value = NULL))
+shallow_DT <- function(x) {
+  # Shallow-copy columns of a data.frame-like object (or list of vectors) into a new DT
+  data.table::setDT(unclass(x))
 }
 
 # ------------------------------------------------------------------------------
-# much faster than trimws
-fast_trimws <- function(x) gsub("^\\s+|\\s+$", "", x)
+clean_up <- function(x) {
+  # Drop any columns with name starting with "fjoin"
+  # suppressWarnings() is innocuous and convenient
+  suppressWarnings(data.table::set(x, j = names(x)[grepl("^fjoin", names(x))], value = NULL))
+}
+
+# ------------------------------------------------------------------------------
+fast_trimws <- function(x) {
+  # Much faster than trimws()
+  gsub("^\\s+|\\s+$", "", x)
+}
 
 # ------------------------------------------------------------------------------
 clean_on <- function(x) {
@@ -153,3 +148,20 @@ na_omit_cost_rc <- function(nr, nc) {
   (10L + nc) * (nr / 1e9L)
 }
 
+# # ------------------------------------------------------------------------------
+# dots_to_list <- function(valid_names,...) {
+#   # No longer used. Check for valid args in ... and return them as a list
+#   # note that list() evaluates the args (they are not substituted)
+#   args <- list(...)
+#   if (length(args)) {
+#     invalid_names <- setdiff(names(args), valid_names)
+#     if (length(invalid_names))
+#       stop(sprintf("Unused additional argument(s): %s. Valid additional arguments are: %s",
+#                    paste(invalid_names, collapse = ", "), paste(valid_names, collapse = ", ")))
+#   }
+#   return(args)
+# }
+#
+# # ------------------------------------------------------------------------------
+# vcat <- function(v) cat(sprintf("%s :", deparse(substitute(v))), v, "\n")
+#

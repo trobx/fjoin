@@ -39,8 +39,6 @@ dtjoin_semi_i <- function(
   check_TF(do)
   check_TF(verbose)
 
-  check_setup(do, .DT, .i)
-
   mock        <- is.null(.DT) && is.null(.i)
   has_mult    <- mult != "all"
   has_mult.DT <- mult.DT != "all"

@@ -1,16 +1,16 @@
 #' Enhanced and extended \code{DT[i]}-style data.table joins
 #'
-#' @description
-#' Write (and optionally run) \code{data.table} code for a \code{DT[i]}-style
-#'     join with efficient enhancements. Permits left, right, inner, and full
-#'     joins, prevents unwanted matches on \code{NA} and \code{NaN} by default,
-#'     does not garble join columns in non-equality joins, allows 'mult' on both
-#'     sides of the join, creates an optional join indicator column, and
-#'     provides convenience options to control column order and prefixing.
+#' @description Write (and optionally run) \code{data.table} code for a join
+#'   using \code{DT[i]}-style syntax with many with efficient enhancements.
+#'   Accepts any `data.frame`-like inputs (not only `data.table`s), permits
+#'   left, right, inner, and full joins, prevents unwanted matches on \code{NA}
+#'   and \code{NaN} by default, does not garble join columns in non-equality
+#'   joins, allows 'mult' on both sides of the join, creates an optional join
+#'   indicator column, and provides convenience options to control column order
+#'   and prefixing.
 #'
-#' @param .DT,.i If \code{do} is \code{TRUE}, i.e. you intend to run the join, a
-#'   pair of \code{data.table}s. Otherwise any kind of data.frames, or else
-#'   both omitted (\code{NULL}) for a mock join statement with no data.
+#' @param .DT,.i `data.frame`-like objects (plain, `tibble`, `data.table` etc.),
+#'   or else both omitted (\code{NULL}) for a mock join statement with no data.
 #' @param on A character vector of join predicates acceptable to the \code{on}
 #'   argument of \code{[.data.table}, e.g. \code{c("id", "col_x == col_y", "date
 #'   < date")}.
@@ -59,7 +59,7 @@
 #'   equality join column(s) in addition to the "home" table's (equivalent to
 #'   "keep" in dplyr). Default \code{FALSE}. Note that non-equality join columns
 #'   from the foreign table are always included separately.
-#' @param ... Additional arguments (for internal use).
+#' @param ... Further arguments (for internal use).
 #'
 #' @returns A \code{data.table} (the result of the join), or \code{NULL} if
 #'   \code{do} is \code{FALSE}. The data.table code is always printed to the
@@ -108,16 +108,25 @@ dtjoin <- function(
   check_TF(i.main)
   check_TF(preserve)
 
-  check_setup(do, .DT, .i)
-
   mock           <- is.null(.DT) && is.null(.i)
+  do             <- !mock && do
   has_mult       <- mult != "all"
   has_mult.DT    <- mult.DT != "all"
   outer.i        <- !(is.null(nomatch) || nomatch %in% 0L)
   outer.DT       <- !(is.null(nomatch.DT) || nomatch.DT %in% 0L)
   rename.DT_anti <- outer.DT && i.main
 
-  on <- clean_on(on)
+  if (!mock) {
+    check_input_class(.DT)
+    check_input_class(.i)
+  }
+
+  if (do) {
+    asis.DT           <- data.table::is.data.table(.DT)
+    asis.i            <- data.table::is.data.table(.i)
+    if (!asis.DT) .DT <- shallow_DT(.DT)
+    if (!asis.i) .i   <- shallow_DT(.i)
+  }
 
   .labels <-
     if (".labels" %in% names(dot_args)) {
@@ -125,6 +134,8 @@ dtjoin <- function(
     } else {
       c(make_label_dtjoin(.DT, substitute(.DT)), make_label_dtjoin(.i, substitute(.i)))
     }
+
+  on <- clean_on(on)
 
   # ----------------------------------------------------------------------------
 
@@ -464,8 +475,11 @@ dtjoin <- function(
   cat("Join:", jointext, "\n")
 
   if (do) {
-    on.exit(clean_up(.DT, .i), add = TRUE)
-    return(eval(parse(text = jointext)))
+    if (asis.DT) on.exit(clean_up(.DT), add = TRUE)
+    if (asis.i) on.exit(clean_up(.i), add = TRUE)
+    return(eval(parse(text = jointext),
+                envir = list2env(list(.DT = .DT, .i = .i),
+                                 parent = getNamespace("data.table"))))
   }
 }
 

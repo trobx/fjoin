@@ -19,9 +19,8 @@ dtjoin_semi_i(
 )
 }
 \arguments{
-\item{.DT, .i}{If \code{do} is \code{TRUE}, i.e. you intend to run the join, a
-pair of \code{data.table}s. Otherwise any kind of data.frames, or else
-both omitted (\code{NULL}) for a mock join statement with no data.}
+\item{.DT, .i}{`data.frame`-like objects (plain, `tibble`, `data.table` etc.),
+or else both omitted (\code{NULL}) for a mock join statement with no data.}
 
 \item{on}{A character vector of join predicates acceptable to the \code{on}
 argument of \code{[.data.table}, e.g. \code{c("id", "col_x == col_y", "date

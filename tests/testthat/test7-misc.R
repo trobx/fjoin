@@ -27,15 +27,15 @@ test_that("dtjoin_anti_DT mock", {
 # ------------------------------------------------------------------------------
 # data.table setup and inputs
 
-test_that("do TRUE but .DT not a data.table", {
-  dtjoin(df, dt, on=c("id", "foo == col1")) |>
-    expect_error("'.DT' is not a data.table")
-})
-
-test_that("do TRUE but .i not a data.table", {
-  dtjoin(dt, df, on=c("id", "foo == col1")) |>
-    expect_error("'.i' is not a data.table")
-})
+# test_that("do TRUE but .DT not a data.table", {
+#   dtjoin(df, dt, on=c("id", "foo == col1")) |>
+#     expect_error("'.DT' is not a data.table")
+# })
+#
+# test_that("do TRUE but .i not a data.table", {
+#   dtjoin(dt, df, on=c("id", "foo == col1")) |>
+#     expect_error("'.i' is not a data.table")
+# })
 
 test_that("do FALSE and .DT, .i data.frames", {
   dtjoin(df, df, on=c("id"), do = FALSE) |>
@@ -46,15 +46,15 @@ test_that("do FALSE and .DT, .i data.frames", {
     expect_no_error()
 })
 
-test_that("do FALSE but .DT not a data.frame", {
-  dtjoin("foo", df, on=c("id", "foo == col1"), do = FALSE) |>
-    expect_error("'.DT' must have class \"data.frame\"")
-})
-
-test_that("do FALSE but .i not a data.frame", {
-  dtjoin(df, "foo", on=c("id", "foo == col1"), do = FALSE) |>
-    expect_error("'.i' must have class \"data.frame\"")
-})
+# test_that("do FALSE but .DT not a data.frame", {
+#   dtjoin("foo", df, on=c("id", "foo == col1"), do = FALSE) |>
+#     expect_error("'.DT' must have class \"data.frame\"")
+# })
+#
+# test_that("do FALSE but .i not a data.frame", {
+#   dtjoin(df, "foo", on=c("id", "foo == col1"), do = FALSE) |>
+#     expect_error("'.i' must have class \"data.frame\"")
+# })
 
 # ------------------------------------------------------------------------------
 # data.table not loaded

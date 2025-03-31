@@ -30,8 +30,6 @@ dtjoin_cross <- function(
   check_TF(i.first)
   check_TF(i.main)
 
-  check_setup(do, .DT, .i)
-
   # --------------------------------------------------------------------------
 
   jvars_DT <- as.character(names(.DT))
@@ -57,7 +55,8 @@ dtjoin_cross <- function(
   if (do) {
     if (as.numeric(nrow(.DT)) * as.numeric(nrow(.i)) > 2L^31L)
       stop("Cross join would exceed 2^31 rows")
-    on.exit(clean_up(.DT, .i), add = TRUE)
+    on.exit(clean_up(.DT), add = TRUE)
+    on.exit(clean_up(.i), add = TRUE)
     eval(parse(text = jointext))
   }
 }
