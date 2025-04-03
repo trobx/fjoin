@@ -109,24 +109,22 @@ dtjoin <- function(
   check_TF(i.main)
   check_TF(preserve)
 
-  mock           <- is.null(.DT) && is.null(.i)
-  do             <- !mock && do
-  has_mult       <- mult != "all"
-  has_mult.DT    <- mult.DT != "all"
-  outer.i        <- !(is.null(nomatch) || nomatch %in% 0L)
-  outer.DT       <- !(is.null(nomatch.DT) || nomatch.DT %in% 0L)
-  rename.DT_anti <- outer.DT && i.main
+  mock <- is.null(.DT) && is.null(.i)
+  do   <- !mock && do
 
-  if (!mock) {
+  if (mock) {
+    tmp <- make_mock_tables(on)
+    .DT <- tmp[[1]]
+    .i  <- tmp[[2]]
+  } else {
     check_input_class(.DT)
     check_input_class(.i)
-  }
-
-  if (do) {
-    asis.DT           <- data.table::is.data.table(.DT)
-    asis.i            <- data.table::is.data.table(.i)
-    if (!asis.DT) .DT <- shallow_DT(.DT)
-    if (!asis.i) .i   <- shallow_DT(.i)
+    if (do) {
+      asis.DT           <- data.table::is.data.table(.DT)
+      asis.i            <- data.table::is.data.table(.i)
+      if (!asis.DT) .DT <- shallow_DT(.DT)
+      if (!asis.i) .i   <- shallow_DT(.i)
+    }
   }
 
   .labels <-
@@ -136,15 +134,12 @@ dtjoin <- function(
       c(make_label_dtjoin(.DT, substitute(.DT)), make_label_dtjoin(.i, substitute(.i)))
     }
 
-  on <- clean_on(on)
-
-  # ----------------------------------------------------------------------------
-
-  if (mock) {
-    tmp <- make_mock_tables(on)
-    .DT <- tmp[[1]]
-    .i  <- tmp[[2]]
-  }
+  on             <- clean_on(on)
+  has_mult       <- mult != "all"
+  has_mult.DT    <- mult.DT != "all"
+  outer.i        <- !(is.null(nomatch) || nomatch %in% 0L)
+  outer.DT       <- !(is.null(nomatch.DT) || nomatch.DT %in% 0L)
+  rename.DT_anti <- outer.DT && i.main
 
   # ----------------------------------------------------------------------------
   # jvars_, is_joincol_, include_, equi_names_, oldnames_DT_anti, newnames_DT_anti
