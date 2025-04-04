@@ -25,9 +25,14 @@ check_input_class <- function(x) {
     stop(sprintf("Argument '%s' must be a data.frame-like object or list", deparse(substitute(x))))
 }
 # ------------------------------------------------------------------------------
-shallow_DT <- function(x) {
+shallow_DT <- function(x, use_setDT = TRUE) {
   # Shallow-copy columns of a data.frame-like object (or list of vectors) into a new DT
-  data.table::setDT(unclass(x))
+  if (use_setDT) {
+    data.table::setDT(unclass(x))
+  } else {
+    # pure read-only (no assignments), no overallocation, no length checks for list input
+    data.table::setattr(unclass(x), "class", c("data.table", "data.frame"))
+  }
 }
 # ------------------------------------------------------------------------------
 clean_up <- function(x, pattern = "^fjoin") {
