@@ -23,9 +23,7 @@
 #' @param .DT,.i \code{data.frame}-like objects (plain, \code{tibble},
 #'   \code{data.table} etc.), or else both omitted (\code{NULL}) for a mock join
 #'   statement with no data.
-#' @param on A character vector of join predicates acceptable to the \code{on}
-#'   argument of \code{[.data.table}, e.g. \code{c("id", "col_x == col_y", "date
-#'   < date")}.
+#' @param on A character vector of join predicates.
 #' @param match.na If \code{TRUE}, allow equality matches between \code{NA}s or
 #'   \code{NaN}s. The default is \code{FALSE}, i.e. such matches are not
 #'   allowed, as in most real-world applications (but unlike other join
@@ -44,15 +42,15 @@
 #'   \code{.i} reversed, and a different default: either \code{NA} to append
 #'   rows of \code{.DT} with no match in \code{.i}, or \code{NULL} (the default)
 #'   to leave them out.
-#' @param indicate  Whether to add a column \code{".join"} with values \code{1L}
-#'   if from the "home" table only, \code{2L} if from the "foreign" table only,
-#'   and \code{3L} if joined from both tables. C.f. the _merge option in Stata.
-#'   Default \code{FALSE}.
+#' @param indicate  Whether to add a column \code{".join"} at the front of the
+#'   result, with values \code{1L} if from the "home" table only, \code{2L} if
+#'   from the "foreign" table only, and \code{3L} if joined from both tables
+#'   (c.f. \code{_merge} in Stata). Default \code{FALSE}.
 #' @param select,select.DT,select.i Character vectors of columns to be selected
-#'   from either input if present (\code{select}) or from one or other
-#'   specifically (e.g. \code{select.DT}). \code{NULL} (the default) selects all
-#'   columns. Use \code{NA} (or \code{""}) to select no columns. Join columns
-#'   are always selected.
+#'   from either input if present (\code{select}) or specifically from one or
+#'   other of them (e.g. \code{select.DT}). \code{NULL} (the default) selects
+#'   all columns. Use \code{""} (or \code{NA}) to select no columns. Join
+#'   columns are always selected.
 #' @param on.first Whether to place the join columns first in the join result.
 #'   Default \code{FALSE}.
 #' @param i.main Whether to treat \code{.i} as the "home" table and \code{.DT}
@@ -66,7 +64,7 @@
 #'   \code{"i."} if the "foreign" table is \code{.i} (\code{i.main} is
 #'   \code{FALSE}) and \code{"x."} if it is \code{.DT} (\code{i.main} is
 #'   \code{TRUE}).
-#' @param preserve  (rarely used) Whether to include the "foreign" table's
+#' @param preserve (rarely used) Whether to include the "foreign" table's
 #'   equality join column(s) in addition to the "home" table's (equivalent to
 #'   "keep" in dplyr). Default \code{FALSE}. Note that non-equality join columns
 #'   from the foreign table are always included separately.
@@ -78,9 +76,9 @@
 #'   print information to the console during execution. Default \code{FALSE}.
 #' @param ... Further arguments (for internal use).
 #'
-#' @returns A \code{data.table} (the result of the join), or \code{NULL} if
-#'   \code{do} is \code{FALSE}. The data.table code is always printed to the
-#'   console.
+#' @returns A \code{data.frame} (a \code{data.table} if one or both inputs are
+#'   of that class), or \code{NULL} if \code{do} is \code{FALSE}. The data.table
+#'   code is always printed to the console.
 #'
 #' @examples
 #' # Simple mock joins
@@ -135,16 +133,22 @@ dtjoin <- function(
   check_TF(preserve)
   check_TF(verbose)
 
+  on             <- clean_on(on)
+  select.DT      <- c(select,select.DT)
+  select.i       <- c(select,select.i)
+
   mock <- is.null(.DT) && is.null(.i)
   do   <- !mock && do
 
   if (mock) {
-    tmp <- make_mock_tables(on)
-    .DT <- tmp[[1]]
-    .i  <- tmp[[2]]
+    tmp   <- make_mock_tables(on)
+    .DT   <- tmp[[1]]
+    .i    <- tmp[[2]]
+    as_DT <- TRUE
   } else {
     check_input_class(.DT)
     check_input_class(.i)
+    as_DT <- data.table::is.data.table(.DT) || data.table::is.data.table(.i)
     if (do) {
       asis.DT           <- data.table::is.data.table(.DT)
       asis.i            <- data.table::is.data.table(.i)
@@ -159,11 +163,6 @@ dtjoin <- function(
     } else {
       c(make_label_dtjoin(.DT, substitute(.DT)), make_label_dtjoin(.i, substitute(.i)))
     }
-
-  select.DT      <- c(select,select.DT)
-  select.i       <- c(select,select.i)
-
-  on             <- clean_on(on)
 
   has_mult       <- mult != "all"
   has_mult.DT    <- mult.DT != "all"
@@ -398,7 +397,7 @@ dtjoin <- function(
       }
     }
     jointext <-
-      sprintf("setDT(%s%s[%s, on = %s, %s%s%s%s%s])[]",
+      sprintf("%s%s[%s, on = %s, %s%s%s%s%s]",
               .DTtext,
               argtext_indicate,
               .itext,
@@ -408,6 +407,8 @@ dtjoin <- function(
               jtext,
               if (!has_mult) ", allow.cartesian = TRUE" else "",
               argtext_verbose)
+    if (as_DT) jointext <- sprintf("setDT(%s)[]", jointext)
+
 
   } else if (mult == "all") {
     # mult.DT but not mult
@@ -423,7 +424,7 @@ dtjoin <- function(
       }
     }
     jointext <-
-      sprintf("setDT(setDT(%s[%s, on = %s, nomatch = NULL, mult = %s, data.frame(%s%s, fjoin.i.rn)%s])[%s, on = \"fjoin.i.rn\", %s%s%s])[]",
+      sprintf("setDT(%s[%s, on = %s, nomatch = NULL, mult = %s, data.frame(%s%s, fjoin.i.rn)%s])[%s, on = \"fjoin.i.rn\", %s%s%s]",
               .itext,
               .DTtext,
               deparse(flip_on(on)),
@@ -435,6 +436,7 @@ dtjoin <- function(
               argtext_nomatch,
               jtext,
               argtext_verbose)
+    if (as_DT) jointext <- sprintf("setDT(%s)[]", jointext)
 
   } else {
     # both mult.DT and mult - solution depends on whether outer wrt .i
@@ -452,7 +454,7 @@ dtjoin <- function(
         }
       }
       jointext <-
-        sprintf("setDT(setDT(%s[%s, on = %s, nomatch = NULL, %s%s%s])[%s%s]%s)[]",
+        sprintf("setDT(%s[%s, on = %s, nomatch = NULL, %s%s%s])[%s%s]%s",
         .DTtext,
                 .itext,
                 deparse(on),
@@ -469,6 +471,8 @@ dtjoin <- function(
                 },
                 argtext_verbose,
                 if (outer.DT) "" else "[, fjoin.DT.rn := NULL][]")
+      if (!as_DT) jointext <- sprintf("setDF(%s)[]", jointext)
+
     } else {
       # outer wrt .i
       .DTtext <- ".DT[, fjoin.DT.rn := .I]"
@@ -492,6 +496,7 @@ dtjoin <- function(
                 argtext_verbose,
                 jtext,
                 argtext_verbose)
+      if (as_DT) jointext <- sprintf("setDT(%s)[]", jointext)
     }
   }
 
@@ -507,6 +512,7 @@ dtjoin <- function(
     if (indicate) .DTantitext <-
       sprintf("%s[, .join := %s]", .DTantitext, if (!i.main) "1L" else "2L")
     jointext <- sprintf("with(list(temp = %s), rbind(temp, %s, fill = TRUE))[, fjoin.DT.rn := NULL][]", jointext, .DTantitext)
+    if (!as_DT) jointext <- sprintf("setDF(%s)[]", jointext)
   }
 
   # --------------------------------------------------------------------------

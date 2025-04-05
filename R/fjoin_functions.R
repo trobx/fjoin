@@ -3,15 +3,15 @@
 #' @description
 #' Inner join of \code{x} and \code{y}
 #'
-#' @param x,y If \code{do} is \code{TRUE}, i.e. you intend to run the join, a
-#'   pair of \code{data.table}s. Otherwise any kind of data.frames, or else
-#'   both omitted (\code{NULL}) for a mock join statement with no data.
+#' @param x,y \code{data.frame}-like objects (plain, \code{tibble},
+#'   \code{data.table} etc.), or else both omitted (\code{NULL}) for a mock join
+#'   statement with no data.
 #' @param on A character vector of join predicates, e.g. \code{c("id", "col_x ==
-#'   col_y", "date < date")}, passed to the \code{on} argument of
-#'   \code{[.data.table}.
+#'   col_y", "date < date")}.
 #' @param match.na If \code{TRUE}, allow equality matches between \code{NA}s or
 #'   \code{NaN}s. The default is \code{FALSE}, i.e. such matches are not
-#'   allowed, as in most real-world applications.
+#'   allowed, as in most real-world applications (but unlike other join
+#'   frameworks in R)
 #' @param mult.x When a row of \code{x} has multiple matching rows in \code{y},
 #'   which to accept: \code{"all"} (the default), \code{"first"}, or
 #'   \code{"last"}.
@@ -19,24 +19,24 @@
 #'   which to accept: \code{"all"} (the default), \code{"first"}, or
 #'   \code{"last"}. Can be combined with \code{mult.x}.
 #' @param select,select.x,select.y Character vectors of columns to be selected
-#'   from either input if present (\code{select}) or from one or other
-#'   specifically (e.g. \code{select.x}). \code{NULL} (the default) selects all
-#'   columns. Use \code{NA} (or \code{""}) to select no columns. Join columns
-#'   are always selected.
+#'   from either input if present (\code{select}) or specifically from one or
+#'   other of them (e.g. \code{select.x}). \code{NULL} (the default) selects
+#'   all columns. Use \code{""} (or \code{NA}) to select no columns. Join
+#'   columns are always selected.
 #' @param order Whether the row order of the result should reflect \code{x} then
 #'   \code{y} (\code{"x"}) or \code{y} then \code{x} (\code{"y"}). Default is
 #'   \code{"x"} for left, inner, full and cross joins, \code{"y"} for right
 #'   joins.
-#' @param indicate  Whether to add a column \code{".join"} with values \code{1L}
-#'   if from \code{x} only, \code{2L} if from \code{y} only, and \code{3L} if
-#'   joined from both tables. C.f. the _merge option in Stata. Default
-#'   \code{FALSE}.
+#' @param indicate  Whether to add a column \code{".join"}  at the front of the
+#'   result, with values \code{1L} if from \code{x} only, \code{2L} if from
+#'   \code{y} only, and \code{3L} if joined from both tables (c.f. \code{_merge}
+#'   in Stata). Default \code{FALSE}.
 #' @param on.first Whether to place the join columns first in the join result.
 #'   Default \code{FALSE}.
 #' @param prefix A prefix to attach to column names in \code{y} that are the
 #'   same as a column name in \code{x}. Default \code{"R."}.
 #' @param preserve (rarely used) Whether to include \code{y}'s equality join
-#'   column(s) in addition to \code{x}'s (equivalent to "keep" in dplyr).
+#'   column(s) in addition to \code{x}'s (equivalent to \code{keep} in dplyr).
 #'   Default \code{FALSE}. Note that non-equality join columns from \code{x} are
 #'   always included separately.
 #' @param do Whether to execute the join. Default is \code{TRUE} unless \code{x}
@@ -44,9 +44,9 @@
 #'   statement is produced. The join statement is always printed to the console
 #'   regardless of \code{do}.
 #'
-#' @returns A \code{data.table} (the result of the join), or \code{NULL} if
-#'   \code{do} is \code{FALSE}. The data.table code is always printed to the
-#'   console.
+#' @returns A \code{data.frame} (a \code{data.table} if one or both inputs are
+#'   of that class), or \code{NULL} if \code{do} is \code{FALSE}. The data.table
+#'   code is always printed to the console.
 #'
 #' @examples
 #' # TO DO
