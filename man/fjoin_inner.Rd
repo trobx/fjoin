@@ -65,6 +65,12 @@ always included separately.}
 and \code{y} are both omitted/\code{NULL}, in which case a mock join
 statement is produced. The join statement is always printed to the console
 regardless of \code{do}.}
+
+\item{select, select.x, select.y}{Character vectors of columns to be selected
+from either object if present (\code{select}) or from one or other
+specifically (e.g. \code{select.x}). \code{NULL} (the default) selects all
+columns. Use \code{NA} (or \code{""}) to select no columns. Join columns
+are always selected.}
 }
 \value{
 A \code{data.table} (the result of the join), or \code{NULL} if

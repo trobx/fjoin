@@ -18,6 +18,11 @@
 #' @param mult.y When a row of \code{y} has multiple matching rows in \code{x},
 #'   which to accept: \code{"all"} (the default), \code{"first"}, or
 #'   \code{"last"}. Can be combined with \code{mult.x}.
+#' @param select,select.x,select.y Character vectors of columns to be selected
+#'   from either input if present (\code{select}) or from one or other
+#'   specifically (e.g. \code{select.x}). \code{NULL} (the default) selects all
+#'   columns. Use \code{NA} (or \code{""}) to select no columns. Join columns
+#'   are always selected.
 #' @param order Whether the row order of the result should reflect \code{x} then
 #'   \code{y} (\code{"x"}) or \code{y} then \code{x} (\code{"y"}). Default is
 #'   \code{"x"} for left, inner, full and cross joins, \code{"y"} for right
@@ -55,6 +60,9 @@ fjoin_inner <- function(
     mult.x    = "all",
     mult.y    = "all",
     order     = "x",
+    select    = NULL,
+    select.x  = NULL,
+    select.y  = NULL,
     indicate  = FALSE,
     prefix    = "R.",
     on.first  = FALSE,
@@ -74,6 +82,9 @@ fjoin_inner <- function(
     mult.DT    = if (order.x) mult.y else mult.x,
     nomatch    = NULL,
     nomatch.DT = NULL,
+    select     = select,
+    select.DT  = if (order.x) select.y else select.x,
+    select.i   = if (order.x) select.x else select.y,
     i.main     = order.x,
     .labels    = if (order.x) rev(xylabels) else xylabels,
     match.na   = match.na,
@@ -110,6 +121,9 @@ fjoin_left <- function(
     mult.x    = "all",
     mult.y    = "all",
     order     = "x",
+    select    = NULL,
+    select.x  = NULL,
+    select.y  = NULL,
     indicate  = FALSE,
     prefix    = "R.",
     on.first  = FALSE,
@@ -129,6 +143,9 @@ fjoin_left <- function(
     mult.DT    = if (order.x) mult.y else mult.x,
     nomatch    = if (order.x) NA else NULL,
     nomatch.DT = if (order.x) NULL else NA,
+    select     = select,
+    select.DT  = if (order.x) select.y else select.x,
+    select.i   = if (order.x) select.x else select.y,
     i.main     = order.x,
     .labels    = if (order.x) rev(xylabels) else xylabels,
     match.na   = match.na,
@@ -165,6 +182,9 @@ fjoin_right <- function(
     mult.y    = "all",
     indicate  = FALSE,
     order     = "y",
+    select    = NULL,
+    select.x  = NULL,
+    select.y  = NULL,
     prefix    = "R.",
     on.first  = FALSE,
     preserve  = FALSE,
@@ -183,6 +203,9 @@ fjoin_right <- function(
     mult.DT    = if (order.y) mult.x else mult.y,
     nomatch    = if (order.y) NA else NULL,
     nomatch.DT = if (order.y) NULL else NA,
+    select     = select,
+    select.DT  = if (order.y) select.x else select.y,
+    select.i   = if (order.y) select.y else select.x,
     i.main     = !order.y,
     .labels    = if (order.y) xylabels else rev(xylabels),
     match.na   = match.na,
@@ -219,6 +242,9 @@ fjoin_full <- function(
     mult.y    = "all",
     on.first  = FALSE,
     order     = "x",
+    select    = NULL,
+    select.x  = NULL,
+    select.y  = NULL,
     indicate  = FALSE,
     prefix    = "R.",
     preserve  = FALSE,
@@ -237,6 +263,9 @@ fjoin_full <- function(
     mult.DT    = if (order.x) mult.y else mult.x,
     nomatch    = NA,
     nomatch.DT = NA,
+    select     = select,
+    select.DT  = if (order.x) select.y else select.x,
+    select.i   = if (order.x) select.x else select.y,
     i.main     = order.x,
     .labels    = if (order.x) rev(xylabels) else xylabels,
     match.na   = match.na,

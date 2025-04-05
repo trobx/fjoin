@@ -49,7 +49,7 @@
 #'   and \code{3L} if joined from both tables. C.f. the _merge option in Stata.
 #'   Default \code{FALSE}.
 #' @param select,select.DT,select.i Character vectors of columns to be selected
-#'   from either object if present (\code{select}) or from one or other
+#'   from either input if present (\code{select}) or from one or other
 #'   specifically (e.g. \code{select.DT}). \code{NULL} (the default) selects all
 #'   columns. Use \code{NA} (or \code{""}) to select no columns. Join columns
 #'   are always selected.

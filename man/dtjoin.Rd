@@ -109,7 +109,7 @@ A \code{data.table} (the result of the join), or \code{NULL} if
   console.
 }
 \description{
-Write (and optionally run) \code{data.table} code for a join
+Write (and optionally run) \code{data.table} code for a join,
   using \code{DT[i]}-style syntax with many efficient enhancements.
   Accepts any \code{data.frame}-like inputs (not only \code{data.table}s),
   permits left, right, inner, and full joins, prevents unwanted matches on
@@ -119,8 +119,9 @@ Write (and optionally run) \code{data.table} code for a join
   from each side, and provides convenience options to control column order
   and prefixing.
 
-  Also permits **mock joins**, where no \code{data.frame} inputs are provided,
-  which print template code that can be swiped and adapted.
+  Also permits \emph{mock joins}, where no \code{data.frame} inputs are
+  provided, which print template code to the console that can be swiped and
+  adapted.
 
   \code{dtjoin()} is the workhorse function for \code{fjoin_inner()},
   \code{fjoin_left()}, \code{fjoin_right()}, and \code{fjoin_full()}, which
