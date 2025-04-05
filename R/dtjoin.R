@@ -1,13 +1,24 @@
-#' Enhanced and extended \code{DT[i]}-style data.table joins
+#' Join data.frames using an enhanced and extended \code{DT[i]}-like data.table
+#' syntax
 #'
-#' @description Write (and optionally run) \code{data.table} code for a join
-#'   using \code{DT[i]}-style syntax with many with efficient enhancements.
+#' @description Write (and optionally run) \code{data.table} code for a join,
+#'   using \code{DT[i]}-style syntax with many efficient enhancements.
 #'   Accepts any \code{data.frame}-like inputs (not only \code{data.table}s),
 #'   permits left, right, inner, and full joins, prevents unwanted matches on
 #'   \code{NA} and \code{NaN} by default, does not garble join columns in
 #'   non-equality joins, allows 'mult' on both sides of the join, creates an
-#'   optional join indicator column, and provides convenience options to control
-#'   column order and prefixing.
+#'   optional join indicator column, allows specifying which columns to select
+#'   from each side, and provides convenience options to control column order
+#'   and prefixing.
+#'
+#'   Also permits \emph{mock joins}, where no \code{data.frame} inputs are
+#'   provided, which print template code to the console that can be swiped and
+#'   adapted.
+#'
+#'   \code{dtjoin()} is the workhorse function for \code{fjoin_inner()},
+#'   \code{fjoin_left()}, \code{fjoin_right()}, and \code{fjoin_full()}, which
+#'   are wrappers providing a much more conventional interface for join
+#'   operations. These functions are recommended for most users and cases.
 #'
 #' @param .DT,.i \code{data.frame}-like objects (plain, \code{tibble},
 #'   \code{data.table} etc.), or else both omitted (\code{NULL}) for a mock join
@@ -33,16 +44,15 @@
 #'   \code{.i} reversed, and a different default: either \code{NA} to append
 #'   rows of \code{.DT} with no match in \code{.i}, or \code{NULL} (the default)
 #'   to leave them out.
-#' @param do Whether to execute the join. Default is \code{TRUE} unless
-#'   \code{.DT} and \code{.i} are both omitted/\code{NULL}, in which case a mock
-#'   join statement is produced. The join statement is always printed to the
-#'   console regardless of \code{do}.
-#' @param verbose (passed to \code{[.data.table}) Whether data.table should
-#'   print information to the console during execution. Default \code{FALSE}.
 #' @param indicate  Whether to add a column \code{".join"} with values \code{1L}
 #'   if from the "home" table only, \code{2L} if from the "foreign" table only,
 #'   and \code{3L} if joined from both tables. C.f. the _merge option in Stata.
 #'   Default \code{FALSE}.
+#' @param select,select.DT,select.i Character vectors of columns to be selected
+#'   from either object if present (\code{select}) or from one or other
+#'   specifically (e.g. \code{select.DT}). \code{NULL} (the default) selects all
+#'   columns. Use \code{NA} (or \code{""}) to select no columns. Join columns
+#'   are always selected.
 #' @param on.first Whether to place the join columns first in the join result.
 #'   Default \code{FALSE}.
 #' @param i.main Whether to treat \code{.i} as the "home" table and \code{.DT}
@@ -50,7 +60,7 @@
 #'   \code{FALSE}, i.e. \code{.DT} is the "home" table.
 #' @param i.first Whether to place \code{.i}'s columns before \code{.DT}'s in
 #'   the join result. The default is to use the value of \code{i.main}, i.e.
-#'   bring \code{.i}'s to the front if \code{.i} is the "home" table.
+#'   bring \code{.i}'s columns to the front if \code{.i} is the "home" table.
 #' @param prefix A prefix to attach to column names in the "foreign" table that
 #'   are the same as a column name in the "home" table. The default is
 #'   \code{"i."} if the "foreign" table is \code{.i} (\code{i.main} is
@@ -60,6 +70,12 @@
 #'   equality join column(s) in addition to the "home" table's (equivalent to
 #'   "keep" in dplyr). Default \code{FALSE}. Note that non-equality join columns
 #'   from the foreign table are always included separately.
+#' @param do Whether to execute the join. Default is \code{TRUE} unless
+#'   \code{.DT} and \code{.i} are both omitted/\code{NULL}, in which case a mock
+#'   join statement is produced. The join statement is always printed to the
+#'   console regardless of \code{do}.
+#' @param verbose (passed to \code{[.data.table}) Whether data.table should
+#'   print information to the console during execution. Default \code{FALSE}.
 #' @param ... Further arguments (for internal use).
 #'
 #' @returns A \code{data.table} (the result of the join), or \code{NULL} if
@@ -75,39 +91,49 @@
 #'
 #' @export
 dtjoin <- function(
+    # inputs
     .DT        = NULL,
     .i         = NULL,
+    # matching logic
     on,
     match.na   = FALSE,
     mult       = "all",
     mult.DT    = "all",
     nomatch    = NA,
     nomatch.DT = NULL,
-    do         = !(is.null(.DT) && is.null(.i)),
-    verbose    = FALSE,
     indicate   = FALSE,
+    # output columns
+    select     = NULL,
+    select.DT  = NULL,
+    select.i   = NULL,
     on.first   = FALSE,
     i.main     = FALSE,
     i.first    = i.main,
     prefix     = if (i.main) "x." else "i.",
     preserve   = FALSE,
+    # execution options
+    verbose    = FALSE,
+    do         = !(is.null(.DT) && is.null(.i)),
     ...
 ) {
 
   dot_args <- list(...)
 
+  # TODO: check_on(on)
+  # TODO: check_select(select.DT)
+  # TODO: check_select(select.i)
   check_TF(match.na)
   check_mult(mult)
   check_mult(mult.DT)
   check_nomatch(nomatch)
   check_nomatch(nomatch.DT)
   check_TF(do)
-  check_TF(verbose)
   check_TF(indicate)
   check_TF(on.first)
   check_TF(i.first)
   check_TF(i.main)
   check_TF(preserve)
+  check_TF(verbose)
 
   mock <- is.null(.DT) && is.null(.i)
   do   <- !mock && do
@@ -134,7 +160,11 @@ dtjoin <- function(
       c(make_label_dtjoin(.DT, substitute(.DT)), make_label_dtjoin(.i, substitute(.i)))
     }
 
+  select.DT      <- c(select,select.DT)
+  select.i       <- c(select,select.i)
+
   on             <- clean_on(on)
+
   has_mult       <- mult != "all"
   has_mult.DT    <- mult.DT != "all"
   outer.i        <- !(is.null(nomatch) || nomatch %in% 0L)
@@ -142,17 +172,15 @@ dtjoin <- function(
   rename.DT_anti <- outer.DT && i.main
 
   # ----------------------------------------------------------------------------
-  # jvars_, is_joincol_, include_, equi_names_, oldnames_DT_anti, newnames_DT_anti
+  # jvars_, is_joincol_, equi_names_, oldnames_DT_anti, newnames_DT_anti
 
-  names_DT      <- as.character(names(.DT))
+  names_DT      <- unique(names(.DT))
   is_joincol_DT <- rep(FALSE, length(names_DT))
-  include_DT    <- rep(TRUE, length(names_DT))
-  jvars_DT      <- names_DT
+  jvars_DT      <- rep(NA_character_, length(names_DT))
 
-  names_i       <- as.character(names(.i))
+  names_i       <- unique(names(.i))
   is_joincol_i  <- rep(FALSE, length(names_i))
-  include_i     <- rep(TRUE, length(names_i))
-  jvars_i       <- names_i
+  jvars_i       <- rep(NA_character_, length(names_i))
 
   if (!match.na) {
     equi_names_DT <- character(0)
@@ -204,19 +232,19 @@ dtjoin <- function(
         if (s[2] == "==" && !preserve) {
           # (id, id)   -> (id, NULL)  (id garbles to id=i.id)
           # (id1, id2) -> (id1, NULL) (id1 garbles to id1=id2)
-          include_i[idx_i] <- FALSE
+          jvars_DT[idx_DT] <- s[1]
         } else {
           # (id, id)   -> (id=x.id, PREF.id=id)
           # (id1, id2) -> (id1=x.id1, id2)
           jvars_DT[idx_DT] <- sprintf("%s = x.%s", s[1], s[1])
-          if (s[1] == s[3]) jvars_i[idx_i] <- sprintf("%s%s = %s", prefix, s[3], s[3])
+          jvars_i[idx_i]   <- if (s[1] == s[3]) sprintf("%s%s = %s", prefix, s[3], s[3]) else s[3]
         }
       } else {
         # .i home table
         if (s[2] == "==" && !preserve) {
           # (id, id)   -> (NULL, id)  (id garbles to id=i.id)
           # (id1, id2) -> (NULL, id2) (no garbling)
-          include_DT[idx_DT] <- FALSE
+          jvars_i[idx_i] <- s[3]
         } else {
           # (id, id)   -> (PREF.id=x.id, id) (id garbles to id=i.id)
           # (id1, id2) -> (id1=x.id1, id2)   (avoid id1 garbling)
@@ -225,6 +253,7 @@ dtjoin <- function(
           } else {
             jvars_DT[idx_DT] <- sprintf("%s = x.%s", s[1], s[1])
           }
+          jvars_i[idx_i] <- s[3]
         }
       }
     } else {
@@ -234,7 +263,6 @@ dtjoin <- function(
         if (s[2] == "==" && !preserve) {
           # (id, id)   -> (id=i.id, NULL) (manually garble)
           # (id1, id2) -> (id1=id2, NULL) (manually garble)
-          include_i[idx_i] <- FALSE
           if (s[1] == s[3]) {
             jvars_DT[idx_DT] <- sprintf("%s = i.%s", s[1], s[1])
           } else {
@@ -243,48 +271,60 @@ dtjoin <- function(
         } else {
           # (id, id)   -> (id, PREF.id=i.id) (do not garble)
           # (id1, id2) -> (id1, id2)         (do not garble)
-          if (s[1] == s[3]) jvars_i[idx_i] <- sprintf("%s%s = i.%s", prefix, s[3], s[3])
+          jvars_DT[idx_DT] <- s[1]
+          jvars_i[idx_i]   <- if (s[1] == s[3]) sprintf("%s%s = i.%s", prefix, s[3], s[3]) else s[3]
         }
       } else {
         # .i home table
         if (s[2] == "==" && !preserve) {
           # (id, id)   -> (NULL, id=i.id) (manually garble)
           # (id1, id2) -> (NULL, id2)     (no garbling)
-          include_DT[idx_DT] <- FALSE
-          if (s[1] == s[3]) jvars_i[idx_i] <- sprintf("%s = i.%s", s[3], s[3])
+          jvars_i[idx_i] <- if (s[1] == s[3]) sprintf("%s = i.%s", s[3], s[3]) else s[3]
         } else {
           # (id, id)   -> (PREF.id=id, id=i.id) (do not garble)
           # (id1, id2) -> (id1, id2)            (do not garble)
           if (s[1] == s[3]) {
             jvars_DT[idx_DT] <- sprintf("%s%s = %s", prefix, s[1], s[1])
-            jvars_i[idx_i] <- sprintf("%s = i.%s", s[3], s[3])
+            jvars_i[idx_i]   <- sprintf("%s = i.%s", s[3], s[3])
+          } else {
+            jvars_DT[idx_DT] <- s[1]
+            jvars_i[idx_i]   <- s[3]
           }
         }
       }
     }
   }
 
-  # disambiguate non-join column names
+  # selected (non-join) columns
+  is_selected_DT <- if (is.null(select.DT)) !is_joincol_DT else !is_joincol_DT & (names_DT %in% select.DT)
+  is_selected_i  <- if (is.null(select.i))  !is_joincol_i else !is_joincol_i   & (names_i %in% select.i)
+  jvars_DT[is_selected_DT] <- names_DT[is_selected_DT]
+  jvars_i[is_selected_i]   <- names_i[is_selected_i]
+
   if (!i.main) {
     # (c,c) <- (c,PREF.c=i.c)
-    jvars_i <- ifelse(!is_joincol_i & jvars_i %in% names_DT, sprintf("%s%s = i.%s",prefix,jvars_i,jvars_i), jvars_i)
+    jvars_i <- ifelse(is_selected_i & jvars_i %in% names_DT, sprintf("%s%s = i.%s",prefix,jvars_i,jvars_i), jvars_i)
   } else {
     # (c,c) <- (PREF.c=c,c=i.c)
-    jvars_DT <- ifelse(!is_joincol_DT & jvars_DT %in% names_i, sprintf("%s%s = %s",prefix,jvars_DT,jvars_DT), jvars_DT)
-    jvars_i  <- ifelse(!is_joincol_i & jvars_i %in% names_DT, sprintf("%s = i.%s",jvars_i,jvars_i), jvars_i)
+    jvars_DT <- ifelse(is_selected_DT & jvars_DT %in% names_i, sprintf("%s%s = %s",prefix,jvars_DT,jvars_DT), jvars_DT)
+    jvars_i  <- ifelse(is_selected_i & jvars_i %in% names_DT, sprintf("%s = i.%s",jvars_i,jvars_i), jvars_i)
   }
 
-  jvars_DT <- jvars_DT[include_DT]
-  jvars_i  <- jvars_i[include_i]
+  include_DT <- !is.na(jvars_DT)
+  include_i  <- !is.na(jvars_i)
+
+  jvars_DT   <- jvars_DT[include_DT]
+  jvars_i    <- jvars_i[include_i]
 
   # ----------------------------------------------------------------------------
   # handle outer.DT, rename.DT_anti
 
   if (outer.DT) {
+    include_DT_anti <- is_joincol_DT | include_DT
     if (rename.DT_anti) {
       # add renames for non-join columns
       # x.v <- v
-      tmp <- names_DT[names_DT %in% names_i & !is_joincol_DT]
+      tmp <- names_DT[is_selected_DT & names_DT %in% names_i]
       oldnames_DT_anti <- c(oldnames_DT_anti, tmp)
       newnames_DT_anti <- c(newnames_DT_anti, sprintf("%s%s", prefix, tmp))
       rename.DT_anti <- length(newnames_DT_anti) != 0L
@@ -456,7 +496,12 @@ dtjoin <- function(
   }
 
   if (outer.DT) {
-    .DTantitext <- ".DT[!temp$fjoin.DT.rn]"
+    if (all(include_DT)) {
+      .DTantitext <- ".DT[!temp$fjoin.DT.rn]"
+    } else {
+      # NB not include_DT as need potentially excluded join columns
+      .DTantitext <- sprintf("setDT(.DT[!temp$fjoin.DT.rn, data.frame(%s)])", paste(names_DT[include_DT_anti], collapse = ", "))
+    }
     if (rename.DT_anti) .DTantitext <-
       sprintf("setnames(%s, %s, %s)", .DTantitext, deparse(oldnames_DT_anti), deparse(newnames_DT_anti))
     if (indicate) .DTantitext <-
@@ -466,9 +511,8 @@ dtjoin <- function(
 
   # --------------------------------------------------------------------------
 
-  cat(".DT :", .labels[[1]], "\n")
-  cat(".i  :", .labels[[2]], "\n")
-  cat("Join:", jointext, "\n")
+  cat("\n", ".DT :", .labels[[1]], "\n", ".i  :", .labels[[2]])
+  cat("\n", "Join:", jointext, "\n\n")
 
   if (do) {
     if (asis.DT) on.exit(clean_up(.DT), add = TRUE)
