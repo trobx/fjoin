@@ -23,9 +23,7 @@ dtjoin_semi_i(
 \code{data.table} etc.), or else both omitted (\code{NULL}) for a mock join
 statement with no data.}
 
-\item{on}{A character vector of join predicates acceptable to the \code{on}
-argument of \code{[.data.table}, e.g. \code{c("id", "col_x == col_y", "date
-< date")}.}
+\item{on}{A character vector of join predicates.}
 
 \item{match.na}{If \code{TRUE}, allow equality matches between \code{NA}s or
 \code{NaN}s. The default is \code{FALSE}, i.e. such matches are not
@@ -46,8 +44,7 @@ have no effect on the resulting semi-join.}
 
 \item{do}{Whether to execute the join. Default is \code{TRUE} unless
 \code{.DT} and \code{.i} are both omitted/\code{NULL}, in which case a mock
-join statement is produced. The join statement is always printed to the
-console regardless of \code{do}.}
+join statement is produced.}
 
 \item{verbose}{(passed to \code{[.data.table}) Whether data.table should
 print information to the console during execution. Default \code{FALSE}.}

@@ -11,7 +11,10 @@ fjoin_left(
   match.na = FALSE,
   mult.x = "all",
   mult.y = "all",
-  order = "x",
+  order = "left",
+  select = NULL,
+  select.x = NULL,
+  select.y = NULL,
   indicate = FALSE,
   prefix = "R.",
   on.first = FALSE,
@@ -20,17 +23,17 @@ fjoin_left(
 )
 }
 \arguments{
-\item{x, y}{If \code{do} is \code{TRUE}, i.e. you intend to run the join, a
-pair of \code{data.table}s. Otherwise any kind of data.frames, or else
-both omitted (\code{NULL}) for a mock join statement with no data.}
+\item{x, y}{\code{data.frame}-like objects (plain, \code{tibble},
+\code{data.table} etc.), or else both omitted (\code{NULL}) for a mock join
+statement with no data.}
 
 \item{on}{A character vector of join predicates, e.g. \code{c("id", "col_x ==
-col_y", "date < date")}, passed to the \code{on} argument of
-\code{[.data.table}.}
+col_y", "date < date")}.}
 
 \item{match.na}{If \code{TRUE}, allow equality matches between \code{NA}s or
 \code{NaN}s. The default is \code{FALSE}, i.e. such matches are not
-allowed, as in most real-world applications.}
+allowed, as in most real-world applications (but unlike other join
+frameworks in R)}
 
 \item{mult.x}{When a row of \code{x} has multiple matching rows in \code{y},
 which to accept: \code{"all"} (the default), \code{"first"}, or
@@ -41,14 +44,20 @@ which to accept: \code{"all"} (the default), \code{"first"}, or
 \code{"last"}. Can be combined with \code{mult.x}.}
 
 \item{order}{Whether the row order of the result should reflect \code{x} then
-\code{y} (\code{"x"}) or \code{y} then \code{x} (\code{"y"}). Default is
-\code{"x"} for left, inner, full and cross joins, \code{"y"} for right
-joins.}
+\code{y} (\code{"left"}) or \code{y} then \code{x} (\code{"right"}).
+Default is \code{"left"} for left, inner, full and cross joins,
+\code{"right"} for right joins.}
 
-\item{indicate}{Whether to add a column \code{".join"} with values \code{1L}
-if from \code{x} only, \code{2L} if from \code{y} only, and \code{3L} if
-joined from both tables. C.f. the _merge option in Stata. Default
-\code{FALSE}.}
+\item{select, select.x, select.y}{Character vectors of columns to be selected
+from either input if present (\code{select}) or specifically from one or
+other of them (e.g. \code{select.x}). \code{NULL} (the default) selects
+all columns. Use \code{""} (or \code{NA}) to select no columns. Join
+columns are always selected.}
+
+\item{indicate}{Whether to add a column \code{".join"}  at the front of the
+result, with values \code{1L} if from \code{x} only, \code{2L} if from
+\code{y} only, and \code{3L} if joined from both tables (c.f. \code{_merge}
+in Stata). Default \code{FALSE}.}
 
 \item{prefix}{A prefix to attach to column names in \code{y} that are the
 same as a column name in \code{x}. Default \code{"R."}.}
@@ -57,14 +66,14 @@ same as a column name in \code{x}. Default \code{"R."}.}
 Default \code{FALSE}.}
 
 \item{preserve}{(rarely used) Whether to include \code{y}'s equality join
-column(s) in addition to \code{x}'s (equivalent to "keep" in dplyr).
+column(s) in addition to \code{x}'s (equivalent to \code{keep} in dplyr).
 Default \code{FALSE}. Note that non-equality join columns from \code{x} are
 always included separately.}
 
-\item{do}{Whether to execute the join. Default is \code{TRUE} unless \code{x}
+\item{do}{Whether to execute the join. If FALSE, the data.table code for the
+join is printed to the console instead. Default is \code{TRUE} unless \code{x}
 and \code{y} are both omitted/\code{NULL}, in which case a mock join
-statement is produced. The join statement is always printed to the console
-regardless of \code{do}.}
+statement is produced. See details.}
 }
 \value{
 A \code{data.table} (the result of the join), or \code{NULL} if

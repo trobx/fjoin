@@ -4,25 +4,25 @@
 \alias{fjoin_cross}
 \title{Cross-join}
 \usage{
-fjoin_cross(x, y, order = "x", prefix = "R.", do = TRUE)
+fjoin_cross(x, y, order = "left", prefix = "R.", do = TRUE)
 }
 \arguments{
-\item{x, y}{If \code{do} is \code{TRUE}, i.e. you intend to run the join, a
-pair of \code{data.table}s. Otherwise any kind of data.frames, or else
-both omitted (\code{NULL}) for a mock join statement with no data.}
+\item{x, y}{\code{data.frame}-like objects (plain, \code{tibble},
+\code{data.table} etc.), or else both omitted (\code{NULL}) for a mock join
+statement with no data.}
 
 \item{order}{Whether the row order of the result should reflect \code{x} then
-\code{y} (\code{"x"}) or \code{y} then \code{x} (\code{"y"}). Default is
-\code{"x"} for left, inner, full and cross joins, \code{"y"} for right
-joins.}
+\code{y} (\code{"left"}) or \code{y} then \code{x} (\code{"right"}).
+Default is \code{"left"} for left, inner, full and cross joins,
+\code{"right"} for right joins.}
 
 \item{prefix}{A prefix to attach to column names in \code{y} that are the
 same as a column name in \code{x}. Default \code{"R."}.}
 
-\item{do}{Whether to execute the join. Default is \code{TRUE} unless \code{x}
+\item{do}{Whether to execute the join. If FALSE, the data.table code for the
+join is printed to the console instead. Default is \code{TRUE} unless \code{x}
 and \code{y} are both omitted/\code{NULL}, in which case a mock join
-statement is produced. The join statement is always printed to the console
-regardless of \code{do}.}
+statement is produced. See details.}
 }
 \value{
 A \code{data.table} (the result of the join), or \code{NULL} if

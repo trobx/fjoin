@@ -24,9 +24,9 @@
 #'   all columns. Use \code{""} (or \code{NA}) to select no columns. Join
 #'   columns are always selected.
 #' @param order Whether the row order of the result should reflect \code{x} then
-#'   \code{y} (\code{"x"}) or \code{y} then \code{x} (\code{"y"}). Default is
-#'   \code{"x"} for left, inner, full and cross joins, \code{"y"} for right
-#'   joins.
+#'   \code{y} (\code{"left"}) or \code{y} then \code{x} (\code{"right"}).
+#'   Default is \code{"left"} for left, inner, full and cross joins,
+#'   \code{"right"} for right joins.
 #' @param indicate  Whether to add a column \code{".join"}  at the front of the
 #'   result, with values \code{1L} if from \code{x} only, \code{2L} if from
 #'   \code{y} only, and \code{3L} if joined from both tables (c.f. \code{_merge}
@@ -39,10 +39,10 @@
 #'   column(s) in addition to \code{x}'s (equivalent to \code{keep} in dplyr).
 #'   Default \code{FALSE}. Note that non-equality join columns from \code{x} are
 #'   always included separately.
-#' @param do Whether to execute the join. Default is \code{TRUE} unless \code{x}
+#' @param do Whether to execute the join. If FALSE, the data.table code for the
+#'   join is printed to the console instead. Default is \code{TRUE} unless \code{x}
 #'   and \code{y} are both omitted/\code{NULL}, in which case a mock join
-#'   statement is produced. The join statement is always printed to the console
-#'   regardless of \code{do}.
+#'   statement is produced. See details.
 #'
 #' @returns A \code{data.frame} (a \code{data.table} if one or both inputs are
 #'   of that class), or \code{NULL} if \code{do} is \code{FALSE}. The data.table
@@ -59,7 +59,7 @@ fjoin_inner <- function(
     match.na  = FALSE,
     mult.x    = "all",
     mult.y    = "all",
-    order     = "x",
+    order     = "left",
     select    = NULL,
     select.x  = NULL,
     select.y  = NULL,
@@ -71,7 +71,7 @@ fjoin_inner <- function(
 ) {
 
   check_arg_order(order)
-  order.x <- order == "x"
+  order.x <- order == "left"
   xylabels <- c(make_label_fjoin(x, substitute(x)), make_label_fjoin(y, substitute(y)))
 
   dtjoin(
@@ -120,7 +120,7 @@ fjoin_left <- function(
     match.na  = FALSE,
     mult.x    = "all",
     mult.y    = "all",
-    order     = "x",
+    order     = "left",
     select    = NULL,
     select.x  = NULL,
     select.y  = NULL,
@@ -132,7 +132,7 @@ fjoin_left <- function(
 ) {
 
   check_arg_order(order)
-  order.x <- order == "x"
+  order.x <- order == "left"
   xylabels <- c(make_label_fjoin(x, substitute(x)), make_label_fjoin(y, substitute(y)))
 
   dtjoin(
@@ -181,7 +181,7 @@ fjoin_right <- function(
     mult.x    = "all",
     mult.y    = "all",
     indicate  = FALSE,
-    order     = "y",
+    order     = "right",
     select    = NULL,
     select.x  = NULL,
     select.y  = NULL,
@@ -192,7 +192,7 @@ fjoin_right <- function(
 ) {
 
   check_arg_order(order)
-  order.y <- order == "y"
+  order.y <- order == "right"
   xylabels <- c(make_label_fjoin(x, substitute(x)), make_label_fjoin(y, substitute(y)))
 
   dtjoin(
@@ -241,7 +241,7 @@ fjoin_full <- function(
     mult.x    = "all",
     mult.y    = "all",
     on.first  = FALSE,
-    order     = "x",
+    order     = "left",
     select    = NULL,
     select.x  = NULL,
     select.y  = NULL,
@@ -252,7 +252,7 @@ fjoin_full <- function(
 ) {
 
   check_arg_order(order)
-  order.x <- order == "x"
+  order.x <- order == "left"
   xylabels <- c(make_label_fjoin(x, substitute(x)), make_label_fjoin(y, substitute(y)))
 
   dtjoin(
@@ -460,13 +460,13 @@ fjoin_right_anti <- function(
 fjoin_cross <- function(
     x,
     y,
-    order     = "x",
+    order     = "left",
     prefix    = "R.",
     do        = TRUE
 ) {
 
   check_arg_order(order)
-  order.x <- order == "x"
+  order.x <- order == "left"
 
   dtjoin_cross(
     .DT        = if (order.x) y else x,

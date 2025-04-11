@@ -15,17 +15,17 @@ fjoin_right_semi(
 )
 }
 \arguments{
-\item{x, y}{If \code{do} is \code{TRUE}, i.e. you intend to run the join, a
-pair of \code{data.table}s. Otherwise any kind of data.frames, or else
-both omitted (\code{NULL}) for a mock join statement with no data.}
+\item{x, y}{\code{data.frame}-like objects (plain, \code{tibble},
+\code{data.table} etc.), or else both omitted (\code{NULL}) for a mock join
+statement with no data.}
 
 \item{on}{A character vector of join predicates, e.g. \code{c("id", "col_x ==
-col_y", "date < date")}, passed to the \code{on} argument of
-\code{[.data.table}.}
+col_y", "date < date")}.}
 
 \item{match.na}{If \code{TRUE}, allow equality matches between \code{NA}s or
 \code{NaN}s. The default is \code{FALSE}, i.e. such matches are not
-allowed, as in most real-world applications.}
+allowed, as in most real-world applications (but unlike other join
+frameworks in R)}
 
 \item{mult.x}{When a row of \code{x} has multiple matching rows in \code{y},
 which to accept: \code{"all"} (the default), \code{"first"}, or
@@ -35,10 +35,10 @@ which to accept: \code{"all"} (the default), \code{"first"}, or
 which to accept: \code{"all"} (the default), \code{"first"}, or
 \code{"last"}. Can be combined with \code{mult.x}.}
 
-\item{do}{Whether to execute the join. Default is \code{TRUE} unless \code{x}
+\item{do}{Whether to execute the join. If FALSE, the data.table code for the
+join is printed to the console instead. Default is \code{TRUE} unless \code{x}
 and \code{y} are both omitted/\code{NULL}, in which case a mock join
-statement is produced. The join statement is always printed to the console
-regardless of \code{do}.}
+statement is produced. See details.}
 }
 \value{
 A \code{data.table} (the result of the join), or \code{NULL} if

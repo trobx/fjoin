@@ -6,7 +6,7 @@
 #'   Accepts any \code{data.frame}-like inputs (not only \code{data.table}s),
 #'   permits left, right, inner, and full joins, prevents unwanted matches on
 #'   \code{NA} and \code{NaN} by default, does not garble join columns in
-#'   non-equality joins, allows 'mult' on both sides of the join, creates an
+#'   non-equality joins, allows \code{mult} on both sides of the join, creates an
 #'   optional join indicator column, allows specifying which columns to select
 #'   from each side, and provides convenience options to control column order
 #'   and prefixing.
@@ -47,8 +47,8 @@
 #'   from the "foreign" table only, and \code{3L} if joined from both tables
 #'   (c.f. \code{_merge} in Stata). Default \code{FALSE}.
 #' @param select,select.DT,select.i Character vectors of columns to be selected
-#'   from either input if present (\code{select}) or specifically from one or
-#'   other of them (e.g. \code{select.DT}). \code{NULL} (the default) selects
+#'   from either input (\code{select}) or specifically from one or
+#'   other (\code{select.DT}, \code{select.i}). \code{NULL} (the default) selects
 #'   all columns. Use \code{""} (or \code{NA}) to select no columns. Join
 #'   columns are always selected.
 #' @param on.first Whether to place the join columns first in the join result.
@@ -70,15 +70,16 @@
 #'   from the foreign table are always included separately.
 #' @param do Whether to execute the join. Default is \code{TRUE} unless
 #'   \code{.DT} and \code{.i} are both omitted/\code{NULL}, in which case a mock
-#'   join statement is produced. The join statement is always printed to the
-#'   console regardless of \code{do}.
+#'   join statement is produced.
+#' @param show Whether to print the code for the join to the console. Default is
+#'   the opposite of \code{do}. If \code{.DT} and \code{.i} are both
+#'   omitted/\code{NULL}, mock join code is displayed.
 #' @param verbose (passed to \code{[.data.table}) Whether data.table should
 #'   print information to the console during execution. Default \code{FALSE}.
 #' @param ... Further arguments (for internal use).
 #'
-#' @returns A \code{data.frame} (a \code{data.table} if one or both inputs are
-#'   of that class), or \code{NULL} if \code{do} is \code{FALSE}. The data.table
-#'   code is always printed to the console.
+#' @returns A \code{data.frame}, \code{tibble} or \code{data.table}, or else
+#'  \code{NULL} if \code{do} is \code{FALSE}. See details.
 #'
 #' @examples
 #' # Simple mock joins
@@ -90,29 +91,31 @@
 #' @export
 dtjoin <- function(
     # inputs
-    .DT        = NULL,
-    .i         = NULL,
-    # matching logic
-    on,
-    match.na   = FALSE,
-    mult       = "all",
-    mult.DT    = "all",
-    nomatch    = NA,
-    nomatch.DT = NULL,
-    indicate   = FALSE,
-    # output columns
-    select     = NULL,
-    select.DT  = NULL,
-    select.i   = NULL,
-    on.first   = FALSE,
-    i.main     = FALSE,
-    i.first    = i.main,
-    prefix     = if (i.main) "x." else "i.",
-    preserve   = FALSE,
-    # execution options
-    verbose    = FALSE,
-    do         = !(is.null(.DT) && is.null(.i)),
-    ...
+  .DT        = NULL,
+  .i         = NULL,
+  # matching logic
+  on,
+  match.na   = FALSE,
+  mult       = "all",
+  mult.DT    = "all",
+  # output rows
+  nomatch    = NA,
+  nomatch.DT = NULL,
+  # output columns
+  indicate   = FALSE,
+  select     = NULL,
+  select.DT  = NULL,
+  select.i   = NULL,
+  on.first   = FALSE,
+  i.main     = FALSE,
+  i.first    = i.main,
+  prefix     = if (i.main) "x." else "i.",
+  preserve   = FALSE,
+  # execution options
+  do         = !(is.null(.DT) && is.null(.i)),
+  show       = !do,
+  verbose    = FALSE,
+  ...
 ) {
 
   dot_args <- list(...)
@@ -126,6 +129,7 @@ dtjoin <- function(
   check_nomatch(nomatch)
   check_nomatch(nomatch.DT)
   check_TF(do)
+  check_TF(show)
   check_TF(indicate)
   check_TF(on.first)
   check_TF(i.first)
@@ -139,6 +143,7 @@ dtjoin <- function(
 
   mock <- is.null(.DT) && is.null(.i)
   do   <- !mock && do
+  show <- show || !do
 
   if (mock) {
     tmp   <- make_mock_tables(on)
@@ -149,6 +154,7 @@ dtjoin <- function(
     check_input_class(.DT)
     check_input_class(.i)
     as_DT <- data.table::is.data.table(.DT) || data.table::is.data.table(.i)
+    as_tbl_df <- !as_DT && (inherits(.DT, "tbl_df") || inherits(.i, "tbl_df")) && any(c("package:dplyr", "package:tibble") %in% search())
     if (do) {
       asis.DT           <- data.table::is.data.table(.DT)
       asis.i            <- data.table::is.data.table(.i)
@@ -220,7 +226,7 @@ dtjoin <- function(
         if (s[1] == s[3])
           # id -> PREF.id=id
           oldnames_DT_anti <- c(oldnames_DT_anti, s[1])
-          newnames_DT_anti <- c(newnames_DT_anti, sprintf("%s%s", prefix, s[3]))
+        newnames_DT_anti <- c(newnames_DT_anti, sprintf("%s%s", prefix, s[3]))
       }
     }
 
@@ -455,7 +461,7 @@ dtjoin <- function(
       }
       jointext <-
         sprintf("setDT(%s[%s, on = %s, nomatch = NULL, %s%s%s])[%s%s]%s",
-        .DTtext,
+                .DTtext,
                 .itext,
                 deparse(on),
                 argtext_mult,
@@ -508,24 +514,25 @@ dtjoin <- function(
       .DTantitext <- sprintf("setDT(.DT[!temp$fjoin.DT.rn, data.frame(%s)])", paste(names_DT[include_DT_anti], collapse = ", "))
     }
     if (rename.DT_anti) .DTantitext <-
-      sprintf("setnames(%s, %s, %s)", .DTantitext, deparse(oldnames_DT_anti), deparse(newnames_DT_anti))
+        sprintf("setnames(%s, %s, %s)", .DTantitext, deparse(oldnames_DT_anti), deparse(newnames_DT_anti))
     if (indicate) .DTantitext <-
-      sprintf("%s[, .join := %s]", .DTantitext, if (!i.main) "1L" else "2L")
+        sprintf("%s[, .join := %s]", .DTantitext, if (!i.main) "1L" else "2L")
     jointext <- sprintf("with(list(temp = %s), rbind(temp, %s, fill = TRUE))[, fjoin.DT.rn := NULL][]", jointext, .DTantitext)
     if (!as_DT) jointext <- sprintf("setDF(%s)[]", jointext)
   }
 
   # --------------------------------------------------------------------------
 
-  cat("\n", ".DT :", .labels[[1]], "\n", ".i  :", .labels[[2]])
-  cat("\n", "Join:", jointext, "\n\n")
+  if (show) {
+    cat(".DT : ", .labels[[1]], "\n", ".i  : ", .labels[[2]], "\n", "Join: ", jointext, "\n\n", sep="")
+  }
 
   if (do) {
     if (asis.DT) on.exit(clean_up(.DT), add = TRUE)
     if (asis.i) on.exit(clean_up(.i), add = TRUE)
-    return(eval(parse(text = jointext),
-                envir = list2env(list(.DT = .DT, .i = .i),
-                                 parent = getNamespace("data.table"))))
+    ans <- (eval(parse(text = jointext),
+                 envir = list2env(list(.DT = .DT, .i = .i), parent = getNamespace("data.table"))))
+    return(if (as_tbl_df) tibble::as_tibble(ans) else ans)
   }
 }
 

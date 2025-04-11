@@ -34,8 +34,7 @@ are the same as a column name in the "home" table. The default is
 
 \item{do}{Whether to execute the join. Default is \code{TRUE} unless
 \code{.DT} and \code{.i} are both omitted/\code{NULL}, in which case a mock
-join statement is produced. The join statement is always printed to the
-console regardless of \code{do}.}
+join statement is produced.}
 }
 \value{
 A \code{data.table} (the resulting cross-join), or \code{NULL} if \code{do}

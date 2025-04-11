@@ -23,8 +23,9 @@ dtjoin(
   i.first = i.main,
   prefix = if (i.main) "x." else "i.",
   preserve = FALSE,
-  verbose = FALSE,
   do = !(is.null(.DT) && is.null(.i)),
+  show = !do,
+  verbose = FALSE,
   ...
 )
 }
@@ -33,9 +34,7 @@ dtjoin(
 \code{data.table} etc.), or else both omitted (\code{NULL}) for a mock join
 statement with no data.}
 
-\item{on}{A character vector of join predicates acceptable to the \code{on}
-argument of \code{[.data.table}, e.g. \code{c("id", "col_x == col_y", "date
-< date")}.}
+\item{on}{A character vector of join predicates.}
 
 \item{match.na}{If \code{TRUE}, allow equality matches between \code{NA}s or
 \code{NaN}s. The default is \code{FALSE}, i.e. such matches are not
@@ -60,16 +59,16 @@ exclude them.}
 rows of \code{.DT} with no match in \code{.i}, or \code{NULL} (the default)
 to leave them out.}
 
-\item{indicate}{Whether to add a column \code{".join"} with values \code{1L}
-if from the "home" table only, \code{2L} if from the "foreign" table only,
-and \code{3L} if joined from both tables. C.f. the _merge option in Stata.
-Default \code{FALSE}.}
+\item{indicate}{Whether to add a column \code{".join"} at the front of the
+result, with values \code{1L} if from the "home" table only, \code{2L} if
+from the "foreign" table only, and \code{3L} if joined from both tables
+(c.f. \code{_merge} in Stata). Default \code{FALSE}.}
 
 \item{select, select.DT, select.i}{Character vectors of columns to be selected
-from either object if present (\code{select}) or from one or other
-specifically (e.g. \code{select.DT}). \code{NULL} (the default) selects all
-columns. Use \code{NA} (or \code{""}) to select no columns. Join columns
-are always selected.}
+from either input (\code{select}) or specifically from one or
+other (\code{select.DT}, \code{select.i}). \code{NULL} (the default) selects
+all columns. Use \code{""} (or \code{NA}) to select no columns. Join
+columns are always selected.}
 
 \item{on.first}{Whether to place the join columns first in the join result.
 Default \code{FALSE}.}
@@ -93,20 +92,22 @@ equality join column(s) in addition to the "home" table's (equivalent to
 "keep" in dplyr). Default \code{FALSE}. Note that non-equality join columns
 from the foreign table are always included separately.}
 
-\item{verbose}{(passed to \code{[.data.table}) Whether data.table should
-print information to the console during execution. Default \code{FALSE}.}
-
 \item{do}{Whether to execute the join. Default is \code{TRUE} unless
 \code{.DT} and \code{.i} are both omitted/\code{NULL}, in which case a mock
-join statement is produced. The join statement is always printed to the
-console regardless of \code{do}.}
+join statement is produced.}
+
+\item{show}{Whether to print the code for the join to the console. Default is
+the opposite of \code{do}. If \code{.DT} and \code{.i} are both
+omitted/\code{NULL}, mock join code is displayed.}
+
+\item{verbose}{(passed to \code{[.data.table}) Whether data.table should
+print information to the console during execution. Default \code{FALSE}.}
 
 \item{...}{Further arguments (for internal use).}
 }
 \value{
-A \code{data.table} (the result of the join), or \code{NULL} if
-  \code{do} is \code{FALSE}. The data.table code is always printed to the
-  console.
+A \code{data.frame}, \code{tibble} or \code{data.table}, or else
+ \code{NULL} if \code{do} is \code{FALSE}. See details.
 }
 \description{
 Write (and optionally run) \code{data.table} code for a join,
@@ -114,7 +115,7 @@ Write (and optionally run) \code{data.table} code for a join,
   Accepts any \code{data.frame}-like inputs (not only \code{data.table}s),
   permits left, right, inner, and full joins, prevents unwanted matches on
   \code{NA} and \code{NaN} by default, does not garble join columns in
-  non-equality joins, allows 'mult' on both sides of the join, creates an
+  non-equality joins, allows \code{mult} on both sides of the join, creates an
   optional join indicator column, allows specifying which columns to select
   from each side, and provides convenience options to control column order
   and prefixing.

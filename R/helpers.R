@@ -5,8 +5,8 @@ check_TF <- function(x) {
 }
 # ------------------------------------------------------------------------------
 check_arg_order <- function(x) {
-  if (!x %in% c("x", "y"))
-    stop(sprintf("Argument '%s' must be \"x\" or \"y\"", deparse(substitute(x))))
+  if (!x %in% c("left", "right"))
+    stop(sprintf("Argument '%s' must be \"left\" or \"right\"", deparse(substitute(x))))
 }
 # ------------------------------------------------------------------------------
 check_mult <- function(x) {
