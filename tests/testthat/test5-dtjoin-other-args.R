@@ -84,7 +84,7 @@ test_that("fjoin_left with indicate", {
 })
 
 test_that("fjoin_left ordered by y with indicate", {
-  result <- fjoin_left(A, B, on="idA==idB", order="y", indicate=TRUE)
+  result <- fjoin_left(A, B, on="idA==idB", order="right", indicate=TRUE)
   expect_equal(result$.join, c(3,3,1,1))
 })
 
@@ -94,7 +94,7 @@ test_that("fjoin_right with indicate", {
 })
 
 test_that("fjoin_right ordered by x with indicate", {
-  result <- fjoin_right(A, B, on="idA==idB", order="x", indicate=TRUE)
+  result <- fjoin_right(A, B, on="idA==idB", order="left", indicate=TRUE)
   expect_equal(result$.join, c(3,3,2,2))
 })
 
@@ -104,6 +104,6 @@ test_that("fjoin_full  with indicate", {
 })
 
 test_that("fjoin_full ordered by y with indicate", {
-  result <- fjoin_full(A, B, on="idA==idB", order="y", indicate=TRUE)
+  result <- fjoin_full(A, B, on="idA==idB", order="right", indicate=TRUE)
   expect_equal(result$.join, c(3,3,2,2,1,1))
 })

@@ -35,7 +35,7 @@ test_that("fjoin_inner with NA matches", {
 
 test_that("fjoin_inner without NA matches, order right", {
   result <-
-    fjoin_inner(A, B, on="id", order="y")
+    fjoin_inner(A, B, on="id", order="right")
   compare <-
     dplyr::inner_join(A, B, by = "id", relationship = "many-to-many", na_matches = "never") |>
     _[order(c.y, c.x)]
@@ -69,7 +69,7 @@ test_that("fjoin_left with NA matches", {
 
 test_that("fjoin_left without NA matches, order right", {
   result <-
-    fjoin_left(A, B, on="id", order="y")
+    fjoin_left(A, B, on="id", order="right")
   compare <-
     dplyr::left_join(A, B, by = "id", relationship = "many-to-many", na_matches = "never") |>
     _[order(c.y, c.x)]
@@ -107,7 +107,7 @@ test_that("fjoin_right with NA matches", {
 
 test_that("fjoin_right without NA matches, order left", {
   result <-
-    fjoin_right(A, B, on="id", order="x")
+    fjoin_right(A, B, on="id", order="left")
   compare <-
     dplyr::right_join(A, B, by = "id", relationship = "many-to-many", na_matches = "never") |>
     _[order(c.x, c.y)]
@@ -145,7 +145,7 @@ test_that("fjoin_full with NA matches", {
 
 test_that("fjoin_full without NA matches, order right", {
   result <-
-    fjoin_full(A, B, on="id", order="y")
+    fjoin_full(A, B, on="id", order="right")
   compare <-
     dplyr::full_join(A, B, by = "id", relationship = "many-to-many", na_matches = "never") |>
     _[order(c.y, c.x)]
@@ -169,7 +169,7 @@ test_that("fjoin_cross", {
 
 test_that("fjoin_cross, order right", {
   result <-
-    fjoin_cross(A, B, order="y")
+    fjoin_cross(A, B, order="right")
   compare <-
     dplyr::cross_join(A, B) |>
     _[order(c.y, c.x)]

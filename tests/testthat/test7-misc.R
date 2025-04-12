@@ -117,12 +117,12 @@ test_that("dtjoin_anti_DT non-existent join column .i", {
 # argument checks
 
 test_that("order arg check", {
-  fjoin_left(dt, dt, on = "id", order = "x") |>
+  fjoin_left(dt, dt, on = "id", order = "left") |>
     expect_no_error()
-  fjoin_left(dt, dt, on = "id", order = "y") |>
+  fjoin_left(dt, dt, on = "id", order = "right") |>
     expect_no_error()
   fjoin_left(dt, dt, on = "id", order = TRUE) |>
-    expect_error("Argument 'order' must be \"x\" or \"y\"")
+    expect_error("Argument 'order' must be \"left\" or \"right\"")
 })
 
 test_that("mult arg check", {
