@@ -413,7 +413,11 @@ dtjoin <- function(
               jtext,
               if (!has_mult) ", allow.cartesian = TRUE" else "",
               argtext_verbose)
-    if (as_DT) jointext <- sprintf("setDT(%s)[]", jointext)
+    if (outer.DT) {
+      jointext <- sprintf("setDT(%s)", jointext)
+    } else if (as_DT) {
+      jointext <- sprintf("setDT(%s)[]", jointext)
+    }
 
 
   } else if (mult == "all") {
@@ -442,7 +446,11 @@ dtjoin <- function(
               argtext_nomatch,
               jtext,
               argtext_verbose)
-    if (as_DT) jointext <- sprintf("setDT(%s)[]", jointext)
+    if (outer.DT) {
+      jointext <- sprintf("setDT(%s)", jointext)
+    } else if (as_DT) {
+      jointext <- sprintf("setDT(%s)[]", jointext)
+    }
 
   } else {
     # both mult.DT and mult - solution depends on whether outer wrt .i
@@ -477,7 +485,7 @@ dtjoin <- function(
                 },
                 argtext_verbose,
                 if (outer.DT) "" else "[, fjoin.DT.rn := NULL][]")
-      if (!as_DT) jointext <- sprintf("setDF(%s)[]", jointext)
+      if (!(outer.DT || as_DT)) jointext <- sprintf("setDF(%s)[]", jointext)
 
     } else {
       # outer wrt .i
@@ -502,7 +510,11 @@ dtjoin <- function(
                 argtext_verbose,
                 jtext,
                 argtext_verbose)
-      if (as_DT) jointext <- sprintf("setDT(%s)[]", jointext)
+      if (outer.DT) {
+        jointext <- sprintf("setDT(%s)", jointext)
+      } else if (as_DT) {
+        jointext <- sprintf("setDT(%s)[]", jointext)
+      }
     }
   }
 
