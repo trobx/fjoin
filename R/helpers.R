@@ -60,6 +60,27 @@ na_omit_cost_rc <- function(nr, nc) {
   (10L + nc) * (nr / 1e9L)
 }
 # ------------------------------------------------------------------------------
+na_omit_text <- function(x, na_cols=NULL, sd_cols=NULL) {
+  # A call to na.omit.data.table() as unparsed text
+  if (is.null(sd_cols)) {
+    if (is.null(na_cols)) {
+      sprintf("na.omit(%s)", x)
+    } else {
+      sprintf("na.omit(%s, cols = %s)", x, deparse(na_cols))
+    }
+  } else {
+    if (is.null(na_cols)) {
+      sprintf("%s[, na.omit(.SD), .SDcols = %s]", x, deparse(sd_cols))
+    } else {
+      sprintf("%s[, na.omit(.SD, cols = %s), .SDcols = %s]", x, deparse(na_cols), deparse(sd_cols))
+    }
+  }
+}
+# naomit_text(".DT")
+# naomit_text(".DT", na_cols="id_A")
+# naomit_text(".DT", sd_cols=c("id_A", "A"))
+# naomit_text(".DT", na_cols="id_A", sd_cols=c("id_A", "A"))
+# ------------------------------------------------------------------------------
 make_label_fjoin <- function(t, sub_t) {
   # for calling in fjoin_*(): table label for printing, e.g. "x = A", "x (unnamed)"
   paste0(deparse(substitute(t)), if (!is.null(t) & is.name(sub_t)) sprintf(" = %s", deparse(sub_t)) else " (unnamed)")
@@ -135,3 +156,7 @@ allows_equi <- function(x) {
 }
 #allows_equi(">=")
 #allows_equi(">")
+# ------------------------------------------------------------------------------
+vcat <- function(x) {
+  cat(deparse(substitute(x))," : ",x,"\n")
+}
