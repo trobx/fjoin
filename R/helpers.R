@@ -69,17 +69,18 @@ na_omit_text <- function(x, na_cols=NULL, sd_cols=NULL) {
       sprintf("na.omit(%s, cols = %s)", x, deparse(na_cols))
     }
   } else {
-    if (is.null(na_cols)) {
+    if (is.null(na_cols) || identical(na_cols, sd_cols)) {
       sprintf("%s[, na.omit(.SD), .SDcols = %s]", x, deparse(sd_cols))
     } else {
       sprintf("%s[, na.omit(.SD, cols = %s), .SDcols = %s]", x, deparse(na_cols), deparse(sd_cols))
     }
   }
 }
-# naomit_text(".DT")
-# naomit_text(".DT", na_cols="id_A")
-# naomit_text(".DT", sd_cols=c("id_A", "A"))
-# naomit_text(".DT", na_cols="id_A", sd_cols=c("id_A", "A"))
+# na_omit_text(".DT")
+# na_omit_text(".DT", na_cols="id_A")
+# na_omit_text(".DT", sd_cols=c("id_A", "A"))
+# na_omit_text(".DT", na_cols="id_A", sd_cols="id_A")
+# na_omit_text(".DT", na_cols="id_A", sd_cols=c("id_A", "A"))
 # ------------------------------------------------------------------------------
 make_label_fjoin <- function(t, sub_t) {
   # for calling in fjoin_*(): table label for printing, e.g. "x = A", "x (unnamed)"
