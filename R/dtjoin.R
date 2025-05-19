@@ -1,7 +1,7 @@
 #' Join data.frames using an enhanced and extended \code{DT[i]}-like data.table
 #' syntax
 #'
-#' @description Write (and optionally run) \code{data.table} code for a join,
+#' @description Write (and optionally run) \code{data.table} code for a join
 #'   using a functional form of \code{DT[i]}-style syntax with many efficient
 #'   enhancements. Accepts any \code{data.frame}-like inputs (not only
 #'   \code{data.table}s), permits left, right, inner, and full joins, prevents
@@ -13,10 +13,10 @@
 #'
 #'   If run, the join returns a \code{data.frame}, \code{tibble} or
 #'   \code{data.table} according to context. The generated \code{data.table}
-#'   code can be printed to the console instead of (or as well as) executing the
-#'   join. This feature extends to \emph{mock joins}, where no \code{data.frame}
-#'   inputs are provided, and template code is generated that can be swiped and
-#'   adapted.
+#'   code can be printed to the console instead of (or as well as) being
+#'   executed. This feature extends to \emph{mock joins}, where no
+#'   \code{data.frame} inputs are provided, and template code is generated that
+#'   can be swiped and adapted.
 #'
 #'   \code{dtjoin()} is the workhorse function for \code{fjoin_inner()},
 #'   \code{fjoin_left()}, \code{fjoin_right()}, and \code{fjoin_full()}, which
@@ -72,8 +72,8 @@
 #'   \code{TRUE}).
 #' @param preserve (rarely used) Whether to include the "foreign" table's
 #'   equality join column(s) in addition to the "home" table's (equivalent to
-#'   "keep" in dplyr). Default \code{FALSE}. Note that non-equality join columns
-#'   from the foreign table are always included separately.
+#'   \code{keep} in dplyr). Default \code{FALSE}. Note that non-equality join
+#'   columns from the foreign table are always included separately.
 #' @param do Whether to execute the join. Default is \code{TRUE} unless
 #'   \code{.DT} and \code{.i} are both omitted/\code{NULL}, in which case a mock
 #'   join statement is produced.
@@ -96,7 +96,7 @@
 #'
 #' @export
 dtjoin <- function(
-    # inputs
+  # inputs
   .DT        = NULL,
   .i         = NULL,
   # matching logic
@@ -124,11 +124,8 @@ dtjoin <- function(
   ...
 ) {
 
-  dot_args <- list(...)
-
   # TODO: check_on(on)
-  # TODO: check_select(select.DT)
-  # TODO: check_select(select.i)
+  # TODO: check_select(select args)
   check_TF(match.na)
   check_mult(mult)
   check_mult(mult.DT)
@@ -142,6 +139,8 @@ dtjoin <- function(
   check_TF(i.main)
   check_TF(preserve)
   check_TF(verbose)
+
+  dot_args <- list(...)
 
   on   <- clean_on(on)
   mock <- is.null(.DT) && is.null(.i)
@@ -242,7 +241,7 @@ dtjoin <- function(
     }
 
     if (!(has_mult.DT && !has_mult)) {
-      # general case
+      # typical case
       if (!i.main) {
         # .DT home table
         if (s[2] == "==" && !preserve) {
@@ -334,21 +333,18 @@ dtjoin <- function(
   if (outer.DT) {
     include_anti.DT <- is_joincol.DT | include.DT
     if (rename_anti.DT) {
-      # add renames for non-join columns
-      # TODO: change to jtext_anti.DT instead of renaming
-      # x.v <- v
+      # renames for non-join columns x.v <- v
       tmp <- names.DT[is_selected.DT & names.DT %in% names.i]
       oldnames_anti.DT <- c(oldnames_anti.DT, tmp)
       newnames_anti.DT <- c(newnames_anti.DT, sprintf("%s%s", prefix, tmp))
       rename_anti.DT <- length(newnames_anti.DT) != 0L
     }
-    # need fjoin.DT.rn in all cases
     names.DT       <- c(names.DT, "fjoin.DT.rn")
     jvars.DT       <- c(jvars.DT, "fjoin.DT.rn")
     is_joincol.DT  <- c(is_joincol.DT, FALSE)
     include.DT     <- c(include.DT, TRUE)
     is_selected.DT <- c(is_selected.DT, TRUE)
-    if (!is.null(select))       select <- c(select, "fjoin.DT.rn")
+    if (!is.null(select)) select <- c(select, "fjoin.DT.rn")
     if (!is.null(select.DT)) select.DT <- c(select.DT, "fjoin.DT.rn")
   }
 
@@ -372,24 +368,29 @@ dtjoin <- function(
   # ----------------------------------------------------------------------------
   # jvars, jtext, add_dummy_col.DT
 
-  # filtered
   jvars.DT   <- jvars.DT[include.DT]
   jvars.i    <- jvars.i[include.i]
 
   if (!on.first && !(has_select || has_select.DT || has_select.i)) {
   # all columns, order as is
+
     jvars <- if (i.first) c(jvars.i, jvars.DT) else c(jvars.DT, jvars.i)
+
   } else {
+
     is_joincol.DT     <- is_joincol.DT[include.DT]
-    is_joincol.i      <- is_joincol.i[include.i]
     joincol_jvars.DT  <- jvars.DT[is_joincol.DT]
-    joincol_jvars.i   <- jvars.i[is_joincol.i]
     other_jvars.DT    <- jvars.DT[!is_joincol.DT]
-    other_jvars.i     <- jvars.i[!is_joincol.i]
     selected_names.DT <- names.DT[is_selected.DT]
+
+    is_joincol.i      <- is_joincol.i[include.i]
+    joincol_jvars.i   <- jvars.i[is_joincol.i]
+    other_jvars.i     <- jvars.i[!is_joincol.i]
     selected_names.i  <- names.i[is_selected.i]
+
     if (has_select && !(has_select.DT || has_select.i)) {
     # select-only case (always as if on.first)
+
       jvars <-
         if (i.first) {
           c(joincol_jvars.i,
@@ -400,8 +401,10 @@ dtjoin <- function(
             joincol_jvars.i,
             stats::na.omit(unlist(lapply(select, \(x) c(other_jvars.DT[match(x,selected_names.DT)], other_jvars.i[match(x,selected_names.i)])))))
         }
+
     } else {
     # all other cases
+
       if (!is.null(select.DT)) {
         other_jvars.DT <- c(stats::na.omit(other_jvars.DT[match(select.DT,selected_names.DT)], if (outer.DT) "fjoin.DT.rn" else NULL))
       }
@@ -592,8 +595,7 @@ dtjoin <- function(
   if (do) {
     if (asis.DT) on.exit(clean_up(.DT), add = TRUE)
     if (asis.i) on.exit(clean_up(.i), add = TRUE)
-    ans <- (eval(parse(text = jointext),
-                 envir = list2env(list(.DT = .DT, .i = .i), parent = getNamespace("data.table"))))
+    ans <- (eval(parse(text = jointext), envir = list2env(list(.DT = .DT, .i = .i), parent = getNamespace("data.table"))))
     return(if (as_tbl_df) tibble::as_tibble(ans) else ans)
   }
 }
