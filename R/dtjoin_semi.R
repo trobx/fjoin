@@ -1,8 +1,8 @@
-#' Return the semi-join of the \code{i}-table in a \code{DT[i]}-style data.table
-#' join
+#' Return the semi-join of \code{DT} in a data.table \code{DT[i]}-style
+#' join between data.frames
 #'
 #' @description Write (and optionally run) \code{data.table} code to return the
-#' semi-join of the \code{i}-table in an enhanced \code{DT[i]}-style join.
+#' semi-join of the \code{DT}-table in an enhanced \code{DT[i]}-style join.
 #' Arguments are as for \code{dtjoin}, except for those controlling the output
 #' columns, which do not apply.
 #'
@@ -10,15 +10,14 @@
 #' @param nomatch,nomatch.DT Permitted for consistency with \code{dtjoin} but
 #'   have no effect on the resulting semi-join.
 #'
-#' @returns A \code{data.table} (the resulting semi-join), or \code{NULL} if
-#'   \code{do} is \code{FALSE}. The data.table code is always printed to the
-#'   console.
+#' @returns A \code{data.frame}, \code{tibble}, or \code{data.table} according
+#'   to context, or else NULL if \code{do} is \code{FALSE}. See dtjoin.
 #'
 #' @examples
 #' # TODO
 #'
 #' @export
-dtjoin_semi_i <- function(
+dtjoin_semi <- function(
     .DT        = NULL,
     .i         = NULL,
     on,
@@ -99,10 +98,10 @@ dtjoin_semi_i <- function(
 
     s <- strsplit_predicate(on[i])
 
-    idx.DT <- match(s[1], names(.DT))
+    idx.DT <- match(s[1], names.DT)
     if (is.na(idx.DT)) stop(sprintf("No column named \"%s\" found in `.DT`", s[1]))
 
-    idx.i <- match(s[3], names(.i))
+    idx.i <- match(s[3], names.i)
     if (is.na(idx.i)) stop(sprintf("No column named \"%s\" found in `.i`", s[3]))
 
     is_joincol.DT[idx.DT] <- TRUE
@@ -115,7 +114,7 @@ dtjoin_semi_i <- function(
   }
 
   # will create prefixed jvars on the fly in the cases where select-on-join is used
-  included <- if (has_select) names.i[is_joincol.i | names.i %in% select] else names.i
+  included <- if (has_select) names.DT[is_joincol.DT | names.DT %in% select] else names.DT
 
   # ----------------------------------------------------------------------------
 
@@ -129,37 +128,35 @@ dtjoin_semi_i <- function(
 
   # ----------------------------------------------------------------------------
 
-  if (!has_mult.DT) {
-    # no mult.DT
+  if (!has_mult) {
+    # no mult
 
     if (i == 1L && s[2] == "==") {
-    # no mult.DT, single equality: not-in
+    # no mult, single equality: not-in
     # TODO use %chin% if char
-
-      # TODO in dtjoin, na.omit test should only cover selected .i as done below
 
       if (screen_NAs && na_omit_cost_rc(nrow(.DT), 1L) > na_omit_cost_rc(nrow(.i), length(included))) {
         # we can na.omit on .i if we like as those rows can't be matches
-        .DTtext <- sprintf(".DT$%s", s[1])
-        .itext  <- na_omit_text(".i", na_cols=s[3], sd_cols = if (has_select) included else NULL)
+        .DTtext <- na_omit_text(".DT", na_cols=s[1], sd_cols=if (has_select) included else NULL)
+        .itext <- sprintf(".i$%s", s[3])
         jointext <-
           sprintf("%s[%s %s %s%s]",
-                  .itext,
-                  s[3],
-                  if (is.character(s[1])) "%chin%" else "%in%",
                   .DTtext,
+                  s[1],
+                  if (is.character(s[1])) "%chin%" else "%in%",
+                  .itext,
                   argtext_verbose)
         if (!as_DT) jointext <- sprintf("setDF(%s)[]", jointext) # very different from other cases
       } else {
-        .DTtext <- sprintf("%s$%s", if (screen_NAs) na_omit_text(".DT", sd_cols=s[1]) else ".DT", s[1])
-        .itext  <- ".i"
+        .DTtext <- ".DT"
+        .itext <- sprintf("%s$%s", if (screen_NAs) na_omit_text(".i", sd_cols=s[3]) else ".i", s[3])
         jointext <-
           sprintf("%s[%s %s %s%s%s]",
-                  .itext,
-                  s[3],
-                  if (is.character(s[1])) "%chin%" else "%in%",
                   .DTtext,
-                  if (has_select) sprintf(", data.frame(%s)", paste(included, collapse = ",")) else "",
+                  s[1],
+                  if (is.character(s[1])) "%chin%" else "%in%",
+                  .itext,
+                  if (has_select) sprintf(", data.frame(%s)", paste(included, collapse=",")) else "",
                   argtext_verbose)
         if (has_select) {
           if (as_DT) jointext <- sprintf("setDT(%s)[]", jointext)
@@ -169,52 +166,52 @@ dtjoin_semi_i <- function(
       }
 
     } else {
-      # no mult.DT, general case: inner join with mult for uniqueness
+      # no mult, general case: flip tables and inner join with mult for uniqueness
 
       .DTtext <- ".DT"
       .itext  <- ".i"
       if (screen_NAs) {
-        if (na_omit_cost_rc(nrow(.DT), length(equi_names.DT)) > na_omit_cost_rc(nrow(.i), length(included))) {
+        if (na_omit_cost_rc(nrow(.DT), length(included)) > na_omit_cost_rc(nrow(.i), length(equi_names.i))) {
           .itext  <- na_omit_text(.itext,
                                   na_cols=equi_names.i,
-                                  sd_cols=if (has_select) included else NULL)
+                                  sd_cols=names.i[is_joincol.i])
         } else {
           .DTtext <- na_omit_text(.DTtext,
                                   na_cols=equi_names.DT,
-                                  sd_cols=names(.DT)[is_joincol.DT])
+                                  sd_cols=if (has_select) included else NULL)
         }
       }
       jointext <-
         sprintf("%s[%s, on = %s, nomatch = NULL, mult = %s, data.frame(%s)%s]",
-                .DTtext,
                 .itext,
-                deparse(on),
-                if (has_mult) deparse(mult) else "\"first\"",
-                paste(ifelse(included %in% names.DT, sprintf("%s = i.%s",included,included), included), collapse = ", "),
+                .DTtext,
+                deparse(flip_on(on)),
+                if (has_mult.DT) deparse(mult.DT) else "\"first\"",
+                paste(ifelse(included %in% names.DT, sprintf("%s = i.%s",included,included), included), collapse=", "),
                 argtext_verbose)
       if (as_DT) jointext <- sprintf("setDT(%s)[]", jointext)
     }
 
-  } else if (!has_mult) {
-    # no mult, mult.DT: select unique which
+  } else if (!has_mult.DT) {
+    # mult but no mult.DT: select unique which
 
     .DTtext <- ".DT"
     .itext  <- ".i"
     if (screen_NAs) {
-      # can't na.omit on .i here
-      .DTtext <- na_omit_text(.DTtext,
-                              na_cols=equi_names.DT,
-                              sd_cols=names(.DT)[is_joincol.DT])
+      # can't na.omit on .DT here
+      .itext <- na_omit_text(.itext,
+                              na_cols=equi_names.i,
+                              sd_cols=names.i[is_joincol.i])
     }
     jointext <-
       sprintf("%s[fsort(as.numeric(unique(%s[%s, on = %s, nomatch = NULL, mult = %s, which = TRUE%s])))%s]",
-              .itext,
-              .itext,
               .DTtext,
-              deparse(flip_on(on)),
-              deparse(mult.DT),
+              .DTtext,
+              .itext,
+              deparse(on),
+              deparse(mult),
               argtext_verbose,
-              if (has_select) sprintf(", data.frame(%s)", paste(included, collapse = ", ")) else ""
+              if (has_select) sprintf(", data.frame(%s)", paste(included, collapse=", ")) else ""
               )
     if (has_select) {
       if (as_DT) jointext <- sprintf("setDT(%s)[]", jointext)
@@ -232,27 +229,27 @@ dtjoin_semi_i <- function(
       if (na_omit_cost_rc(nrow(.DT), length(equi_names.DT)) > na_omit_cost_rc(nrow(.i), length(included))) {
         .itext  <- na_omit_text(.itext,
                                 na_cols=equi_names.i,
-                                sd_cols=if (has_select) included else NULL)
+                                sd_cols=names.i[is_joincol.i])
       } else {
         .DTtext <- na_omit_text(.DTtext,
                                 na_cols=equi_names.DT,
-                                sd_cols=names(.DT)[is_joincol.DT])
+                                sd_cols=if (has_select) included else NULL)
       }
     }
 
     jointext <-
-      # NB fjoin.DT.rn here refers to .DT after na.omit if applicable
-      sprintf("setDT(%s[, fjoin.DT.rn := .I][%s, on = %s, nomatch = NULL, mult = %s, data.frame(%s)%s])[%s%s][, fjoin.DT.rn := NULL]",
-              .DTtext,
+      # NB fjoin.i.rn here refers to .i after na.omit if applicable
+      sprintf("setDT(%s[, fjoin.i.rn := .I][%s, on = %s, nomatch = NULL, mult = %s, data.frame(%s)%s])[%s%s][, fjoin.i.rn := NULL]",
               .itext,
-              deparse(on),
-              deparse(mult),
-              paste(c(ifelse(included %in% names.DT, sprintf("%s = i.%s",included,included), included), "fjoin.DT.rn"), collapse = ", "),
+              .DTtext,
+              deparse(flip_on(on)),
+              deparse(mult.DT),
+              paste(c(ifelse(included %in% names.i, sprintf("%s = i.%s",included,included), included), "fjoin.i.rn"), collapse=", "),
               argtext_verbose,
-              if (mult.DT=="first") {
-                ", first(.SD), by = \"fjoin.DT.rn\""
+              if (mult=="first") {
+                ", first(.SD), by = \"fjoin.i.rn\""
               } else {
-                "!duplicated(fjoin.DT.rn, fromLast=TRUE)"
+                "!duplicated(fjoin.i.rn, fromLast=TRUE)"
               },
               argtext_verbose)
     jointext <- sprintf(if (as_DT) "%s[]" else "setDF(%s)[]", jointext)
@@ -265,9 +262,9 @@ dtjoin_semi_i <- function(
   }
 
   if (do) {
-    if (asis.DT) on.exit(clean_up(.DT), add = TRUE)
-    if (asis.i) on.exit(clean_up(.i), add = TRUE) # but no temp cols
-    ans <- (eval(parse(text = jointext), envir = list2env(list(.DT = .DT, .i = .i), parent = getNamespace("data.table"))))
+    if (asis.DT) on.exit(clean_up(.DT), add=TRUE) # but no temp cols
+    if (asis.i) on.exit(clean_up(.i), add=TRUE)
+    ans <- (eval(parse(text=jointext), envir=list2env(list(.DT=.DT, .i=.i), parent=getNamespace("data.table"))))
     return(if (as_tbl_df) tibble::as_tibble(ans) else ans)
   }
 }

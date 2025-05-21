@@ -430,7 +430,7 @@ dtjoin <- function(
     }
   }
 
-  jtext <- paste0("data.frame(", paste(jvars, collapse = ", "), ")")
+  jtext <- paste0("data.frame(", paste(jvars, collapse=", "), ")")
 
   # ----------------------------------------------------------------------------
   # argtext_
@@ -438,7 +438,7 @@ dtjoin <- function(
   argtext_nomatch   <- if (!outer.i) "nomatch = NULL, " else ""
   argtext_mult      <- if (mult != "all") sprintf("mult = %s, ", deparse(mult)) else ""
   argtext_verbose   <- if (verbose) ", verbose = TRUE" else ""
-  argtext.indicate  <- if (add_dummy_col.DT) "[, fjoin.ind := TRUE]" else ""
+  argtext_indicate  <- if (add_dummy_col.DT) "[, fjoin.ind := TRUE]" else ""
 
   # ----------------------------------------------------------------------------
   # jointext
@@ -449,16 +449,16 @@ dtjoin <- function(
     .itext  <- ".i"
     if (screen_NAs) {
       if (!outer.i && na_omit_cost_rc(nrow(.DT), length(sdcols.DT)) > na_omit_cost_rc(nrow(.i), length(sdcols.i))) {
-        .itext <- na_omit_text(.itext, na_cols = equi_names.i, sd_cols = if (is.null(select.i)) NULL else sdcols.i)
+        .itext <- na_omit_text(.itext, na_cols=equi_names.i, sd_cols=if (is.null(select.i)) NULL else sdcols.i)
       } else {
         # one-sided or .i smaller
-        .DTtext <- na_omit_text(.DTtext, na_cols = equi_names.DT, sd_cols = if (is.null(select.DT)) NULL else sdcols.DT)
+        .DTtext <- na_omit_text(.DTtext, na_cols=equi_names.DT, sd_cols=if (is.null(select.DT)) NULL else sdcols.DT)
       }
     }
     jointext <-
       sprintf("%s%s[%s, on = %s, %s%s%s%s%s]",
               .DTtext,
-              argtext.indicate,
+              argtext_indicate,
               .itext,
               deparse(on),
               argtext_nomatch,
@@ -480,9 +480,9 @@ dtjoin <- function(
     .itext  <- ".i[, fjoin.i.rn := .I]"
     if (screen_NAs) {
       if (na_omit_cost_rc(nrow(.DT), length(sdcols.DT)) > na_omit_cost_rc(nrow(.i), length(sdcols.i))) {
-        .itext <- na_omit_text(.itext, na_cols = equi_names.i, sd_cols = if (is.null(select.i)) NULL else sdcols.i)
+        .itext <- na_omit_text(.itext, na_cols=equi_names.i, sd_cols=if (is.null(select.i)) NULL else sdcols.i)
       } else {
-        .DTtext <- na_omit_text(.DTtext, na_cols = equi_names.DT, sd_cols = if (is.null(select.DT)) NULL else sdcols.DT)
+        .DTtext <- na_omit_text(.DTtext, na_cols=equi_names.DT, sd_cols=if (is.null(select.DT)) NULL else sdcols.DT)
       }
     }
     jointext <-
@@ -491,7 +491,7 @@ dtjoin <- function(
               .DTtext,
               deparse(flip_on(on)),
               deparse(mult.DT),
-              paste(sapply(names.DT[include.DT], \(x) sprintf("%s = i.%s",x,x)), collapse = ", "),
+              paste(sapply(names.DT[include.DT], \(x) sprintf("%s = i.%s",x,x)), collapse=", "),
               if (add_dummy_col.DT) ", fjoin.ind = TRUE" else "",
               argtext_verbose,
               ".i",                # TODO: make variable
@@ -514,9 +514,9 @@ dtjoin <- function(
       .itext  <- ".i"
       if (screen_NAs) {
         if (na_omit_cost_rc(nrow(.DT), length(sdcols.DT)) > na_omit_cost_rc(nrow(.i), length(sdcols.i))) {
-          .itext <- na_omit_text(.itext, na_cols = equi_names.i, sd_cols = if (is.null(select.i)) NULL else sdcols.i)
+          .itext <- na_omit_text(.itext, na_cols=equi_names.i, sd_cols=if (is.null(select.i)) NULL else sdcols.i)
         } else {
-          .DTtext <- na_omit_text(.DTtext, na_cols = equi_names.DT, sd_cols = if (is.null(select.DT)) NULL else sdcols.DT)
+          .DTtext <- na_omit_text(.DTtext, na_cols=equi_names.DT, sd_cols=if (is.null(select.DT)) NULL else sdcols.DT)
         }
       }
       jointext <-
@@ -526,7 +526,7 @@ dtjoin <- function(
                 deparse(on),
                 argtext_mult,
                 sprintf("data.frame(%s%s%s)",
-                        paste(jvars, collapse = ", "),
+                        paste(jvars, collapse=", "),
                         if (outer.DT) "" else ", fjoin.DT.rn",
                         if (add_dummy_col.DT) ", fjoin.ind = TRUE" else ""),
                 argtext_verbose,
@@ -544,14 +544,14 @@ dtjoin <- function(
 
       .DTtext <- ".DT[, fjoin.DT.rn := .I]"
       .itext  <- ".i[, fjoin.i.rn := .I]"
-      if (screen_NAs) .DTtext <- na_omit_text(.DTtext, na_cols = equi_names.DT, sd_cols = if (is.null(select.DT)) NULL else sdcols.DT)
+      if (screen_NAs) .DTtext <- na_omit_text(.DTtext, na_cols=equi_names.DT, sd_cols=if (is.null(select.DT)) NULL else sdcols.DT)
       jointext <-
         sprintf("setDT(%s[%s, on = %s, nomatch = NULL, %sdata.frame(%s%s%s, fjoin.i.rn)%s])[%s%s][.i, on = \"fjoin.i.rn\", %s%s]",
                 .DTtext,
                 .itext,
                 deparse(on),
                 argtext_mult,
-                paste(sapply(names.DT[include.DT], \(x) sprintf("%s = x.%s",x,x)), collapse = ", "),
+                paste(sapply(names.DT[include.DT], \(x) sprintf("%s = x.%s",x,x)), collapse=", "),
                 if (outer.DT) "" else ", fjoin.DT.rn",
                 if (add_dummy_col.DT) ", fjoin.ind = TRUE" else "",
                 argtext_verbose,
@@ -576,7 +576,7 @@ dtjoin <- function(
       .DTantitext <- ".DT[!temp$fjoin.DT.rn]"
     } else {
       # NB not include.DT as need potentially excluded join columns
-      .DTantitext <- sprintf("setDT(.DT[!temp$fjoin.DT.rn, data.frame(%s)])", paste(names.DT[include_anti.DT], collapse = ", "))
+      .DTantitext <- sprintf("setDT(.DT[!temp$fjoin.DT.rn, data.frame(%s)])", paste(names.DT[include_anti.DT], collapse=", "))
     }
     if (rename_anti.DT) .DTantitext <-
         sprintf("setnames(%s, %s, %s)", .DTantitext, deparse(oldnames_anti.DT), deparse(newnames_anti.DT))
@@ -593,9 +593,9 @@ dtjoin <- function(
   }
 
   if (do) {
-    if (asis.DT) on.exit(clean_up(.DT), add = TRUE)
-    if (asis.i) on.exit(clean_up(.i), add = TRUE)
-    ans <- (eval(parse(text = jointext), envir = list2env(list(.DT = .DT, .i = .i), parent = getNamespace("data.table"))))
+    if (asis.DT) on.exit(clean_up(.DT), add=TRUE)
+    if (asis.i) on.exit(clean_up(.i), add=TRUE)
+    ans <- (eval(parse(text=jointext), envir=list2env(list(.DT=.DT, .i=.i), parent=getNamespace("data.table"))))
     return(if (as_tbl_df) tibble::as_tibble(ans) else ans)
   }
 }

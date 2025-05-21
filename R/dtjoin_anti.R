@@ -97,10 +97,10 @@ dtjoin_anti_DT <- function(
 
     s <- strsplit_predicate(on[i])
 
-    idx.DT <- match(s[1], names(.DT))
+    idx.DT <- match(s[1], names.DT)
     if (is.na(idx.DT)) stop(sprintf("No column named \"%s\" found in `.DT`", s[1]))
 
-    idx.i <- match(s[3], names(.i))
+    idx.i <- match(s[3], names.i)
     if (is.na(idx.i)) stop(sprintf("No column named \"%s\" found in `.i`", s[3]))
 
     is_joincol.DT[idx.DT] <- TRUE
@@ -134,7 +134,7 @@ dtjoin_anti_DT <- function(
       if (screen_NAs) .itext <- na_omit_text(.itext, sd_cols=equi_names.i)
     }
   } else {
-    if (screen_NAs) .itext <- na_omit_text(.itext, na_cols=equi_names.i, sd_cols=names(.i)[is_joincol.i])
+    if (screen_NAs) .itext <- na_omit_text(.itext, na_cols=equi_names.i, sd_cols=names.i[is_joincol.i])
   }
 
   jointext <-
