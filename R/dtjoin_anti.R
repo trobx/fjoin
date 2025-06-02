@@ -1,24 +1,30 @@
-#' Return the anti-join of the \code{DT}-table in a \code{DT[i]}-style data.table join
+#' Anti-join of \code{DT} in a \code{DT[i]}-style join of data.frame-like
+#' objects
 #'
 #' @description
-#' Write (and optionally run) \code{data.table} code to return the anti-join of
-#' the \code{DT}-table in an enhanced \code{DT[i]}-style join. The arguments are
-#' as for \code{dtjoin}, except for those controlling the output columns, which
-#' do not apply here.
+#' Write (and optionally run) data.table code to return the anti-join of
+#' \code{DT} (the rows with no match) using an enhanced functional version of
+#' \code{DT[i]}-style syntax. Arguments are as for \link{dtjoin} except those
+#' controlling the order and prefixing output columns, which do not apply.
+
 #'
-#' @inheritParams dtjoin
+#' The functions \link{fjoin_left_anti} and \link{fjoin_right_anti} provide
+#' a more conventional interface that is recommended over \code{dtjoin_anti}
+#' for most users and cases.
+#'
+#' @inheritParams dtjoin_semi
 #' @param nomatch,nomatch.DT Permitted for consistency with \code{dtjoin} but
 #'   have no effect on the resulting anti-join.
 #'
-#' @returns A \code{data.table} (the resulting anti-join), or \code{NULL} if
-#'   \code{do} is \code{FALSE}. The data.table code is always printed to the
-#'   console.
+#' @returns A \code{data.frame}, \code{data.table}, \code{tibble}, or
+#'  \code{sf}/\code{sf}-\code{tibble} depending on the class of \code{.DT}, or
+#'  else \code{NULL} if \code{do} is \code{FALSE}.
 #'
 #' @examples
 #' # TODO
 #'
 #' @export
-dtjoin_anti_DT <- function(
+dtjoin_anti <- function(
     .DT        = NULL,
     .i         = NULL,
     on,
@@ -60,11 +66,10 @@ dtjoin_anti_DT <- function(
   } else {
     check_input_class(.DT)
     check_input_class(.i)
-    as_DT <- data.table::is.data.table(.DT)
-    as_tbl_df <- !as_DT && inherits(.DT, "tbl_df") && any(c("package:dplyr", "package:tibble") %in% search())
     if (do) {
-      asis.DT           <- data.table::is.data.table(.DT)
-      asis.i            <- data.table::is.data.table(.i)
+      orig.DT           <- .DT
+      asis.DT           <- inherits(.DT, "data.table")
+      asis.i            <- inherits(.i, "data.table")
       if (!asis.DT) .DT <- shallow_DT(.DT)
       if (!asis.i) .i   <- shallow_DT(.i)
     }
@@ -77,7 +82,8 @@ dtjoin_anti_DT <- function(
       c(make_label_dtjoin(.DT, substitute(.DT)), make_label_dtjoin(.i, substitute(.i)))
     }
 
-  if (has_select <- !is.null(select)) select <- unique(select)
+  has_select <- !is.null(select)
+  if (has_select) select <- unique(select)
 
   has_mult    <- mult != "all"
   has_mult.DT <- mult.DT != "all"
@@ -90,8 +96,8 @@ dtjoin_anti_DT <- function(
   names.i      <- unique(names(.i))
   is_joincol.i <- rep(FALSE, length(names.i))
 
-  if (!match.na) equi_names.DT <- character(0)
-  equi_names.i  <- character(0)
+  if (!match.na) equi_names.DT <- rep(NA_character_, length(on))
+  equi_names.i  <- rep(NA_character_, length(on))
 
   for (i in seq_along(on)) {
 
@@ -107,22 +113,42 @@ dtjoin_anti_DT <- function(
     is_joincol.i[idx.i]   <- TRUE
 
     if (allows_equi(s[2])) {
-      if (!match.na) equi_names.DT <- c(equi_names.DT, s[1])
-      equi_names.i  <- c(equi_names.i, s[3])
+      if (!match.na) equi_names.DT[[i]] <- s[1]
+      equi_names.i[[i]] <- s[3]
     }
   }
 
-  if (has_select) jtext <- sprintf("data.frame(%s)", paste(names.DT[is_joincol.DT | names.DT %in% select], collapse = ", "))
+  if (!match.na) equi_names.DT <- equi_names.DT[!is.na(equi_names.DT)]
+  equi_names.i  <- equi_names.i[!is.na(equi_names.i)]
+
+  screen_NAs <- !match.na && length(equi_names.DT) && .DT[, anyNA(.SD), .SDcols=equi_names.DT] && .i[, anyNA(.SD), .SDcols=equi_names.i]
+
+  sfc_present <- any_inherits(orig.DT, "sfc")
+
+  as_DT <- asis.DT || !do
+  if (!as_DT) {
+    as_sf <- FALSE
+    # sf/sf-tibble iff sfc col(s) present, sf installed, and .DT is sf whose active geometry is selected
+    if (sfc_present && inherits(orig.DT, "sf") && requireNamespace("sf", quietly = TRUE)) {
+      sf_col <- attr(orig.DT, "sf_column")
+      if (!has_select || sf_col %in% select) as_sf <- TRUE
+    }
+    as_tbl_df <- inherits(orig.DT, "tbl_df") && requireNamespace("tibble", quietly = TRUE)
+  }
+
+  if (has_select) {
+    jvars <- names.DT[is_joincol.DT | names.DT %in% select]
+    if (sfc_present) {
+      jvars <- sprintf("%s = %s", jvars, jvars)
+      jtext <- sprintf("setDF(list(%s))", paste(jvars, collapse=", "))
+    } else {
+      jtext <- sprintf("data.frame(%s)", paste(jvars, collapse = ", "))
+    }
+  }
 
   # ----------------------------------------------------------------------------
 
   argtext_verbose <- if (verbose) ", verbose = TRUE" else ""
-
-  screen_NAs <-
-    !match.na &&
-    length(equi_names.DT) &&
-    if (inherits(.DT, "data.table")) .DT[, anyNA(.SD), .SDcols=equi_names.DT]  else anyNA(.DT[, equi_names.DT]) &&
-    if (inherits(.i, "data.table")) .i[, anyNA(.SD), .SDcols=equi_names.i]  else anyNA(.i[, equi_names.i])
 
   .DTtext  <- ".DT"
   .itext   <- ".i"
@@ -195,7 +221,6 @@ dtjoin_anti_DT <- function(
     if (!as_DT) jointext <- sprintf("setDF(%s)", jointext)
   }
 
-
   # ----------------------------------------------------------------------------
 
   if (show) {
@@ -203,10 +228,14 @@ dtjoin_anti_DT <- function(
   }
 
   if (do) {
-    if (asis.DT) on.exit(clean_up(.DT), add = TRUE)
-    if (asis.i) on.exit(clean_up(.i), add = TRUE) # but no temp cols
-    ans <- (eval(parse(text = jointext), envir = list2env(list(.DT = .DT, .i = .i), parent = getNamespace("data.table"))))
-    return(if (as_tbl_df) tibble::as_tibble(ans) else ans)
+    if (asis.DT) on.exit(clean_up(.DT), add=TRUE)
+    if (asis.i) on.exit(clean_up(.i), add=TRUE)
+    ans <- (eval(parse(text=jointext), envir=list2env(list(.DT=.DT, .i=.i), parent=getNamespace("data.table"))))
+    if (sfc_present) ans <- recompute_sfc_bboxes(ans)
+    if (!as_DT) {
+      if (as_tbl_df) ans <- tibble::as_tibble(ans)
+      if (as_sf)     ans <- sf::st_as_sf(ans, sf_column_name=sf_col)
+    }
+    ans
   }
-
 }

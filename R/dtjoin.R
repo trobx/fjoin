@@ -1,32 +1,31 @@
-#' Join data.frames using an enhanced and extended \code{DT[i]}-like data.table
-#' syntax
+#' Join two data.frame-like objects \code{DT[i]}-style using extended
+#' data.table-like syntax
 #'
-#' @description Write (and optionally run) \code{data.table} code for a join
-#'   using a functional form of \code{DT[i]}-style syntax with many efficient
-#'   enhancements. Accepts any \code{data.frame}-like inputs (not only
-#'   \code{data.table}s), permits left, right, inner, and full joins, prevents
-#'   unwanted matches on \code{NA} and \code{NaN} by default, does not garble
-#'   join columns in non-equality joins, allows \code{mult} on both sides of the
-#'   join, creates an optional join indicator column, allows specifying which
-#'   columns to select from each input, and provides convenience options to
-#'   control column order and prefixing.
+#' @description Write (and optionally run) data.table code for a join
+#' using a functional form of \code{DT[i]} syntax with many efficient
+#' enhancements. Accepts any \code{data.frame}-like inputs (not only
+#' \code{data.table}s), permits left, right, inner, and full joins, prevents
+#' unwanted matches on \code{NA} and \code{NaN} by default, does not garble
+#' join columns in non-equality joins, allows \code{mult} on both sides of the
+#' join, creates an optional join indicator column, allows specifying which
+#' columns to select from each input, and provides convenience options to
+#' control column order and prefixing.
 #'
-#'   If run, the join returns a \code{data.frame}, \code{tibble} or
-#'   \code{data.table} according to context. The generated \code{data.table}
-#'   code can be printed to the console instead of (or as well as) being
-#'   executed. This feature extends to \emph{mock joins}, where no
-#'   \code{data.frame} inputs are provided, and template code is generated that
-#'   can be swiped and adapted.
+#' If run, the join returns a \code{data.frame}, \code{data.table},
+#' \code{tibble}, or \code{sf}/\code{sf}-\code{tibble} according to context.
+#' The generated \code{data.table} code can be printed to the console instead of
+#' (or as well as) being executed. This feature extends to \emph{mock joins},
+#' where no inputs are provided, and template code is produced.
 #'
-#'   \code{dtjoin()} is the workhorse function for \code{fjoin_inner()},
-#'   \code{fjoin_left()}, \code{fjoin_right()}, and \code{fjoin_full()}, which
-#'   are wrappers providing a much more conventional interface for join
-#'   operations. These functions are recommended over \code{dtjoin()} for most
-#'   users and cases.
+#' \code{dtjoin} is the workhorse function for \link{fjoin_inner},
+#' \link{fjoin_left}, \link{fjoin_right}, and \link{fjoin_full}, which
+#' are wrappers providing a much more conventional interface for join
+#' operations. These functions are recommended over \code{dtjoin} for most
+#' users and cases.
 #'
-#' @param .DT,.i \code{data.frame}-like objects (plain, \code{tibble},
-#'   \code{data.table} etc.), or else both omitted (\code{NULL}) for a mock join
-#'   statement with no data.
+#' @param .DT,.i \code{data.frame}-like objects (\code{list}, plain
+#'   \code{data.frame}, \code{data.table}, \code{tibble}, \code{sf} etc.), or
+#'   else both omitted (\code{NULL}) for a mock join statement with no data.
 #' @param on A character vector of join predicates, e.g. \code{c("id", "col_DT
 #'   == col_i", "date < date")}.
 #' @param match.na If \code{TRUE}, allow equality matches between \code{NA}s or
@@ -84,8 +83,9 @@
 #'   print information to the console during execution. Default \code{FALSE}.
 #' @param ... Further arguments (for internal use).
 #'
-#' @returns A \code{data.frame}, \code{tibble} or \code{data.table}, or else
-#'  \code{NULL} if \code{do} is \code{FALSE}. See details.
+#' @returns A \code{data.frame}, \code{data.table}, \code{tibble}, or
+#'  \code{sf}/\code{sf}-\code{tibble}, or else \code{NULL} if \code{do} is
+#'  \code{FALSE}. See details.
 #'
 #' @examples
 #' # Simple mock joins
@@ -151,18 +151,15 @@ dtjoin <- function(
     tmp   <- make_mock_tables(on)
     .DT   <- tmp[[1]]
     .i    <- tmp[[2]]
-    as_DT <- TRUE
   } else {
     check_input_class(.DT)
     check_input_class(.i)
-    as_DT <- data.table::is.data.table(.DT) || data.table::is.data.table(.i)
-    as_tbl_df <- !as_DT && (inherits(.DT, "tbl_df") || inherits(.i, "tbl_df")) && any(c("package:dplyr", "package:tibble") %in% search())
-    if (do) {
-      asis.DT           <- data.table::is.data.table(.DT)
-      asis.i            <- data.table::is.data.table(.i)
-      if (!asis.DT) .DT <- shallow_DT(.DT)
-      if (!asis.i) .i   <- shallow_DT(.i)
-    }
+    orig.DT           <- .DT
+    orig.i            <- .i
+    asis.DT           <- inherits(.DT, "data.table")
+    asis.i            <- inherits(.i, "data.table")
+    if (!asis.DT) .DT <- shallow_DT(.DT)
+    if (!asis.i) .i   <- shallow_DT(.i)
   }
 
   .labels <-
@@ -186,7 +183,7 @@ dtjoin <- function(
   rename_anti.DT <- outer.DT && i.main
 
   # ----------------------------------------------------------------------------
-  # jvars_, is_joincol_, equi_names_, oldnames_anti.DT, newnames_anti.DT
+  # is_joincol_, equi_names_, is_selected_, sfc_present, jvars_, oldnames_anti.DT, newnames_anti.DT
 
   names.DT      <- unique(names(.DT))
   is_joincol.DT <- rep(FALSE, length(names.DT))
@@ -197,13 +194,13 @@ dtjoin <- function(
   jvars.i       <- rep(NA_character_, length(names.i))
 
   if (!match.na) {
-    equi_names.DT <- character(0)
-    equi_names.i  <- character(0)
+    equi_names.DT <- rep(NA_character_, length(on))
+    equi_names.i  <- rep(NA_character_, length(on))
   }
 
   if (rename_anti.DT) {
-    oldnames_anti.DT <- character(0)
-    newnames_anti.DT <- character(0)
+    oldnames_anti.DT <- rep(NA_character_, length(on))
+    newnames_anti.DT <- rep(NA_character_, length(on))
   }
 
   for (i in seq_along(on)) {
@@ -220,22 +217,22 @@ dtjoin <- function(
     is_joincol.i[idx.i]   <- TRUE
 
     if (!match.na && allows_equi(s[2])) {
-      equi_names.DT <- c(equi_names.DT, s[1])
-      equi_names.i  <- c(equi_names.i, s[3])
+      equi_names.DT[[i]] <- s[1]
+      equi_names.i[[i]]  <- s[3]
     }
 
     if (rename_anti.DT) {
       if (s[2] == "==" && !preserve) {
         if (s[1] != s[3]) {
           # id1 -> id2
-          oldnames_anti.DT <- c(oldnames_anti.DT, s[1])
-          newnames_anti.DT <- c(newnames_anti.DT, s[3])
+          oldnames_anti.DT[[i]] <- s[1]
+          newnames_anti.DT[[i]] <- s[3]
         }
       } else {
         if (s[1] == s[3]) {
           # id -> PREF.id=id
-          oldnames_anti.DT <- c(oldnames_anti.DT, s[1])
-          newnames_anti.DT <- c(newnames_anti.DT, sprintf("%s%s", prefix, s[3]))
+          oldnames_anti.DT[[i]] <- s[1]
+          newnames_anti.DT[[i]] <- sprintf("%s%s", prefix, s[3])
         }
       }
     }
@@ -310,11 +307,22 @@ dtjoin <- function(
     }
   }
 
+  if (!match.na) {
+    equi_names.DT <- equi_names.DT[!is.na(equi_names.DT)]
+    equi_names.i  <- equi_names.i[!is.na(equi_names.i)]
+  }
+
+  if (rename_anti.DT) {
+    oldnames_anti.DT <- oldnames_anti.DT[!is.na(oldnames_anti.DT)]
+    newnames_anti.DT <- oldnames_anti.DT[!is.na(oldnames_anti.DT)]
+  }
+
   # selected (non-join) columns
   is_selected.DT <- if (is.null(select.DT)) !is_joincol.DT else !is_joincol.DT & (names.DT %in% select.DT)
   is_selected.i  <- if (is.null(select.i)) !is_joincol.i else !is_joincol.i & (names.i  %in% select.i)
   jvars.DT[is_selected.DT] <- names.DT[is_selected.DT]
   jvars.i[is_selected.i]   <- names.i[is_selected.i]
+
   if (!i.main) {
     # (c,c) -> (c,PREF.c=i.c)
     jvars.i <- ifelse(is_selected.i & jvars.i %in% names.DT, sprintf("%s%s = i.%s",prefix,jvars.i,jvars.i), jvars.i)
@@ -354,8 +362,8 @@ dtjoin <- function(
   screen_NAs <-
     !match.na &&
     length(equi_names.DT) &&
-    if (inherits(.DT, "data.table")) .DT[, anyNA(.SD), .SDcols=equi_names.DT]  else anyNA(.DT[, equi_names.DT]) &&
-    if (inherits(.i, "data.table")) .i[, anyNA(.SD), .SDcols=equi_names.i]  else anyNA(.i[, equi_names.i])
+    .DT[, anyNA(.SD), .SDcols=equi_names.DT] &&
+    .i[, anyNA(.SD), .SDcols=equi_names.i]
 
   # ----------------------------------------------------------------------------
   # sdcols_
@@ -366,7 +374,43 @@ dtjoin <- function(
   }
 
   # ----------------------------------------------------------------------------
-  # jvars, jtext, add_dummy_col.DT
+  # sfc_present
+  sfc_present <- any_inherits(orig.DT, "sfc") || any_inherits(orig.i, "sfc")
+
+  # ----------------------------------------------------------------------------
+  # output class
+
+  if (!do) {
+    as_DT <- TRUE
+  } else {
+    as_sf <- as_tbl_df <- FALSE
+    as_tibble_ok <- requireNamespace("tibble", quietly = TRUE)
+    # sf/sf-tibble iff sfc col(s) present, sf installed, and .DT or .i is sf whose active geometry is selected
+    if (sfc_present && requireNamespace("sf", quietly = TRUE)) {
+      # .i ahead of .DT
+      if (inherits(orig.i, "sf")) {
+        sf_col <- attr(orig.i, "sf_column")
+        if (include.i[match(sf_col, names.i)]) {
+          as_sf <- TRUE
+          if (!i.main && sf_col %in% names.DT) sf_col <- sprintf("%s%s", prefix, sf_col)
+          as_tbl_df <- inherits(orig.i, "tbl_df") && as_tibble_ok
+        }
+      }
+      if (!as_sf && inherits(orig.DT, "sf")) {
+        sf_col <- attr(orig.DT, "sf_column")
+        if (include.DT[match(sf_col, names.DT)]) {
+          as_sf <- TRUE
+          if (i.main && sf_col %in% names.i) sf_col <- sprintf("%s%s", prefix, sf_col)
+          as_tbl_df <- inherits(orig.DT, "tbl_df") && as_tibble_ok
+        }
+      }
+    }
+    as_DT <- !as_sf && (asis.DT || asis.i)
+    if (!as_sf && !as_DT) as_tbl_df <- (inherits(orig.DT, "tbl_df") || inherits(orig.i, "tbl_df")) && as_tibble_ok
+  }
+
+  # ----------------------------------------------------------------------------
+  # add_dummy_col.DT, jvars, jtext
 
   jvars.DT   <- jvars.DT[include.DT]
   jvars.i    <- jvars.i[include.i]
@@ -430,7 +474,10 @@ dtjoin <- function(
     }
   }
 
-  jtext <- paste0("data.frame(", paste(jvars, collapse=", "), ")")
+  # unnamed "x" to "x=x" for setDF(list())
+  if (sfc_present) jvars <- ifelse(grepl("=", jvars), jvars, sprintf("%s = %s", jvars, jvars))
+
+  jtext <- sprintf(if (sfc_present) "setDF(list(%s))" else "data.frame(%s)", paste(jvars, collapse=", "))
 
   # ----------------------------------------------------------------------------
   # argtext_
@@ -486,13 +533,15 @@ dtjoin <- function(
       }
     }
     jointext <-
-      sprintf("setDT(%s[%s, on = %s, nomatch = NULL, mult = %s, data.frame(%s%s, fjoin.i.rn)%s])[%s, on = \"fjoin.i.rn\", %s%s%s]",
+      sprintf("setDT(%s[%s, on = %s, nomatch = NULL, mult = %s, %s%s])[%s, on = \"fjoin.i.rn\", %s%s%s]",
               .itext,
               .DTtext,
               deparse(flip_on(on)),
               deparse(mult.DT),
-              paste(sapply(names.DT[include.DT], \(x) sprintf("%s = i.%s",x,x)), collapse=", "),
-              if (add_dummy_col.DT) ", fjoin.ind = TRUE" else "",
+              sprintf(if (sfc_present) "setDF(list(%s%s, fjoin.i.rn = fjoin.i.rn))" else "data.frame(%s%s, fjoin.i.rn)",
+                      paste(sapply(names.DT[include.DT], \(x) sprintf("%s = i.%s",x,x)), collapse=", "),
+                      if (add_dummy_col.DT) ", fjoin.ind = TRUE" else ""
+              ),
               argtext_verbose,
               ".i",                # TODO: make variable
               argtext_nomatch,
@@ -525,10 +574,11 @@ dtjoin <- function(
                 .itext,
                 deparse(on),
                 argtext_mult,
-                sprintf("data.frame(%s%s%s)",
+                sprintf(if (sfc_present) "setDF(list(%s%s%s))" else "data.frame(%s%s%s)",
                         paste(jvars, collapse=", "),
-                        if (outer.DT) "" else ", fjoin.DT.rn",
-                        if (add_dummy_col.DT) ", fjoin.ind = TRUE" else ""),
+                        if (outer.DT) "" else if (sfc_present) ", fjoin.DT.rn = fjoin.DT.rn" else ", fjoin.DT.rn",
+                        if (add_dummy_col.DT) ", fjoin.ind = TRUE" else ""
+                ),
                 argtext_verbose,
                 if (mult.DT=="first") {
                   ", first(.SD), by = \"fjoin.DT.rn\""
@@ -546,14 +596,17 @@ dtjoin <- function(
       .itext  <- ".i[, fjoin.i.rn := .I]"
       if (screen_NAs) .DTtext <- na_omit_text(.DTtext, na_cols=equi_names.DT, sd_cols=if (is.null(select.DT)) NULL else sdcols.DT)
       jointext <-
-        sprintf("setDT(%s[%s, on = %s, nomatch = NULL, %sdata.frame(%s%s%s, fjoin.i.rn)%s])[%s%s][.i, on = \"fjoin.i.rn\", %s%s]",
+        sprintf("setDT(%s[%s, on = %s, nomatch = NULL, %s%s%s])[%s%s][.i, on = \"fjoin.i.rn\", %s%s]",
                 .DTtext,
                 .itext,
                 deparse(on),
                 argtext_mult,
-                paste(sapply(names.DT[include.DT], \(x) sprintf("%s = x.%s",x,x)), collapse=", "),
-                if (outer.DT) "" else ", fjoin.DT.rn",
-                if (add_dummy_col.DT) ", fjoin.ind = TRUE" else "",
+                sprintf(if (sfc_present) "setDF(list(%s%s%s%s))" else "data.frame(%s%s%s%s)",
+                        paste(sapply(names.DT[include.DT], \(x) sprintf("%s = x.%s",x,x)), collapse=", "),
+                        if (sfc_present) ", fjoin.i.rn = fjoin.i.rn" else ", fjoin.i.rn",
+                        if (outer.DT) "" else if (sfc_present) ", fjoin.DT.rn = fjoin.DT.rn" else ", fjoin.DT.rn",
+                        if (add_dummy_col.DT) ", fjoin.ind = TRUE" else ""
+                ),
                 argtext_verbose,
                 if (mult.DT=="first") {
                   ", first(.SD), by = \"fjoin.DT.rn\""
@@ -576,7 +629,13 @@ dtjoin <- function(
       .DTantitext <- ".DT[!temp$fjoin.DT.rn]"
     } else {
       # NB not include.DT as need potentially excluded join columns
-      .DTantitext <- sprintf("setDT(.DT[!temp$fjoin.DT.rn, data.frame(%s)])", paste(names.DT[include_anti.DT], collapse=", "))
+      .DTantinames <- names.DT[include_anti.DT]
+      .DTantitext <- sprintf("setDT(.DT[!temp$fjoin.DT.rn, %s])",
+                             if (sfc_present) {
+                               sprintf("setDF(list(%s))", paste(sprintf("%s = %s", .DTantinames, .DTantinames), collapse=", "))
+                             } else {
+                               sprintf("data.frame(%s)", paste(.DTantinames, collapse=", "))
+                             })
     }
     if (rename_anti.DT) .DTantitext <-
         sprintf("setnames(%s, %s, %s)", .DTantitext, deparse(oldnames_anti.DT), deparse(newnames_anti.DT))
@@ -587,7 +646,6 @@ dtjoin <- function(
   }
 
   # --------------------------------------------------------------------------
-
   if (show) {
     cat(".DT : ", .labels[[1]], "\n", ".i  : ", .labels[[2]], "\n", "Join: ", jointext, "\n\n", sep="")
   }
@@ -596,7 +654,10 @@ dtjoin <- function(
     if (asis.DT) on.exit(clean_up(.DT), add=TRUE)
     if (asis.i) on.exit(clean_up(.i), add=TRUE)
     ans <- (eval(parse(text=jointext), envir=list2env(list(.DT=.DT, .i=.i), parent=getNamespace("data.table"))))
-    return(if (as_tbl_df) tibble::as_tibble(ans) else ans)
+    if (sfc_present) ans <- recompute_sfc_bboxes(ans)
+    if (as_tbl_df) ans <- tibble::as_tibble(ans)
+    if (as_sf) ans <- sf::st_as_sf(ans, sf_column_name=sf_col)
+    ans
   }
 }
 
