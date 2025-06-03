@@ -4,13 +4,13 @@
 #' @description
 #' Write (and optionally run) data.table code to return the anti-join of
 #' \code{DT} (the rows with no match) using an enhanced functional version of
-#' \code{DT[i]}-style syntax. Arguments are as for \link{dtjoin} except those
-#' controlling the order and prefixing output columns, which do not apply.
-
+#' \code{DT[i]}-style join syntax. Arguments are the same as for
+#' \code{\link{dtjoin}} except those controlling the order and prefixing of
+#' output columns, which do not apply.
 #'
-#' The functions \link{fjoin_left_anti} and \link{fjoin_right_anti} provide
-#' a more conventional interface that is recommended over \code{dtjoin_anti}
-#' for most users and cases.
+#' The functions \code{\link{fjoin_left_anti}} and \code{\link{fjoin_right_anti}}
+#' provide a more conventional interface that is recommended over
+#' \code{dtjoin_anti} for most users and cases.
 #'
 #' @inheritParams dtjoin_semi
 #' @param nomatch,nomatch.DT Permitted for consistency with \code{dtjoin} but
@@ -40,16 +40,16 @@ dtjoin_anti <- function(
     ...
 ) {
 
-  # TODO: check_on(on)
-  # TODO: check_select(select args)
-  check_TF(match.na)
-  check_mult(mult)
-  check_mult(mult.DT)
-  check_nomatch(nomatch)
-  check_nomatch(nomatch.DT)
-  check_TF(do)
-  check_TF(show)
-  check_TF(verbose)
+  check_arg_on(on)
+  check_arg_TF(match.na)
+  check_arg_mult(mult)
+  check_arg_mult(mult.DT)
+  check_arg_nomatch(nomatch)
+  check_arg_nomatch(nomatch.DT)
+  check_arg_select(select)
+  check_arg_TF(do)
+  check_arg_TF(show)
+  check_arg_TF(verbose)
 
   dot_args <- list(...)
 
@@ -123,7 +123,7 @@ dtjoin_anti <- function(
 
   screen_NAs <- !match.na && length(equi_names.DT) && .DT[, anyNA(.SD), .SDcols=equi_names.DT] && .i[, anyNA(.SD), .SDcols=equi_names.i]
 
-  sfc_present <- any_inherits(orig.DT, "sfc")
+  sfc_present <- any_inherits(.DT, "sfc", mask=names.DT %in% select)
 
   as_DT <- asis.DT || !do
   if (!as_DT) {
@@ -203,7 +203,6 @@ dtjoin_anti <- function(
   } else {
     # mult.DT, no mult: not-rn
     # NB could na.omit on .DT in this case
-    # NB fjoin.DT.rn as variable to return vector
     sprintf("%s[!%s[%s[, fjoin.DT.rn := .I], on = %s, nomatch = NULL, mult = %s, fjoin.DT.rn%s]%s",
             .DTtext,
             .itext,

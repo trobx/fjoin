@@ -1,5 +1,5 @@
-#' Join two data.frame-like objects \code{DT[i]}-style using extended
-#' data.table-like syntax
+#' Join two data.frame-like objects using an extended functional form of
+#' data.table \code{DT[i]}-style syntax
 #'
 #' @description Write (and optionally run) data.table code for a join
 #' using a functional form of \code{DT[i]} syntax with many efficient
@@ -17,11 +17,11 @@
 #' (or as well as) being executed. This feature extends to \emph{mock joins},
 #' where no inputs are provided, and template code is produced.
 #'
-#' \code{dtjoin} is the workhorse function for \link{fjoin_inner},
-#' \link{fjoin_left}, \link{fjoin_right}, and \link{fjoin_full}, which
-#' are wrappers providing a much more conventional interface for join
-#' operations. These functions are recommended over \code{dtjoin} for most
-#' users and cases.
+#' \code{dtjoin} is the workhorse function for \code{\link{fjoin_inner}},
+#' \code{\link{fjoin_left}}, \code{\link{fjoin_right}}, and
+#' \code{\link{fjoin_full}}, which are wrappers providing a much more
+#' conventional interface for join operations. These functions are recommended
+#' over \code{dtjoin} for most users and cases.
 #'
 #' @param .DT,.i \code{data.frame}-like objects (\code{list}, plain
 #'   \code{data.frame}, \code{data.table}, \code{tibble}, \code{sf} etc.), or
@@ -124,21 +124,24 @@ dtjoin <- function(
   ...
 ) {
 
-  # TODO: check_on(on)
-  # TODO: check_select(select args)
-  check_TF(match.na)
-  check_mult(mult)
-  check_mult(mult.DT)
-  check_nomatch(nomatch)
-  check_nomatch(nomatch.DT)
-  check_TF(do)
-  check_TF(show)
-  check_TF(indicate)
-  check_TF(on.first)
-  check_TF(i.first)
-  check_TF(i.main)
-  check_TF(preserve)
-  check_TF(verbose)
+  check_arg_prefix(prefix)
+  check_arg_on(on)
+  check_arg_TF(match.na)
+  check_arg_mult(mult)
+  check_arg_mult(mult.DT)
+  check_arg_nomatch(nomatch)
+  check_arg_nomatch(nomatch.DT)
+  check_arg_select(select)
+  check_arg_select(select.DT)
+  check_arg_select(select.i)
+  check_arg_TF(do)
+  check_arg_TF(show)
+  check_arg_TF(indicate)
+  check_arg_TF(on.first)
+  check_arg_TF(i.first)
+  check_arg_TF(i.main)
+  check_arg_TF(preserve)
+  check_arg_TF(verbose)
 
   dot_args <- list(...)
 
@@ -183,7 +186,7 @@ dtjoin <- function(
   rename_anti.DT <- outer.DT && i.main
 
   # ----------------------------------------------------------------------------
-  # is_joincol_, equi_names_, is_selected_, sfc_present, jvars_, oldnames_anti.DT, newnames_anti.DT
+  # is_joincol_, equi_names_, is_selected_, jvars_, oldnames_anti.DT, newnames_anti.DT
 
   names.DT      <- unique(names(.DT))
   is_joincol.DT <- rep(FALSE, length(names.DT))
@@ -375,7 +378,7 @@ dtjoin <- function(
 
   # ----------------------------------------------------------------------------
   # sfc_present
-  sfc_present <- any_inherits(orig.DT, "sfc") || any_inherits(orig.i, "sfc")
+  sfc_present <- any_inherits(.DT, "sfc", mask=is_selected.DT) || any_inherits(.i, "sfc", mask=is_selected.i)
 
   # ----------------------------------------------------------------------------
   # output class
@@ -433,7 +436,7 @@ dtjoin <- function(
     selected_names.i  <- names.i[is_selected.i]
 
     if (has_select && !(has_select.DT || has_select.i)) {
-    # select-only case (always as if on.first)
+    # select-only case (always as if on.first, then selected in order)
 
       jvars <-
         if (i.first) {
@@ -475,6 +478,7 @@ dtjoin <- function(
   }
 
   # unnamed "x" to "x=x" for setDF(list())
+  # TODO improve this by dealing with it earlier
   if (sfc_present) jvars <- ifelse(grepl("=", jvars), jvars, sprintf("%s = %s", jvars, jvars))
 
   jtext <- sprintf(if (sfc_present) "setDF(list(%s))" else "data.frame(%s)", paste(jvars, collapse=", "))

@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-check_TF <- function(x) {
+check_arg_TF <- function(x) {
   if (!x %in% c(TRUE, FALSE))
     stop(sprintf("Argument '%s' must be TRUE or FALSE", deparse(substitute(x))))
 }
@@ -9,13 +9,37 @@ check_arg_order <- function(x) {
     stop(sprintf("Argument '%s' must be \"left\" or \"right\"", deparse(substitute(x))))
 }
 # ------------------------------------------------------------------------------
-check_mult <- function(x) {
+check_arg_on <- function(x) {
+  if (!(is.character(x) || length(x) > 0))
+    stop(sprintf("Argument '%s' must be a character vector of length greater than zero", deparse(substitute(x))))
+}
+# ------------------------------------------------------------------------------
+check_arg_prefix <- function(x) {
+  if (!(length(x) == 1 && isTRUE(make.names(x) == x)))
+    stop(sprintf(
+      paste("Argument '%s' must be a single string of letters, digits, dots (.), and underscores (_)",
+            "forming a syntactically valid name. See `?base::make.names` for a description."),
+      deparse(substitute(x))))
+}
+# check_arg_prefix("x.")
+# check_arg_prefix("x. ")
+# check_arg_prefix(c("x.","x."))
+# check_arg_prefix(NA_character_)
+# check_arg_prefix(NULL)
+# check_arg_prefix(1)
+# ------------------------------------------------------------------------------
+check_arg_select <- function(x) {
+  if (!(is.null(x) || is.character(x) || is.na(x)))
+    stop(sprintf("Argument '%s' must be a character vector, NA or NULL", deparse(substitute(x))))
+}
+# ------------------------------------------------------------------------------
+check_arg_mult <- function(x) {
   if (!x %in% c("all", "first", "last"))
     stop(sprintf("Argument '%s' must be \"all\", \"first\", or \"last\"", deparse(substitute(x))))
 }
 # ------------------------------------------------------------------------------
-check_nomatch <- function(x) {
-  if (! (is.null(x) || x %in% c(NA, 0L)))
+check_arg_nomatch <- function(x) {
+  if (!(is.null(x) || x %in% c(NA, 0L)))
     stop(sprintf("Argument '%s' must be NA, NULL, or 0L", deparse(substitute(x))))
 }
 # ------------------------------------------------------------------------------
@@ -151,8 +175,6 @@ flip_on <- function(x) {
 # ------------------------------------------------------------------------------
 strsplit_predicate <- function(x) {
   # Check and split a join predicate phrase e.g. "id1 > id2" -> c("id1", ">", "id2")
-  # not vectorised
-  # not as fast as previous version but more general and doesn't rely on no spaces
   pos <- regexpr("==|>=|<=|>|<", x)
   if (pos == -1) {
     x <- fast_trimws(x)
