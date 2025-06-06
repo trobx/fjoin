@@ -86,8 +86,8 @@ clean_up <- function(x, pattern = "^fjoin") {
   suppressWarnings(data.table::set(x, j = which(grepl(pattern, names(x))), value = NULL))
 }
 # ------------------------------------------------------------------------------
-recompute_sfc_bboxes <- function(x) {
-  # update the bbox attributes of all sfc-class columns
+refresh_sfc_cols <- function(x) {
+  # update all sfc-class columns (bbox and n_empty attributes, and NULL to EMPTY)
   for (i in seq_along(x)) if (inherits(x[[i]], "sfc")) x[[i]] <- sf::st_sfc(x[[i]], recompute_bbox=TRUE)
   x
 }
