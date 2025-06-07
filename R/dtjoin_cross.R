@@ -6,6 +6,9 @@
 #' \code{DT[i]}-style syntax. Arguments for selecting, ordering and prefixing
 #' output columns are as for \code{\link{dtjoin}}.
 #'
+#' The function \code{\link{fjoin_cross}} provides a more conventional interface
+#' that is recommended over \code{dtjoin_cross} for most users and cases.
+#'
 #' @inheritParams dtjoin
 #'
 #' @returns A \code{data.frame}, \code{data.table}, \code{tibble}, or
@@ -92,7 +95,7 @@ dtjoin_cross <- function(
   sfc_present <- any_inherits(.DT, "sfc", mask = is_selected.DT) || any_inherits(.i, "sfc", mask = is_selected.i)
 
   if (!do) {
-    as_DT <- TRUE
+    as_DT <- asis.DT || asis.i
   } else {
     as_sf <- as_tbl_df <- FALSE
     as_tibble_ok <- requireNamespace("tibble", quietly = TRUE)

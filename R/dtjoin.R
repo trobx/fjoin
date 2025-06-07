@@ -384,7 +384,7 @@ dtjoin <- function(
   # output class
 
   if (!do) {
-    as_DT <- TRUE
+    as_DT <- asis.DT || asis.i
   } else {
     as_sf <- as_tbl_df <- FALSE
     as_tibble_ok <- requireNamespace("tibble", quietly = TRUE)

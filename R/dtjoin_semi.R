@@ -135,8 +135,8 @@ dtjoin_semi <- function(
 
   sfc_present <- any_inherits(.DT, "sfc", mask=names.DT %in% select)
 
-  as_DT <- asis.DT || !do
-  if (!as_DT) {
+  as_DT <- asis.DT
+  if (do && !as_DT) {
     as_sf <- FALSE
     # sf/sf-tibble iff sfc col(s) present, sf installed, and .DT is sf whose active geometry is selected
     if (sfc_present && inherits(orig.DT, "sf") && requireNamespace("sf", quietly = TRUE)) {
