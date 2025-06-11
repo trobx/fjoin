@@ -568,6 +568,7 @@ dtjoin <- function(
 
   } else {
     # both mult.DT and mult - solution depends on whether outer wrt .i
+    # add fjoin.DT.rn if not already present for outer.DT
 
     vcat(jvars.DT)
     vcat(sdcols.DT)
@@ -581,10 +582,10 @@ dtjoin <- function(
       .DTtext <- ".DT[, fjoin.DT.rn := .I]"
       .itext  <- ".i"
       if (screen_NAs) {
-        if (na_omit_cost_rc(nrow(.DT), length(sdcols.DT)) > na_omit_cost_rc(nrow(.i), length(sdcols.i))) {
+        if (na_omit_cost_rc(nrow(.DT), 1L + length(sdcols.DT)) > na_omit_cost_rc(nrow(.i), length(sdcols.i))) {
           .itext <- na_omit_text(.itext, na_cols=equi_names.i, sd_cols=if (is.null(select.i)) NULL else sdcols.i)
         } else {
-          .DTtext <- na_omit_text(.DTtext, na_cols=equi_names.DT, sd_cols=if (is.null(select.DT)) NULL else sdcols.DT)
+          .DTtext <- na_omit_text(.DTtext, na_cols=equi_names.DT, sd_cols=if (is.null(select.DT)) NULL else c(sdcols.DT, "fjoin.DT.rn"))
         }
       }
       jointext <-
@@ -613,7 +614,7 @@ dtjoin <- function(
 
       .DTtext <- ".DT[, fjoin.DT.rn := .I]"
       .itext  <- ".i[, fjoin.i.rn := .I]"
-      if (screen_NAs) .DTtext <- na_omit_text(.DTtext, na_cols=equi_names.DT, sd_cols=if (is.null(select.DT)) NULL else sdcols.DT)
+      if (screen_NAs) .DTtext <- na_omit_text(.DTtext, na_cols=equi_names.DT, sd_cols=if (is.null(select.DT)) NULL else c(sdcols.DT, "fjoin.DT.rn"))
       jointext <-
         sprintf("setDT(%s[%s, on = %s, nomatch = NULL, %s%s%s])[%s%s][.i, on = \"fjoin.i.rn\", %s%s]",
                 .DTtext,
