@@ -52,6 +52,15 @@ dtjoin_cross <- function(
   do   <- !mock && do
   show <- show || !do
 
+  if (show) {
+    .labels <-
+      if (".labels" %in% names(dot_args)) {
+        dot_args$.labels
+      } else {
+        c(make_label_dtjoin(.DT, substitute(.DT)), make_label_dtjoin(.i, substitute(.i)))
+      }
+  }
+
   if (mock) {
     tmp   <- make_mock_tables(on)
     .DT   <- tmp[[1]]
@@ -63,16 +72,15 @@ dtjoin_cross <- function(
     orig.i            <- .i
     asis.DT           <- inherits(.DT, "data.table")
     asis.i            <- inherits(.i, "data.table")
-    if (!asis.DT) .DT <- shallow_DT(.DT)
-    if (!asis.i) .i   <- shallow_DT(.i)
-  }
-
-  .labels <-
-    if (".labels" %in% names(dot_args)) {
-      dot_args$.labels
-    } else {
-      c(make_label_dtjoin(.DT, substitute(.DT)), make_label_dtjoin(.i, substitute(.i)))
+    if (!asis.DT) {
+      .DT <- shallow_DT(.DT)
+      if (show) .labels[[1]] <- paste(.labels[[1]], "(cast as data.table)")
     }
+    if (!asis.i) {
+      .i <- shallow_DT(.i)
+      if (show) .labels[[2]] <- paste(.labels[[2]], "(cast as data.table)")
+    }
+  }
 
   has_select    <- !is.null(select)
   has_select.DT <- !is.null(select.DT)

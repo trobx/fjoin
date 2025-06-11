@@ -150,6 +150,15 @@ dtjoin <- function(
   do   <- !mock && do
   show <- show || !do
 
+  if (show) {
+    .labels <-
+      if (".labels" %in% names(dot_args)) {
+        dot_args$.labels
+      } else {
+        c(make_label_dtjoin(.DT, substitute(.DT)), make_label_dtjoin(.i, substitute(.i)))
+      }
+  }
+
   if (mock) {
     tmp   <- make_mock_tables(on)
     .DT   <- tmp[[1]]
@@ -161,16 +170,15 @@ dtjoin <- function(
     orig.i            <- .i
     asis.DT           <- inherits(.DT, "data.table")
     asis.i            <- inherits(.i, "data.table")
-    if (!asis.DT) .DT <- shallow_DT(.DT)
-    if (!asis.i) .i   <- shallow_DT(.i)
-  }
-
-  .labels <-
-    if (".labels" %in% names(dot_args)) {
-      dot_args$.labels
-    } else {
-      c(make_label_dtjoin(.DT, substitute(.DT)), make_label_dtjoin(.i, substitute(.i)))
+    if (!asis.DT) {
+      .DT <- shallow_DT(.DT)
+      if (show) .labels[[1]] <- paste(.labels[[1]], "(cast as data.table)")
     }
+    if (!asis.i) {
+      .i <- shallow_DT(.i)
+      if (show) .labels[[2]] <- paste(.labels[[2]], "(cast as data.table)")
+    }
+  }
 
   has_select    <- !is.null(select)
   has_select.DT <- !is.null(select.DT)
@@ -495,6 +503,7 @@ dtjoin <- function(
   # jointext
 
   if (!has_mult.DT) {
+    # (1) no mult.DT
 
     .DTtext <- if (outer.DT) ".DT[, fjoin.DT.rn := .I]" else ".DT"
     .itext  <- ".i"
@@ -525,7 +534,7 @@ dtjoin <- function(
 
 
   } else if (mult == "all") {
-    # mult.DT but not mult
+    # (2) mult.DT but not mult
 
     .DTtext <- if (outer.DT) ".DT[, fjoin.DT.rn := .I]" else ".DT"
     .itext  <- ".i[, fjoin.i.rn := .I]"
@@ -560,8 +569,14 @@ dtjoin <- function(
   } else {
     # both mult.DT and mult - solution depends on whether outer wrt .i
 
+    vcat(jvars.DT)
+    vcat(sdcols.DT)
+    vcat(jvars.i)
+    vcat(sdcols.i)
+
+
     if (!outer.i) {
-      # inner wrt .i
+      # (3) mult.DT and mult, inner wrt .i
 
       .DTtext <- ".DT[, fjoin.DT.rn := .I]"
       .itext  <- ".i"
@@ -594,7 +609,7 @@ dtjoin <- function(
       if (!(outer.DT || as_DT)) jointext <- sprintf("setDF(%s)[]", jointext)
 
     } else {
-      # outer wrt .i
+      # (4) mult.DT and mult, outer wrt .i
 
       .DTtext <- ".DT[, fjoin.DT.rn := .I]"
       .itext  <- ".i[, fjoin.i.rn := .I]"
@@ -630,11 +645,11 @@ dtjoin <- function(
 
   if (outer.DT) {
     if (all(include.DT)) {
-      .DTantitext <- ".DT[!temp$fjoin.DT.rn]"
+      .DTantitext <- ".DT[!fjoin.temp$fjoin.DT.rn]"
     } else {
       # NB not include.DT as need potentially excluded join columns
       .DTantinames <- names.DT[include_anti.DT]
-      .DTantitext <- sprintf("setDT(.DT[!temp$fjoin.DT.rn, %s])",
+      .DTantitext <- sprintf("setDT(.DT[!fjoin.temp$fjoin.DT.rn, %s])",
                              if (sfc_present) {
                                sprintf("setDF(list(%s))", paste(sprintf("%s = %s", .DTantinames, .DTantinames), collapse=", "))
                              } else {
@@ -645,7 +660,7 @@ dtjoin <- function(
         sprintf("setnames(%s, %s, %s)", .DTantitext, deparse(oldnames_anti.DT), deparse(newnames_anti.DT))
     if (indicate) .DTantitext <-
         sprintf("%s[, .join := %s]", .DTantitext, if (!i.main) "1L" else "2L")
-    jointext <- sprintf("with(list(temp = %s), rbind(temp, %s, fill = TRUE))[, fjoin.DT.rn := NULL][]", jointext, .DTantitext)
+    jointext <- sprintf("with(list(fjoin.temp = %s), rbind(fjoin.temp, %s, fill = TRUE))[, fjoin.DT.rn := NULL][]", jointext, .DTantitext)
     if (!as_DT) jointext <- sprintf("setDF(%s)[]", jointext)
   }
 
