@@ -97,7 +97,7 @@ na_omit_cost <- function(dt) {
 }
 na_omit_cost_rc <- function(nr, nc) {
   # Heuristic for cost of na.omit.data.table()
-  # Based on regression analysis of execution time in secs with a particular setup and machine
+  # Based on regression analysis of execution time with a particular setup and machine
   (10L + nc) * (nr / 1e9L)
 }
 # ------------------------------------------------------------------------------

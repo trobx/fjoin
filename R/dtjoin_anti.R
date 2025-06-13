@@ -71,7 +71,8 @@ dtjoin_anti <- function(
     tmp <- make_mock_tables(on)
     .DT <- tmp[[1]]
     .i  <- tmp[[2]]
-    as_DT <- TRUE
+    asis.DT <- TRUE
+    asis.i  <- TRUE
   } else {
     check_input_class(.DT)
     check_input_class(.i)
@@ -177,7 +178,7 @@ dtjoin_anti <- function(
     # no mult or mult.DT
 
       if (i == 1L && s[2] == "==") {
-        # single equality: not-in
+        # (1) single equality: not-in
         # TODO use %chin% if char
         sprintf("%s[!%s %s %s%s%s]",
                 .DTtext,
@@ -188,7 +189,7 @@ dtjoin_anti <- function(
                 argtext_verbose)
 
       } else {
-        # general case: not-join
+        # (2) general case: not-join
         sprintf("%s[!%s, on = %s%s%s]",
                 .DTtext,
                 .itext,
@@ -198,7 +199,7 @@ dtjoin_anti <- function(
       }
 
   } else if (has_mult) {
-    # mult, with or without mult.DT: not-which
+    # (3) mult, with or without mult.DT: not-which
     sprintf("%s[!%s[%s, on = %s, nomatch = NULL, mult = %s, which = TRUE%s]%s]",
             .DTtext,
             .DTtext,
@@ -209,7 +210,7 @@ dtjoin_anti <- function(
             if (has_select) sprintf(", %s", jtext) else "")
 
   } else {
-    # mult.DT, no mult: not-rn
+    # (4) mult.DT, no mult: not-rn
     # NB could na.omit on .DT in this case
     sprintf("%s[!%s[%s[, fjoin.DT.rn := .I], on = %s, nomatch = NULL, mult = %s, fjoin.DT.rn%s]%s",
             .DTtext,

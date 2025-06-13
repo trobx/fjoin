@@ -163,7 +163,10 @@ dtjoin <- function(
     tmp   <- make_mock_tables(on)
     .DT   <- tmp[[1]]
     .i    <- tmp[[2]]
-  } else {
+    asis.DT <- TRUE
+    asis.i  <- TRUE
+  }
+  else {
     check_input_class(.DT)
     check_input_class(.i)
     orig.DT           <- .DT
@@ -325,7 +328,7 @@ dtjoin <- function(
 
   if (rename_anti.DT) {
     oldnames_anti.DT <- oldnames_anti.DT[!is.na(oldnames_anti.DT)]
-    newnames_anti.DT <- oldnames_anti.DT[!is.na(oldnames_anti.DT)]
+    newnames_anti.DT <- newnames_anti.DT[!is.na(newnames_anti.DT)]
   }
 
   # selected (non-join) columns
@@ -569,12 +572,6 @@ dtjoin <- function(
   } else {
     # both mult.DT and mult - solution depends on whether outer wrt .i
     # add fjoin.DT.rn if not already present for outer.DT
-
-    vcat(jvars.DT)
-    vcat(sdcols.DT)
-    vcat(jvars.i)
-    vcat(sdcols.i)
-
 
     if (!outer.i) {
       # (3) mult.DT and mult, inner wrt .i

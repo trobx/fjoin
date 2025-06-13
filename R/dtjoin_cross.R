@@ -62,9 +62,11 @@ dtjoin_cross <- function(
   }
 
   if (mock) {
-    tmp   <- make_mock_tables(on)
+    tmp   <- make_mock_tables(on = "id")
     .DT   <- tmp[[1]]
     .i    <- tmp[[2]]
+    asis.DT <- TRUE
+    asis.i  <- TRUE
   } else {
     check_input_class(.DT)
     check_input_class(.i)
@@ -112,7 +114,7 @@ dtjoin_cross <- function(
       # .i ahead of .DT
       if (inherits(orig.i, "sf")) {
         sf_col <- attr(orig.i, "sf_column")
-        if (include.i[match(sf_col, names.i)]) {
+        if (is_selected.i[match(sf_col, names.i)]) {
           as_sf <- TRUE
           if (!i.main && sf_col %in% names.DT) sf_col <- sprintf("%s%s", prefix, sf_col)
           as_tbl_df <- inherits(orig.i, "tbl_df") && as_tibble_ok
@@ -120,7 +122,7 @@ dtjoin_cross <- function(
       }
       if (!as_sf && inherits(orig.DT, "sf")) {
         sf_col <- attr(orig.DT, "sf_column")
-        if (include.DT[match(sf_col, names.DT)]) {
+        if (is_selected.DT[match(sf_col, names.DT)]) {
           as_sf <- TRUE
           if (i.main && sf_col %in% names.i) sf_col <- sprintf("%s%s", prefix, sf_col)
           as_tbl_df <- inherits(orig.DT, "tbl_df") && as_tibble_ok
