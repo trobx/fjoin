@@ -19,12 +19,13 @@ Suggests:
     testthat (>= 3.0.0),
     dplyr (>= 1.0.0),
     tibble,
-    kableExtra,
-    ggplot2,
-    forcats,
+    sf,
     knitr,
     quarto,
-    rmarkdown
+    rmarkdown,
+    kableExtra,
+    ggplot2,
+    forcats
 URL: https://github.com/trobx/fjoin
 BugReports: https://github.com/trobx/fjoin/issues
 Config/testthat/edition: 3
