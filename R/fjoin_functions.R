@@ -302,13 +302,13 @@ fjoin_left_semi <- function(
     mult.y    = "all",
     do        = !(is.null(x) && is.null(y))
 ) {
-  dtjoin_semi_i(
-    .DT       = y,
-    .i        = x,
-    on        = flip_on(on),
+  dtjoin_semi (
+    .DT       = x,
+    .i        = y,
+    on        = on,
     match.na  = match.na,
-    mult      = mult.x,
-    mult.DT   = mult.y,
+    mult      = mult.y,
+    mult.DT   = mult.x,
     do        = do
   )
 }
@@ -344,13 +344,13 @@ fjoin_right_semi <- function(
     mult.y    = "all",
     do        = !(is.null(x) && is.null(y))
 ) {
-  dtjoin_semi_i(
-    .DT       = x,
-    .i        = y,
-    on        = on,
+  dtjoin_semi(
+    .DT       = y,
+    .i        = x,
+    on        = flip_on(on),
     match.na  = match.na,
-    mult      = mult.y,
-    mult.DT   = mult.x,
+    mult      = mult.x,
+    mult.DT   = mult.y,
     do        = do
   )
 }
@@ -384,7 +384,7 @@ fjoin_left_anti <- function(
     prefix    = "R.",
     do        = !(is.null(x) && is.null(y))
 ) {
-  dtjoin_anti_DT(
+  dtjoin_anti(
     .DT       = x,
     .i        = y,
     on        = on,
@@ -429,7 +429,7 @@ fjoin_right_anti <- function(
     prefix    = "R.",
     do        = !(is.null(x) && is.null(y))
 ) {
-  dtjoin_anti_DT(
+  dtjoin_anti(
     .DT       = y,
     .i        = x,
     on        = flip_on(on),
