@@ -64,7 +64,7 @@ shallow_DT <- function(x, use_setDT = TRUE) {
   # use_setDT = FALSE (no overallocation) is for pure read-only with no assignments
   # if a non-object list, can't use unclass (as returns the original object), and always use setDT to trigger common length check
   if (identical(class(x), "list")) {
-    data.table::setDT(lapply(x, \(v) v))
+    data.table::setDT(lapply(x, function(v) v))
   } else {
     if (use_setDT) data.table::setDT(unclass(x)) else data.table::setattr(unclass(x), "class", c("data.table", "data.frame"))
   }
@@ -72,7 +72,7 @@ shallow_DT <- function(x, use_setDT = TRUE) {
 # ------------------------------------------------------------------------------
 make_mock_tables <- function(on) {
   # Create mock data.tables from an 'on' text expression
-  tmp <- lapply(on, \(x) strsplit_predicate(x))
+  tmp <- lapply(on, function(x) strsplit_predicate(x))
   names_DT <- c(vapply(tmp, function(x) x[1], character(1)), "col_DT", "col_c")
   names_i  <- c(vapply(tmp, function(x) x[3], character(1)), "col_i", "col_c")
   .DT <- stats::setNames(data.table::as.data.table(matrix(NA_integer_, nrow=1L, ncol=length(names_DT))), names_DT)

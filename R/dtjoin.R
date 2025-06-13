@@ -453,11 +453,11 @@ dtjoin <- function(
         if (i.first) {
           c(joincol_jvars.i,
             joincol_jvars.DT,
-            stats::na.omit(unlist(lapply(select, \(x) c(other_jvars.i[match(x,selected_names.i)], other_jvars.DT[match(x,selected_names.DT)])))))
+            stats::na.omit(unlist(lapply(select, function(x) c(other_jvars.i[match(x,selected_names.i)], other_jvars.DT[match(x,selected_names.DT)])))))
         } else {
           c(joincol_jvars.DT,
             joincol_jvars.i,
-            stats::na.omit(unlist(lapply(select, \(x) c(other_jvars.DT[match(x,selected_names.DT)], other_jvars.i[match(x,selected_names.i)])))))
+            stats::na.omit(unlist(lapply(select, function(x) c(other_jvars.DT[match(x,selected_names.DT)], other_jvars.i[match(x,selected_names.i)])))))
         }
 
     } else {
@@ -555,7 +555,7 @@ dtjoin <- function(
               deparse(flip_on(on)),
               deparse(mult.DT),
               sprintf(if (sfc_present) "setDF(list(%s%s, fjoin.i.rn = fjoin.i.rn))" else "data.frame(%s%s, fjoin.i.rn)",
-                      paste(sapply(names.DT[include.DT], \(x) sprintf("%s = i.%s",x,x)), collapse=", "),
+                      paste(sapply(names.DT[include.DT], function(x) sprintf("%s = i.%s",x,x)), collapse=", "),
                       if (add_dummy_col.DT) ", fjoin.ind = TRUE" else ""
               ),
               argtext_verbose,
@@ -619,7 +619,7 @@ dtjoin <- function(
                 deparse(on),
                 argtext_mult,
                 sprintf(if (sfc_present) "setDF(list(%s%s%s%s))" else "data.frame(%s%s%s%s)",
-                        paste(sapply(names.DT[include.DT], \(x) sprintf("%s = x.%s",x,x)), collapse=", "),
+                        paste(sapply(names.DT[include.DT], function(x) sprintf("%s = x.%s",x,x)), collapse=", "),
                         if (sfc_present) ", fjoin.i.rn = fjoin.i.rn" else ", fjoin.i.rn",
                         if (outer.DT) "" else if (sfc_present) ", fjoin.DT.rn = fjoin.DT.rn" else ", fjoin.DT.rn",
                         if (add_dummy_col.DT) ", fjoin.ind = TRUE" else ""

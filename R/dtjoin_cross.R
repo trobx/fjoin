@@ -156,9 +156,9 @@ dtjoin_cross <- function(
     if (has_select && !(has_select.DT || has_select.i)) {
     # select-only case (selected in order)
       if (i.first) {
-          stats::na.omit(unlist(lapply(select, \(x) c(jvars.i[match(x,selected_names.i)], jvars.DT[match(x,selected_names.DT)]))))
+          stats::na.omit(unlist(lapply(select, function(x) c(jvars.i[match(x,selected_names.i)], jvars.DT[match(x,selected_names.DT)]))))
       } else {
-          stats::na.omit(unlist(lapply(select, \(x) c(jvars.DT[match(x,selected_names.DT)], jvars.i[match(x,selected_names.i)]))))
+          stats::na.omit(unlist(lapply(select, function(x) c(jvars.DT[match(x,selected_names.DT)], jvars.i[match(x,selected_names.i)]))))
       }
     } else {
         if (i.first) c(jvars.i, jvars.DT) else c(jvars.DT, jvars.i)
