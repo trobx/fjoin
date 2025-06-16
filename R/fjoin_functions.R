@@ -300,15 +300,21 @@ fjoin_left_semi <- function(
     match.na  = FALSE,
     mult.x    = "all",
     mult.y    = "all",
+    select    = NULL,
     do        = !(is.null(x) && is.null(y))
 ) {
+
+  xylabels <- c(make_label_fjoin(x, substitute(x)), make_label_fjoin(y, substitute(y)))
+
   dtjoin_semi (
     .DT       = x,
     .i        = y,
     on        = on,
+    .labels   = xylabels,
     match.na  = match.na,
     mult      = mult.y,
     mult.DT   = mult.x,
+    select    = select,
     do        = do
   )
 }
@@ -342,15 +348,19 @@ fjoin_right_semi <- function(
     match.na  = FALSE,
     mult.x    = "all",
     mult.y    = "all",
+    select    = NULL,
     do        = !(is.null(x) && is.null(y))
 ) {
+  xylabels <- c(make_label_fjoin(x, substitute(x)), make_label_fjoin(y, substitute(y)))
   dtjoin_semi(
     .DT       = y,
     .i        = x,
     on        = flip_on(on),
+    .labels   = rev(xylabels),
     match.na  = match.na,
     mult      = mult.x,
     mult.DT   = mult.y,
+    select    = select,
     do        = do
   )
 }
@@ -379,19 +389,20 @@ fjoin_left_anti <- function(
     match.na  = FALSE,
     mult.x    = "all",
     mult.y    = "all",
-    preserve  = FALSE,
-    indicate  = FALSE,
-    prefix    = "R.",
+    select    = NULL,
     do        = !(is.null(x) && is.null(y))
 ) {
+  xylabels <- c(make_label_fjoin(x, substitute(x)), make_label_fjoin(y, substitute(y)))
   dtjoin_anti(
     .DT       = x,
     .i        = y,
     on        = on,
+    .labels   = xylabels,
     match.na  = match.na,
     mult      = mult.y,
     mult.DT   = mult.x,
-    do        = TRUE
+    select    = select,
+    do        = do
   )
 }
 
@@ -424,18 +435,19 @@ fjoin_right_anti <- function(
     match.na  = FALSE,
     mult.x    = "all",
     mult.y    = "all",
-    preserve  = FALSE,
-    indicate  = FALSE,
-    prefix    = "R.",
+    select    = NULL,
     do        = !(is.null(x) && is.null(y))
 ) {
+  xylabels <- c(make_label_fjoin(x, substitute(x)), make_label_fjoin(y, substitute(y)))
   dtjoin_anti(
     .DT       = y,
     .i        = x,
     on        = flip_on(on),
+    .labels   = rev(xylabels),
     match.na  = match.na,
     mult      = mult.x,
     mult.DT   = mult.y,
+    select    = select,
     do        = do
   )
 }
@@ -457,21 +469,29 @@ fjoin_right_anti <- function(
 #'
 #' @export
 fjoin_cross <- function(
-    x,
-    y,
+    x         = NULL,
+    y         = NULL,
     order     = "left",
     prefix    = "R.",
+    select    = NULL,
+    select.x  = NULL,
+    select.y  = NULL,
     do        = TRUE
 ) {
 
   check_arg_order(order)
   order.x <- order == "left"
+  xylabels <- c(make_label_fjoin(x, substitute(x)), make_label_fjoin(y, substitute(y)))
 
   dtjoin_cross(
     .DT        = if (order.x) y else x,
     .i         = if (order.x) x else y,
+    .labels    = if (order.x) rev(xylabels) else xylabels,
     i.main     = order.x,
     prefix     = prefix,
+    select     = select,
+    select.DT  = if (order.x) select.y else select.x,
+    select.i   = if (order.x) select.x else select.y,
     do         = do
   )
 }

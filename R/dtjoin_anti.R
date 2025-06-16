@@ -76,18 +76,16 @@ dtjoin_anti <- function(
   } else {
     check_input_class(.DT)
     check_input_class(.i)
-    if (do) {
-      orig.DT           <- .DT
-      asis.DT           <- inherits(.DT, "data.table")
-      asis.i            <- inherits(.i, "data.table")
-      if (!asis.DT) {
-        .DT <- shallow_DT(.DT)
-        if (show) .labels[[1]] <- paste(.labels[[1]], "(cast as data.table)")
-      }
-      if (!asis.i) {
-        .i <- shallow_DT(.i)
-        if (show) .labels[[2]] <- paste(.labels[[2]], "(cast as data.table)")
-      }
+    orig.DT           <- .DT
+    asis.DT           <- inherits(.DT, "data.table")
+    asis.i            <- inherits(.i, "data.table")
+    if (!asis.DT) {
+      .DT <- shallow_DT(.DT)
+      if (show) .labels[[1]] <- paste(.labels[[1]], "(cast as data.table)")
+    }
+    if (!asis.i) {
+      .i <- shallow_DT(.i)
+      if (show) .labels[[2]] <- paste(.labels[[2]], "(cast as data.table)")
     }
   }
 
@@ -179,7 +177,6 @@ dtjoin_anti <- function(
 
       if (i == 1L && s[2] == "==") {
         # (1) single equality: not-in
-        # TODO use %chin% if char
         sprintf("%s[!%s %s %s%s%s]",
                 .DTtext,
                 s[1],
