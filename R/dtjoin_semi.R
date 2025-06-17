@@ -82,8 +82,8 @@ dtjoin_semi <- function(
     check_input_class(.DT)
     check_input_class(.i)
     orig.DT           <- .DT
-    asis.DT           <- inherits(.DT, "data.table")
-    asis.i            <- inherits(.i, "data.table")
+    asis.DT           <- identical(class(.DT), c("data.table", "data.frame"))
+    asis.i            <- identical(class(.i), c("data.table", "data.frame"))
     if (!asis.DT) {
       .DT <- shallow_DT(.DT)
       if (show) .labels[[1]] <- paste(.labels[[1]], "(cast as data.table)")
@@ -93,7 +93,6 @@ dtjoin_semi <- function(
       if (show) .labels[[2]] <- paste(.labels[[2]], "(cast as data.table)")
     }
   }
-
 
   has_select <- !is.null(select)
   if (has_select) select <- unique(select)
@@ -143,7 +142,7 @@ dtjoin_semi <- function(
 
   screen_NAs <- !match.na && length(equi_names.DT) && .DT[, anyNA(.SD), .SDcols=equi_names.DT] && .i[, anyNA(.SD), .SDcols=equi_names.i]
 
-  sfc_present <- any_inherits(.DT, "sfc", mask=names.DT %in% select)
+  sfc_present <- any_inherits(.DT, "sfc", mask = if (has_select) names.DT %in% select else NULL)
 
   as_DT <- asis.DT
   if (do && !as_DT) {

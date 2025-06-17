@@ -72,8 +72,8 @@ dtjoin_cross <- function(
     check_input_class(.i)
     orig.DT           <- .DT
     orig.i            <- .i
-    asis.DT           <- inherits(.DT, "data.table")
-    asis.i            <- inherits(.i, "data.table")
+    asis.DT           <- identical(class(.DT), c("data.table", "data.frame"))
+    asis.i            <- identical(class(.i), c("data.table", "data.frame"))
     if (!asis.DT) {
       .DT <- shallow_DT(.DT)
       if (show) .labels[[1]] <- paste(.labels[[1]], "(cast as data.table)")
@@ -130,7 +130,7 @@ dtjoin_cross <- function(
       }
     }
     as_DT <- !as_sf && (asis.DT || asis.i)
-    if (!as_sf && !as_DT) as_tbl_df <- (inherits(orig.DT, "tbl_df") || inherits(orig.i, "tbl_df")) && as_tibble_ok
+    if (!as_DT) as_tbl_df <- (inherits(orig.DT, "tbl_df") || inherits(orig.i, "tbl_df")) && as_tibble_ok
   }
 
   jvars.DT <- character(length(selected_names.DT))
