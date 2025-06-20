@@ -481,7 +481,7 @@ dtjoin <- function(
   add_dummy_col.DT <- FALSE
   if (indicate) {
     if (!outer.i) {
-      jvars <- c(list(".join = 3L"), jvars)
+      jvars <- c(list(".join = rep(3L, .N)"), jvars)
     } else {
       add_dummy_col.DT <- TRUE
       jvars <- c(list(sprintf(".join = fifelse(is.na(fjoin.ind), %s, 3L)", if (!i.main) "2L" else "1L")), jvars)
