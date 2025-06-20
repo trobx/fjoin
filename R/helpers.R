@@ -21,12 +21,6 @@ check_arg_prefix <- function(x) {
             "forming a syntactically valid name. See `?base::make.names` for a description."),
       deparse(substitute(x))))
 }
-# check_arg_prefix("x.")
-# check_arg_prefix("x. ")
-# check_arg_prefix(c("x.","x."))
-# check_arg_prefix(NA_character_)
-# check_arg_prefix(NULL)
-# check_arg_prefix(1)
 # ------------------------------------------------------------------------------
 check_arg_select <- function(x) {
   if (!(is.null(x) || is.character(x) || ((length(x) == 1L && is.na(x)))))

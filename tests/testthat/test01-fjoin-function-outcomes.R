@@ -1,4 +1,5 @@
-library(data.table)
+
+# TODO test mult args in fjoin functions
 
 # ------------------------------------------------------------------------------
 make_A <- function() {
