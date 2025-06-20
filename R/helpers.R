@@ -187,5 +187,5 @@ allows_equi <- function(x) {
 }
 # ------------------------------------------------------------------------------
 vcat <- function(x) {
-  cat(deparse(substitute(x))," : ",x,"\n")
+  cat(deparse(substitute(x)),": ",x,"\n", sep="")
 }
