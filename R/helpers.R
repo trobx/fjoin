@@ -10,8 +10,8 @@ check_arg_order <- function(x) {
 }
 # ------------------------------------------------------------------------------
 check_arg_on <- function(x) {
-  if (!(is.character(x) || length(x) > 0))
-    stop(sprintf("Argument '%s' must be a character vector of length greater than zero", deparse(substitute(x))))
+  if (!(is.character(x) && length(x) > 0L && all(nzchar(x)) && !anyNA(x)))
+    stop(sprintf("Argument '%s' must be a non-empty character vector with no empty strings or NAs", deparse(substitute(x))))
 }
 # ------------------------------------------------------------------------------
 check_arg_prefix <- function(x) {
@@ -29,8 +29,8 @@ check_arg_prefix <- function(x) {
 # check_arg_prefix(1)
 # ------------------------------------------------------------------------------
 check_arg_select <- function(x) {
-  if (!(is.null(x) || is.character(x) || is.na(x)))
-    stop(sprintf("Argument '%s' must be a character vector, NA or NULL", deparse(substitute(x))))
+  if (!(is.null(x) || is.character(x) || ((length(x) == 1L && is.na(x)))))
+    stop(sprintf("Argument '%s' must be a character vector, NA, or NULL", deparse(substitute(x))))
 }
 # ------------------------------------------------------------------------------
 check_arg_mult <- function(x) {
@@ -119,11 +119,6 @@ na_omit_text <- function(x, na_cols=NULL, sd_cols=NULL) {
     }
   }
 }
-# na_omit_text(".DT")
-# na_omit_text(".DT", na_cols="id_A")
-# na_omit_text(".DT", sd_cols=c("id_A", "A"))
-# na_omit_text(".DT", na_cols="id_A", sd_cols="id_A")
-# na_omit_text(".DT", na_cols="id_A", sd_cols=c("id_A", "A"))
 # ------------------------------------------------------------------------------
 make_label_fjoin <- function(t, sub_t) {
   # for calling in fjoin_*(): table label for printing, e.g. "x = A", "x (unnamed)"
@@ -185,18 +180,11 @@ strsplit_predicate <- function(x) {
       fast_trimws(substr(x, pos + attr(pos, "match.length"), nchar(x))))
   }
 }
-#strsplit_predicate("id1>=id2")
-#strsplit_predicate("id1 >= id2")
-#strsplit_predicate("    id1 >= id2  ")
-#strsplit_predicate("id")
-#strsplit_predicate("id1 >= ")
 # ------------------------------------------------------------------------------
 allows_equi <- function(x) {
   # Whether operator is equality/weak inequality
   x %in% c("==", ">=", "<=")
 }
-#allows_equi(">=")
-#allows_equi(">")
 # ------------------------------------------------------------------------------
 vcat <- function(x) {
   cat(deparse(substitute(x))," : ",x,"\n")
