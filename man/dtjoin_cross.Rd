@@ -2,21 +2,32 @@
 % Please edit documentation in R/dtjoin_cross.R
 \name{dtjoin_cross}
 \alias{dtjoin_cross}
-\title{Return the cross-join of two \code{data.table}s}
+\title{Cross-join data.frame-like objects using functional \code{DT[i]}-style syntax}
 \usage{
 dtjoin_cross(
   .DT = NULL,
   .i = NULL,
+  select = NULL,
+  select.DT = NULL,
+  select.i = NULL,
   i.first = i.main,
   i.main = FALSE,
   prefix = if (i.main) "x." else "i.",
-  do = TRUE
+  do = !(is.null(.DT) && is.null(.i)),
+  show = !do,
+  ...
 )
 }
 \arguments{
-\item{.DT, .i}{\code{data.frame}-like objects (plain, \code{tibble},
-\code{data.table} etc.), or else both omitted (\code{NULL}) for a mock join
-statement with no data.}
+\item{.DT, .i}{\code{data.frame}-like objects (\code{list}, plain
+\code{data.frame}, \code{data.table}, \code{tibble}, \code{sf} etc.), or
+else both omitted (\code{NULL}) for a mock join statement with no data.}
+
+\item{select, select.DT, select.i}{Character vectors of columns to be selected
+from either input if present (\code{select}) or specifically from one or
+other (\code{select.DT}, \code{select.i}). \code{NULL} (the default)
+selects all columns. Use \code{NA} or \code{""} to select no columns. Join
+columns are always selected.}
 
 \item{i.first}{Whether to place \code{.i}'s columns before \code{.DT}'s in
 the join result. The default is to use the value of \code{i.main}, i.e.
@@ -24,7 +35,8 @@ bring \code{.i}'s columns to the front if \code{.i} is the "home" table.}
 
 \item{i.main}{Whether to treat \code{.i} as the "home" table and \code{.DT}
 as the "foreign" table for column prefixing and \code{indicate}. Default
-\code{FALSE}, i.e. \code{.DT} is the "home" table.}
+\code{FALSE}, i.e. \code{.DT} is the "home" table, as in
+\code{[.data.table}.}
 
 \item{prefix}{A prefix to attach to column names in the "foreign" table that
 are the same as a column name in the "home" table. The default is
@@ -35,15 +47,26 @@ are the same as a column name in the "home" table. The default is
 \item{do}{Whether to execute the join. Default is \code{TRUE} unless
 \code{.DT} and \code{.i} are both omitted/\code{NULL}, in which case a mock
 join statement is produced.}
+
+\item{show}{Whether to print the code for the join to the console. Default is
+the opposite of \code{do}. If \code{.DT} and \code{.i} are both
+omitted/\code{NULL}, mock join code is displayed.}
+
+\item{...}{Further arguments (for internal use).}
 }
 \value{
-A \code{data.table} (the resulting cross-join), or \code{NULL} if \code{do}
-    is \code{FALSE}. The data.table code is always printed to the console.
+A \code{data.frame}, \code{data.table}, \code{tibble}, or
+ \code{sf}/\code{sf}-\code{tibble} depending on the class of \code{.DT}, or
+ else \code{NULL} if \code{do} is \code{FALSE}.
 }
 \description{
 Write (and optionally run) \code{data.table} code to return the cross-join of
-    two \code{data.table}s. The arguments for controlling column order and prefixing
-    are as for \code{dtjoin}.
+two \code{data.frame}-like objects using an enhanced functional version of
+\code{DT[i]}-style syntax. Arguments for selecting, ordering and prefixing
+output columns are as for \code{\link{dtjoin}}.
+
+The function \code{\link{fjoin_cross}} provides a more conventional interface
+that is recommended over \code{dtjoin_cross} for most users and cases.
 }
 \details{
 # TODO

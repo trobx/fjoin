@@ -2,8 +2,8 @@
 % Please edit documentation in R/dtjoin.R
 \name{dtjoin}
 \alias{dtjoin}
-\title{Join data.frames using an enhanced and extended \code{DT[i]}-like data.table
-syntax}
+\title{Join two data.frame-like objects using an extended functional form of
+data.table \code{DT[i]}-style syntax}
 \usage{
 dtjoin(
   .DT = NULL,
@@ -30,11 +30,12 @@ dtjoin(
 )
 }
 \arguments{
-\item{.DT, .i}{\code{data.frame}-like objects (plain, \code{tibble},
-\code{data.table} etc.), or else both omitted (\code{NULL}) for a mock join
-statement with no data.}
+\item{.DT, .i}{\code{data.frame}-like objects (\code{list}, plain
+\code{data.frame}, \code{data.table}, \code{tibble}, \code{sf} etc.), or
+else both omitted (\code{NULL}) for a mock join statement with no data.}
 
-\item{on}{A character vector of join predicates.}
+\item{on}{A character vector of join predicates, e.g. \code{c("id", "col_DT
+== col_i", "date < date")}.}
 
 \item{match.na}{If \code{TRUE}, allow equality matches between \code{NA}s or
 \code{NaN}s. The default is \code{FALSE}, i.e. such matches are not
@@ -65,9 +66,9 @@ from the "foreign" table only, and \code{3L} if joined from both tables
 (c.f. \code{_merge} in Stata). Default \code{FALSE}.}
 
 \item{select, select.DT, select.i}{Character vectors of columns to be selected
-from either input (\code{select}) or specifically from one or
-other (\code{select.DT}, \code{select.i}). \code{NULL} (the default) selects
-all columns. Use \code{""} (or \code{NA}) to select no columns. Join
+from either input if present (\code{select}) or specifically from one or
+other (\code{select.DT}, \code{select.i}). \code{NULL} (the default)
+selects all columns. Use \code{NA} or \code{""} to select no columns. Join
 columns are always selected.}
 
 \item{on.first}{Whether to place the join columns first in the join result.
@@ -75,7 +76,8 @@ Default \code{FALSE}.}
 
 \item{i.main}{Whether to treat \code{.i} as the "home" table and \code{.DT}
 as the "foreign" table for column prefixing and \code{indicate}. Default
-\code{FALSE}, i.e. \code{.DT} is the "home" table.}
+\code{FALSE}, i.e. \code{.DT} is the "home" table, as in
+\code{[.data.table}.}
 
 \item{i.first}{Whether to place \code{.i}'s columns before \code{.DT}'s in
 the join result. The default is to use the value of \code{i.main}, i.e.
@@ -89,8 +91,8 @@ are the same as a column name in the "home" table. The default is
 
 \item{preserve}{(rarely used) Whether to include the "foreign" table's
 equality join column(s) in addition to the "home" table's (equivalent to
-"keep" in dplyr). Default \code{FALSE}. Note that non-equality join columns
-from the foreign table are always included separately.}
+\code{keep} in dplyr). Default \code{FALSE}. Note that non-equality join
+columns from the foreign table are always included separately.}
 
 \item{do}{Whether to execute the join. Default is \code{TRUE} unless
 \code{.DT} and \code{.i} are both omitted/\code{NULL}, in which case a mock
@@ -106,28 +108,32 @@ print information to the console during execution. Default \code{FALSE}.}
 \item{...}{Further arguments (for internal use).}
 }
 \value{
-A \code{data.frame}, \code{tibble} or \code{data.table}, or else
- \code{NULL} if \code{do} is \code{FALSE}. See details.
+A \code{data.frame}, \code{data.table}, \code{tibble}, or
+ \code{sf}/\code{sf}-\code{tibble}, or else \code{NULL} if \code{do} is
+ \code{FALSE}. See details.
 }
 \description{
-Write (and optionally run) \code{data.table} code for a join,
-  using \code{DT[i]}-style syntax with many efficient enhancements.
-  Accepts any \code{data.frame}-like inputs (not only \code{data.table}s),
-  permits left, right, inner, and full joins, prevents unwanted matches on
-  \code{NA} and \code{NaN} by default, does not garble join columns in
-  non-equality joins, allows \code{mult} on both sides of the join, creates an
-  optional join indicator column, allows specifying which columns to select
-  from each side, and provides convenience options to control column order
-  and prefixing.
+Write (and optionally run) data.table code for a join
+using a functional form of \code{DT[i]} syntax with many efficient
+enhancements. Accepts any \code{data.frame}-like inputs (not only
+\code{data.table}s), permits left, right, inner, and full joins, prevents
+unwanted matches on \code{NA} and \code{NaN} by default, does not garble
+join columns in non-equality joins, allows \code{mult} on both sides of the
+join, creates an optional join indicator column, allows specifying which
+columns to select from each input, and provides convenience options to
+control column order and prefixing.
 
-  Also permits \emph{mock joins}, where no \code{data.frame} inputs are
-  provided, which print template code to the console that can be swiped and
-  adapted.
+If run, the join returns a \code{data.frame}, \code{data.table},
+\code{tibble}, or \code{sf}/\code{sf}-\code{tibble} according to context.
+The generated \code{data.table} code can be printed to the console instead of
+(or as well as) being executed. This feature extends to \emph{mock joins},
+where no inputs are provided, and template code is produced.
 
-  \code{dtjoin()} is the workhorse function for \code{fjoin_inner()},
-  \code{fjoin_left()}, \code{fjoin_right()}, and \code{fjoin_full()}, which
-  are wrappers providing a much more conventional interface for join
-  operations. These functions are recommended for most users and cases.
+\code{dtjoin} is the workhorse function for \code{\link{fjoin_inner}},
+\code{\link{fjoin_left}}, \code{\link{fjoin_right}}, and
+\code{\link{fjoin_full}}, which are wrappers providing a much more
+conventional interface for join operations. These functions are recommended
+over \code{dtjoin} for most users and cases.
 }
 \examples{
 # Simple mock joins

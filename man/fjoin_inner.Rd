@@ -76,9 +76,8 @@ and \code{y} are both omitted/\code{NULL}, in which case a mock join
 statement is produced. See details.}
 }
 \value{
-A \code{data.frame} (a \code{data.table} if one or both inputs are
-  of that class), or \code{NULL} if \code{do} is \code{FALSE}. The data.table
-  code is always printed to the console.
+A \code{data.frame}, \code{tibble} or \code{data.table}, or else
+ \code{NULL} if \code{do} is \code{FALSE}. See details.
 }
 \description{
 Inner join of \code{x} and \code{y}

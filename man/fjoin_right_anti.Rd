@@ -11,9 +11,7 @@ fjoin_right_anti(
   match.na = FALSE,
   mult.x = "all",
   mult.y = "all",
-  preserve = FALSE,
-  indicate = FALSE,
-  prefix = "R.",
+  select = NULL,
   do = !(is.null(x) && is.null(y))
 )
 }
@@ -38,18 +36,9 @@ which to accept: \code{"all"} (the default), \code{"first"}, or
 which to accept: \code{"all"} (the default), \code{"first"}, or
 \code{"last"}. Can be combined with \code{mult.x}.}
 
-\item{preserve}{(rarely used) Whether to include \code{y}'s equality join
-column(s) in addition to \code{x}'s (equivalent to \code{keep} in dplyr).
-Default \code{FALSE}. Note that non-equality join columns from \code{x} are
-always included separately.}
-
-\item{indicate}{Whether to add a column \code{".join"}  at the front of the
-result, with values \code{1L} if from \code{x} only, \code{2L} if from
-\code{y} only, and \code{3L} if joined from both tables (c.f. \code{_merge}
-in Stata). Default \code{FALSE}.}
-
-\item{prefix}{A prefix to attach to column names in \code{y} that are the
-same as a column name in \code{x}. Default \code{"R."}.}
+\item{select}{Character vector of columns to be selected. \code{NULL} (the
+default) selects all columns. Use \code{""} (or \code{NA}) to select no
+columns. Join columns are always selected.}
 
 \item{do}{Whether to execute the join. If FALSE, the data.table code for the
 join is printed to the console instead. Default is \code{TRUE} unless \code{x}

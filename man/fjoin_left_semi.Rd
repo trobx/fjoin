@@ -12,6 +12,7 @@ fjoin_left_semi(
   match.na = FALSE,
   mult.x = "all",
   mult.y = "all",
+  select = NULL,
   do = !(is.null(x) && is.null(y))
 )
 
@@ -22,6 +23,7 @@ fjoin_semi(
   match.na = FALSE,
   mult.x = "all",
   mult.y = "all",
+  select = NULL,
   do = !(is.null(x) && is.null(y))
 )
 }
@@ -45,6 +47,10 @@ which to accept: \code{"all"} (the default), \code{"first"}, or
 \item{mult.y}{When a row of \code{y} has multiple matching rows in \code{x},
 which to accept: \code{"all"} (the default), \code{"first"}, or
 \code{"last"}. Can be combined with \code{mult.x}.}
+
+\item{select}{Character vector of columns to be selected. \code{NULL} (the
+default) selects all columns. Use \code{""} (or \code{NA}) to select no
+columns. Join columns are always selected.}
 
 \item{do}{Whether to execute the join. If FALSE, the data.table code for the
 join is printed to the console instead. Default is \code{TRUE} unless \code{x}

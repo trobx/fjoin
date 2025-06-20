@@ -4,7 +4,16 @@
 \alias{fjoin_cross}
 \title{Cross-join}
 \usage{
-fjoin_cross(x, y, order = "left", prefix = "R.", do = TRUE)
+fjoin_cross(
+  x = NULL,
+  y = NULL,
+  order = "left",
+  prefix = "R.",
+  select = NULL,
+  select.x = NULL,
+  select.y = NULL,
+  do = TRUE
+)
 }
 \arguments{
 \item{x, y}{\code{data.frame}-like objects (plain, \code{tibble},
@@ -18,6 +27,12 @@ Default is \code{"left"} for left, inner, full and cross joins,
 
 \item{prefix}{A prefix to attach to column names in \code{y} that are the
 same as a column name in \code{x}. Default \code{"R."}.}
+
+\item{select, select.x, select.y}{Character vectors of columns to be selected
+from either input if present (\code{select}) or specifically from one or
+other of them (e.g. \code{select.x}). \code{NULL} (the default) selects
+all columns. Use \code{""} (or \code{NA}) to select no columns. Join
+columns are always selected.}
 
 \item{do}{Whether to execute the join. If FALSE, the data.table code for the
 join is printed to the console instead. Default is \code{TRUE} unless \code{x}

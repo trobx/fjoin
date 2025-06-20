@@ -26,7 +26,7 @@ implementations of all main join styles via a simple interface:
 }
 These functions are wrappers around a greatly extended data.table-like
 interface, which is also exported: \code{\link{dtjoin}()},
-\code{\link{dtjoin_semi_i}()}, \code{\link{dtjoin_anti_DT}()},
+\code{\link{dtjoin_semi}()}, \code{\link{dtjoin_anti}()},
 \code{\link{dtjoin_cross}()}
 }
 \seealso{
