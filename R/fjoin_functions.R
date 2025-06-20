@@ -68,11 +68,10 @@ fjoin_inner <- function(
     preserve  = FALSE,
     do        = !(is.null(x) && is.null(y))
 ) {
-
+  check_arg_on(on)
   check_arg_order(order)
   order.x <- order == "left"
   xylabels <- c(make_label_fjoin(x, substitute(x)), make_label_fjoin(y, substitute(y)))
-
   dtjoin(
     .DT        = if (order.x) y else x,
     .i         = if (order.x) x else y,
@@ -93,7 +92,6 @@ fjoin_inner <- function(
     prefix     = prefix,
     do         = do
   )
-
 }
 
 # ------------------------------------------------------------------------------
@@ -129,11 +127,10 @@ fjoin_left <- function(
     preserve  = FALSE,
     do        = !(is.null(x) && is.null(y))
 ) {
-
+  check_arg_on(on)
   check_arg_order(order)
   order.x <- order == "left"
   xylabels <- c(make_label_fjoin(x, substitute(x)), make_label_fjoin(y, substitute(y)))
-
   dtjoin(
     .DT        = if (order.x) y else x,
     .i         = if (order.x) x else y,
@@ -189,11 +186,10 @@ fjoin_right <- function(
     preserve  = FALSE,
     do        = !(is.null(x) && is.null(y))
 ) {
-
+  check_arg_on(on)
   check_arg_order(order)
   order.y <- order == "right"
   xylabels <- c(make_label_fjoin(x, substitute(x)), make_label_fjoin(y, substitute(y)))
-
   dtjoin(
     .DT        = if (order.y) x else y,
     .i         = if (order.y) y else x,
@@ -249,11 +245,10 @@ fjoin_full <- function(
     preserve  = FALSE,
     do        = !(is.null(x) && is.null(y))
 ) {
-
+  check_arg_on(on)
   check_arg_order(order)
   order.x <- order == "left"
   xylabels <- c(make_label_fjoin(x, substitute(x)), make_label_fjoin(y, substitute(y)))
-
   dtjoin(
     .DT        = if (order.x) y else x,
     .i         = if (order.x) x else y,
@@ -285,6 +280,10 @@ fjoin_full <- function(
 #'
 #' @inheritParams fjoin_inner
 #'
+#' @param select Character vector of columns to be selected. \code{NULL} (the
+#'   default) selects all columns. Use \code{""} (or \code{NA}) to select no
+#'   columns. Join columns are always selected.
+#'
 #' @returns A \code{data.table} (the result of the join), or \code{NULL} if
 #'   \code{do} is \code{FALSE}. The data.table code is always printed to the
 #'   console.
@@ -303,9 +302,8 @@ fjoin_left_semi <- function(
     select    = NULL,
     do        = !(is.null(x) && is.null(y))
 ) {
-
+  check_arg_on(on)
   xylabels <- c(make_label_fjoin(x, substitute(x)), make_label_fjoin(y, substitute(y)))
-
   dtjoin_semi (
     .DT       = x,
     .i        = y,
@@ -331,7 +329,7 @@ fjoin_semi <- fjoin_left_semi
 #' @description
 #' The semi-join of \code{y} in a join of \code{x} and \code{y}
 #'
-#' @inheritParams fjoin_inner
+#' @inheritParams fjoin_left_semi
 #'
 #' @returns A \code{data.table} (the result of the join), or \code{NULL} if
 #'   \code{do} is \code{FALSE}. The data.table code is always printed to the
@@ -351,6 +349,7 @@ fjoin_right_semi <- function(
     select    = NULL,
     do        = !(is.null(x) && is.null(y))
 ) {
+  check_arg_on(on)
   xylabels <- c(make_label_fjoin(x, substitute(x)), make_label_fjoin(y, substitute(y)))
   dtjoin_semi(
     .DT       = y,
@@ -372,7 +371,7 @@ fjoin_right_semi <- function(
 #' The anti-join of \code{x} in a join of \code{x} and \code{y}.  The alias
 #'   \code{fjoin_anti} can be used instead.
 #'
-#' @inheritParams fjoin_inner
+#' @inheritParams fjoin_left_semi
 #'
 #' @returns A \code{data.table} (the result of the join), or \code{NULL} if
 #'   \code{do} is \code{FALSE}. The data.table code is always printed to the
@@ -418,7 +417,7 @@ fjoin_anti <- fjoin_left_anti
 #' @description
 #' The anti-join of \code{y} in a join of \code{x} and \code{y}
 #'
-#' @inheritParams fjoin_inner
+#' @inheritParams fjoin_left_semi
 #'
 #' @returns A \code{data.table} (the result of the join), or \code{NULL} if
 #'   \code{do} is \code{FALSE}. The data.table code is always printed to the
