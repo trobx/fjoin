@@ -171,7 +171,7 @@ dtjoin_semi <- function(
           sprintf("%s[%s %s %s%s]",
                   .DTtext,
                   s[1],
-                  if (is.character(s[1])) "%chin%" else "%in%",
+                  if (is.character(.DT[[s[1]]])) "%chin%" else "%in%",
                   .itext,
                   argtext_verbose)
         if (!as_DT) jointext <- sprintf("setDF(%s)[]", jointext) # very different from other cases
@@ -192,7 +192,7 @@ dtjoin_semi <- function(
           sprintf("%s[%s %s %s%s%s]",
                   .DTtext,
                   s[1],
-                  if (is.character(s[1])) "%chin%" else "%in%",
+                  if (is.character(.DT[[s[1]]])) "%chin%" else "%in%",
                   .itext,
                   jtext,
                   argtext_verbose)

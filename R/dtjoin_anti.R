@@ -180,7 +180,7 @@ dtjoin_anti <- function(
         sprintf("%s[!%s %s %s%s%s]",
                 .DTtext,
                 s[1],
-                if (is.character(s[1])) "%chin%" else "%in%",
+                if (is.character(.DT[[s[1]]])) "%chin%" else "%in%",
                 .itext,
                 if (has_select) sprintf(", %s", jtext) else "",
                 argtext_verbose)
