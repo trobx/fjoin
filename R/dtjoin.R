@@ -660,8 +660,8 @@ dtjoin <- function(
         sprintf("setnames(%s, %s, %s)", .DTantitext, deparse(oldnames_anti.DT), deparse(newnames_anti.DT))
     if (indicate) .DTantitext <-
         sprintf("%s[, .join := %s]", .DTantitext, if (!i.main) "1L" else "2L")
-    jointext <- sprintf("with(list(fjoin.temp = %s), rbind(fjoin.temp, %s, fill = TRUE))[, fjoin.DT.rn := NULL][]", jointext, .DTantitext)
-    if (!as_DT) jointext <- sprintf("setDF(%s)[]", jointext)
+    jointext <- sprintf("with(list(fjoin.temp = %s), rbind(fjoin.temp, %s, fill = TRUE))[, fjoin.DT.rn := NULL]", jointext, .DTantitext)
+    jointext <- if (as_DT) sprintf("%s[]", jointext) else sprintf("setDF(%s)[]", jointext)
   }
 
   # --------------------------------------------------------------------------
