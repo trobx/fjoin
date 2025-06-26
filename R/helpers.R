@@ -3,17 +3,31 @@ check_arg_TF <- function(x) {
   if (!x %in% c(TRUE, FALSE))
     stop(sprintf("Argument '%s' must be TRUE or FALSE", deparse(substitute(x))))
 }
-# ------------------------------------------------------------------------------
 check_arg_order <- function(x) {
   if (!x %in% c("left", "right"))
     stop(sprintf("Argument '%s' must be \"left\" or \"right\"", deparse(substitute(x))))
 }
-# ------------------------------------------------------------------------------
 check_arg_on <- function(x) {
   if (!(is.character(x) && length(x) > 0L && all(nzchar(x)) && !anyNA(x)))
     stop(sprintf("Argument '%s' must be a non-empty character vector with no empty strings or NAs", deparse(substitute(x))))
 }
-# ------------------------------------------------------------------------------
+check_arg_select <- function(x) {
+  if (!(is.null(x) || is.character(x) || ((length(x) == 1L && is.na(x)))))
+    stop(sprintf("Argument '%s' must be a character vector, NA, or NULL", deparse(substitute(x))))
+}
+check_arg_mult <- function(x) {
+  if (!x %in% c("all", "first", "last"))
+    stop(sprintf("Argument '%s' must be \"all\", \"first\", or \"last\"", deparse(substitute(x))))
+}
+check_arg_nomatch <- function(x) {
+  if (!(is.null(x) || x %in% c(NA, 0L)))
+    stop(sprintf("Argument '%s' must be NA, NULL, or 0L", deparse(substitute(x))))
+}
+check_input_class <- function(x) {
+  # Check x is either a non-object list or data.frame (data.table etc.)
+  if (!(is.list(x) && (is.data.frame(x) || !is.object(x))))
+    stop(sprintf("Argument '%s' must be a data.frame-like object or list", deparse(substitute(x))))
+}
 check_arg_prefix <- function(x) {
   if (!(length(x) == 1 && isTRUE(make.names(x) == x)))
     stop(sprintf(
@@ -21,27 +35,23 @@ check_arg_prefix <- function(x) {
             "forming a syntactically valid name. See `?base::make.names` for a description."),
       deparse(substitute(x))))
 }
-# ------------------------------------------------------------------------------
-check_arg_select <- function(x) {
-  if (!(is.null(x) || is.character(x) || ((length(x) == 1L && is.na(x)))))
-    stop(sprintf("Argument '%s' must be a character vector, NA, or NULL", deparse(substitute(x))))
+check_names <- function(x) {
+  if (!(isTRUE(all(make.names(names(x)) == names(x)))))
+    stop(sprintf(
+      paste("One or more column names of '%s' is either empty, NA, or not a syntactically valid R name (see `?base::make.names` for a description).",
+            "A future version of fjoin will support non-valid names."),
+      deparse(substitute(x))))
 }
-# ------------------------------------------------------------------------------
-check_arg_mult <- function(x) {
-  if (!x %in% c("all", "first", "last"))
-    stop(sprintf("Argument '%s' must be \"all\", \"first\", or \"last\"", deparse(substitute(x))))
-}
-# ------------------------------------------------------------------------------
-check_arg_nomatch <- function(x) {
-  if (!(is.null(x) || x %in% c(NA, 0L)))
-    stop(sprintf("Argument '%s' must be NA, NULL, or 0L", deparse(substitute(x))))
-}
-# ------------------------------------------------------------------------------
-check_input_class <- function(x) {
-  # Check x is a plain list or data.frame (data.table etc.)
-  if (!(is.list(x) && (is.data.frame(x) || !is.object(x))))
-    stop(sprintf("Argument '%s' must be a data.frame-like object or list", deparse(substitute(x))))
-}
+# check_names_nonempty <- function(x) {
+#   if (any(!nzchar(names(x))))
+#     stop(sprintf("All names of '%s' must be non-empty", deparse(substitute(x))))
+# }
+# backtick_nonvalid_names <- function(x) {
+#   # Backtick syntactically non-valid names
+#   nonvalid <- x != make.names(x)
+#   x[nonvalid] <- sprintf("`%s`", x[nonvalid])
+#   x
+# }
 # ------------------------------------------------------------------------------
 any_inherits <- function (x, cls, mask = NULL) {
   # Whether any cols of x (optionally masked) have given class
@@ -139,7 +149,6 @@ clean_on <- function(x) {
          )
   )
 }
-#clean_on(c("a==b"," c   >=`hello world ` ","  e "))
 # ------------------------------------------------------------------------------
 flip_on <- function(x) {
   # Flip a vector of 'on' expressions e.g. c("id1==id2", "date1<date2") -> c("id2==id1", "date2>date1")

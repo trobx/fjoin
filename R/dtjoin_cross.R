@@ -37,6 +37,8 @@ dtjoin_cross <- function(
 
 ) {
 
+  check_names(.DT)
+  check_names(.i)
   check_arg_prefix(prefix)
   check_arg_select(select)
   check_arg_select(select.DT)

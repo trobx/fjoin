@@ -124,6 +124,8 @@ dtjoin <- function(
   ...
 ) {
 
+  check_names(.DT)
+  check_names(.i)
   check_arg_prefix(prefix)
   check_arg_on(on)
   check_arg_TF(match.na)
