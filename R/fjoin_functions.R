@@ -43,6 +43,9 @@
 #'   join is printed to the console instead. Default is \code{TRUE} unless \code{x}
 #'   and \code{y} are both omitted/\code{NULL}, in which case a mock join
 #'   statement is produced. See details.
+#' @param show Whether to print the code for the join to the console. Default is
+#'   the opposite of \code{do}. If \code{x} and \code{y} are both
+#'   omitted/\code{NULL}, mock join code is displayed.
 #'
 #' @returns A \code{data.frame}, \code{tibble} or \code{data.table}, or else
 #'  \code{NULL} if \code{do} is \code{FALSE}. See details.
@@ -66,7 +69,8 @@ fjoin_inner <- function(
     prefix.y  = "R.",
     on.first  = FALSE,
     preserve  = FALSE,
-    do        = !(is.null(x) && is.null(y))
+    do        = !(is.null(x) && is.null(y)),
+    show      = !do
 ) {
   check_arg_on(on)
   check_arg_order(order)
@@ -90,7 +94,8 @@ fjoin_inner <- function(
     preserve   = preserve,
     indicate   = indicate,
     prefix     = prefix.y,
-    do         = do
+    do         = do,
+    show       = show
   )
 }
 
@@ -125,7 +130,8 @@ fjoin_left <- function(
     prefix.y  = "R.",
     on.first  = FALSE,
     preserve  = FALSE,
-    do        = !(is.null(x) && is.null(y))
+    do        = !(is.null(x) && is.null(y)),
+    show      = !do
 ) {
   check_arg_on(on)
   check_arg_order(order)
@@ -149,7 +155,8 @@ fjoin_left <- function(
     preserve   = preserve,
     indicate   = indicate,
     prefix     = prefix.y,
-    do         = do
+    do         = do,
+    show       = show
   )
 }
 
@@ -184,7 +191,8 @@ fjoin_right <- function(
     prefix.y  = "R.",
     on.first  = FALSE,
     preserve  = FALSE,
-    do        = !(is.null(x) && is.null(y))
+    do        = !(is.null(x) && is.null(y)),
+    show      = !do
 ) {
   check_arg_on(on)
   check_arg_order(order)
@@ -208,7 +216,8 @@ fjoin_right <- function(
     preserve   = preserve,
     indicate   = indicate,
     prefix     = prefix.y,
-    do         = do
+    do         = do,
+    show       = show
   )
 }
 
@@ -243,7 +252,8 @@ fjoin_full <- function(
     indicate  = FALSE,
     prefix.y  = "R.",
     preserve  = FALSE,
-    do        = !(is.null(x) && is.null(y))
+    do        = !(is.null(x) && is.null(y)),
+    show      = !do
 ) {
   check_arg_on(on)
   check_arg_order(order)
@@ -267,7 +277,8 @@ fjoin_full <- function(
     preserve   = preserve,
     indicate   = indicate,
     prefix     = prefix.y,
-    do         = do
+    do         = do,
+    show       = show
   )
 }
 
@@ -300,7 +311,8 @@ fjoin_left_semi <- function(
     mult.x    = "all",
     mult.y    = "all",
     select    = NULL,
-    do        = !(is.null(x) && is.null(y))
+    do        = !(is.null(x) && is.null(y)),
+    show      = !do
 ) {
   check_arg_on(on)
   xylabels <- c(make_label_fjoin(x, substitute(x)), make_label_fjoin(y, substitute(y)))
@@ -313,7 +325,8 @@ fjoin_left_semi <- function(
     mult      = mult.y,
     mult.DT   = mult.x,
     select    = select,
-    do        = do
+    do         = do,
+    show       = show
   )
 }
 
@@ -347,7 +360,8 @@ fjoin_right_semi <- function(
     mult.x    = "all",
     mult.y    = "all",
     select    = NULL,
-    do        = !(is.null(x) && is.null(y))
+    do        = !(is.null(x) && is.null(y)),
+    show      = !do
 ) {
   check_arg_on(on)
   xylabels <- c(make_label_fjoin(x, substitute(x)), make_label_fjoin(y, substitute(y)))
@@ -360,7 +374,8 @@ fjoin_right_semi <- function(
     mult      = mult.x,
     mult.DT   = mult.y,
     select    = select,
-    do        = do
+    do         = do,
+    show       = show
   )
 }
 
@@ -389,7 +404,8 @@ fjoin_left_anti <- function(
     mult.x    = "all",
     mult.y    = "all",
     select    = NULL,
-    do        = !(is.null(x) && is.null(y))
+    do        = !(is.null(x) && is.null(y)),
+    show      = !do
 ) {
   xylabels <- c(make_label_fjoin(x, substitute(x)), make_label_fjoin(y, substitute(y)))
   dtjoin_anti(
@@ -401,7 +417,8 @@ fjoin_left_anti <- function(
     mult      = mult.y,
     mult.DT   = mult.x,
     select    = select,
-    do        = do
+    do        = do,
+    show      = show
   )
 }
 
@@ -435,7 +452,8 @@ fjoin_right_anti <- function(
     mult.x    = "all",
     mult.y    = "all",
     select    = NULL,
-    do        = !(is.null(x) && is.null(y))
+    do        = !(is.null(x) && is.null(y)),
+    show      = !do
 ) {
   xylabels <- c(make_label_fjoin(x, substitute(x)), make_label_fjoin(y, substitute(y)))
   dtjoin_anti(
@@ -447,7 +465,8 @@ fjoin_right_anti <- function(
     mult      = mult.x,
     mult.DT   = mult.y,
     select    = select,
-    do        = do
+    do        = do,
+    show      = show
   )
 }
 
@@ -475,7 +494,8 @@ fjoin_cross <- function(
     select    = NULL,
     select.x  = NULL,
     select.y  = NULL,
-    do        = TRUE
+    do        = !(is.null(x) && is.null(y)),
+    show      = !do
 ) {
 
   check_arg_order(order)
@@ -491,6 +511,7 @@ fjoin_cross <- function(
     select     = select,
     select.DT  = if (order.x) select.y else select.x,
     select.i   = if (order.x) select.x else select.y,
-    do         = do
+    do         = do,
+    show       = show
   )
 }
