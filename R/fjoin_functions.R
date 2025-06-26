@@ -33,7 +33,7 @@
 #'   in Stata). Default \code{FALSE}.
 #' @param on.first Whether to place the join columns first in the join result.
 #'   Default \code{FALSE}.
-#' @param prefix A prefix to attach to column names in \code{y} that are the
+#' @param prefix.y A prefix to attach to column names in \code{y} that are the
 #'   same as a column name in \code{x}. Default \code{"R."}.
 #' @param preserve (rarely used) Whether to include \code{y}'s equality join
 #'   column(s) in addition to \code{x}'s (equivalent to \code{keep} in dplyr).
@@ -63,7 +63,7 @@ fjoin_inner <- function(
     select.x  = NULL,
     select.y  = NULL,
     indicate  = FALSE,
-    prefix    = "R.",
+    prefix.y  = "R.",
     on.first  = FALSE,
     preserve  = FALSE,
     do        = !(is.null(x) && is.null(y))
@@ -89,7 +89,7 @@ fjoin_inner <- function(
     on.first   = on.first,
     preserve   = preserve,
     indicate   = indicate,
-    prefix     = prefix,
+    prefix     = prefix.y,
     do         = do
   )
 }
@@ -122,7 +122,7 @@ fjoin_left <- function(
     select.x  = NULL,
     select.y  = NULL,
     indicate  = FALSE,
-    prefix    = "R.",
+    prefix.y  = "R.",
     on.first  = FALSE,
     preserve  = FALSE,
     do        = !(is.null(x) && is.null(y))
@@ -148,7 +148,7 @@ fjoin_left <- function(
     on.first   = on.first,
     preserve   = preserve,
     indicate   = indicate,
-    prefix     = prefix,
+    prefix     = prefix.y,
     do         = do
   )
 }
@@ -181,7 +181,7 @@ fjoin_right <- function(
     select    = NULL,
     select.x  = NULL,
     select.y  = NULL,
-    prefix    = "R.",
+    prefix.y  = "R.",
     on.first  = FALSE,
     preserve  = FALSE,
     do        = !(is.null(x) && is.null(y))
@@ -207,7 +207,7 @@ fjoin_right <- function(
     on.first   = on.first,
     preserve   = preserve,
     indicate   = indicate,
-    prefix     = prefix,
+    prefix     = prefix.y,
     do         = do
   )
 }
@@ -241,7 +241,7 @@ fjoin_full <- function(
     select.x  = NULL,
     select.y  = NULL,
     indicate  = FALSE,
-    prefix    = "R.",
+    prefix.y  = "R.",
     preserve  = FALSE,
     do        = !(is.null(x) && is.null(y))
 ) {
@@ -266,7 +266,7 @@ fjoin_full <- function(
     on.first   = on.first,
     preserve   = preserve,
     indicate   = indicate,
-    prefix     = prefix,
+    prefix     = prefix.y,
     do         = do
   )
 }
@@ -471,7 +471,7 @@ fjoin_cross <- function(
     x         = NULL,
     y         = NULL,
     order     = "left",
-    prefix    = "R.",
+    prefix.y  = "R.",
     select    = NULL,
     select.x  = NULL,
     select.y  = NULL,
@@ -487,7 +487,7 @@ fjoin_cross <- function(
     .i         = if (order.x) x else y,
     .labels    = if (order.x) rev(xylabels) else xylabels,
     i.main     = order.x,
-    prefix     = prefix,
+    prefix     = prefix.y,
     select     = select,
     select.DT  = if (order.x) select.y else select.x,
     select.i   = if (order.x) select.x else select.y,
