@@ -180,7 +180,7 @@ dtjoin_cross <- function(
     ans <- (eval(parse(text=jointext), envir=list2env(list(.DT=.DT, .i=.i), parent=getNamespace("data.table"))))
     if (!as_DT) {
       if (as_tbl_df) ans <- tibble::as_tibble(ans)
-      if (as_sf)     ans <- sf::st_as_sf(ans, sf_column_name=sf_col)
+      if (as_sf)     ans <- sf::st_as_sf(ans, sf_column_name=sf_col, sfc_last=FALSE)
     }
     if (sfc_present) ans <- refresh_sfc_cols(ans)
     ans
