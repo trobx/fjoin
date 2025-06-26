@@ -17,9 +17,10 @@ fjoin_full(
   select.x = NULL,
   select.y = NULL,
   indicate = FALSE,
-  prefix = "R.",
+  prefix.y = "R.",
   preserve = FALSE,
-  do = !(is.null(x) && is.null(y))
+  do = !(is.null(x) && is.null(y)),
+  show = !do
 )
 }
 \arguments{
@@ -62,7 +63,7 @@ result, with values \code{1L} if from \code{x} only, \code{2L} if from
 \code{y} only, and \code{3L} if joined from both tables (c.f. \code{_merge}
 in Stata). Default \code{FALSE}.}
 
-\item{prefix}{A prefix to attach to column names in \code{y} that are the
+\item{prefix.y}{A prefix to attach to column names in \code{y} that are the
 same as a column name in \code{x}. Default \code{"R."}.}
 
 \item{preserve}{(rarely used) Whether to include \code{y}'s equality join
@@ -74,6 +75,10 @@ always included separately.}
 join is printed to the console instead. Default is \code{TRUE} unless \code{x}
 and \code{y} are both omitted/\code{NULL}, in which case a mock join
 statement is produced. See details.}
+
+\item{show}{Whether to print the code for the join to the console. Default is
+the opposite of \code{do}. If \code{x} and \code{y} are both
+omitted/\code{NULL}, mock join code is displayed.}
 }
 \value{
 A \code{data.table} (the result of the join), or \code{NULL} if

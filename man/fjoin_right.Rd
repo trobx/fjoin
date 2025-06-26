@@ -16,10 +16,11 @@ fjoin_right(
   select = NULL,
   select.x = NULL,
   select.y = NULL,
-  prefix = "R.",
+  prefix.y = "R.",
   on.first = FALSE,
   preserve = FALSE,
-  do = !(is.null(x) && is.null(y))
+  do = !(is.null(x) && is.null(y)),
+  show = !do
 )
 }
 \arguments{
@@ -59,7 +60,7 @@ other of them (e.g. \code{select.x}). \code{NULL} (the default) selects
 all columns. Use \code{""} (or \code{NA}) to select no columns. Join
 columns are always selected.}
 
-\item{prefix}{A prefix to attach to column names in \code{y} that are the
+\item{prefix.y}{A prefix to attach to column names in \code{y} that are the
 same as a column name in \code{x}. Default \code{"R."}.}
 
 \item{on.first}{Whether to place the join columns first in the join result.
@@ -74,6 +75,10 @@ always included separately.}
 join is printed to the console instead. Default is \code{TRUE} unless \code{x}
 and \code{y} are both omitted/\code{NULL}, in which case a mock join
 statement is produced. See details.}
+
+\item{show}{Whether to print the code for the join to the console. Default is
+the opposite of \code{do}. If \code{x} and \code{y} are both
+omitted/\code{NULL}, mock join code is displayed.}
 }
 \value{
 A \code{data.table} (the result of the join), or \code{NULL} if

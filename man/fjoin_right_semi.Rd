@@ -12,7 +12,8 @@ fjoin_right_semi(
   mult.x = "all",
   mult.y = "all",
   select = NULL,
-  do = !(is.null(x) && is.null(y))
+  do = !(is.null(x) && is.null(y)),
+  show = !do
 )
 }
 \arguments{
@@ -44,6 +45,10 @@ columns. Join columns are always selected.}
 join is printed to the console instead. Default is \code{TRUE} unless \code{x}
 and \code{y} are both omitted/\code{NULL}, in which case a mock join
 statement is produced. See details.}
+
+\item{show}{Whether to print the code for the join to the console. Default is
+the opposite of \code{do}. If \code{x} and \code{y} are both
+omitted/\code{NULL}, mock join code is displayed.}
 }
 \value{
 A \code{data.table} (the result of the join), or \code{NULL} if
