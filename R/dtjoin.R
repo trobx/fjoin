@@ -644,7 +644,8 @@ dtjoin <- function(
   }
 
   if (outer.DT) {
-    if (all(include.DT)) {
+    if (!indicate && all(include.DT)) {
+      # no j only if no selection and no deselection of fjoin.ind
       .DTantitext <- ".DT[!fjoin.temp$fjoin.DT.rn]"
     } else {
       # NB not include.DT as need potentially excluded join columns
