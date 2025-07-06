@@ -51,6 +51,17 @@ test_that("dtjoin_cross mock", {
 })
 
 # ------------------------------------------------------------------------------
+# non-valid column names
+test_that("non-valid column name", {
+  x <- data.table::data.table(id=1, `non valid`=1L)
+  y <- data.table::copy(x)
+  dtjoin(x, y, on=c("id")) |> expect_error()
+  dtjoin_semi(x, y, on=c("id")) |> expect_error()
+  dtjoin_anti(x, y, on=c("id")) |> expect_error()
+  dtjoin_cross(x, y, on=c("id")) |> expect_error()
+})
+
+# ------------------------------------------------------------------------------
 # non-existent join columns
 test_that("dtjoin non-existent join column .DT", {
   dtjoin(DF_A, DF_B, on=c("id_A == id_B", "foo == col1")) |>
