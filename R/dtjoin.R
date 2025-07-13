@@ -87,8 +87,7 @@
 #' See Details.
 #'
 #' @details
-#' \strong{Input and output class:}
-#'
+#' \subsection{Input and output class}{
 #' Each input can be any object with class \code{data.frame}, or a plain
 #' \code{list} of same-length vectors.
 #'
@@ -101,9 +100,9 @@
 #'   \item finally, if either input is a tibble and the result is not a
 #'   \code{data.table}, add tibble class \code{"tbl-df"}.
 #' }
+#' }
 #'
-#' \strong{Using \code{select}, \code{select.DT}, and \code{select.i}:}
-#'
+#' \subsection{Using \code{select}, \code{select.DT}, and \code{select.i}}{
 #' Used on its own, \code{select} retains the join columns plus the specified
 #' non-join columns from both inputs if present.
 #'
@@ -116,9 +115,9 @@
 #'  excludes all of \code{.DT}'s non-join columns.
 #' }
 #' Non-existent column names are ignored without warning.
+#' }
 #'
-#' \strong{Column ordering:}
-#'
+#' \subsection{Column order}{
 #' When \code{select} is specified but \code{select.DT} and \code{select.i} are
 #' not, the output consists of all join columns followed by the selected
 #' non-join columns from either input in the order given in \code{select}.
@@ -133,18 +132,18 @@
 #'   \item if \code{on.first} is \code{TRUE}, join columns from both inputs are
 #'   moved to the front of the overall output.
 #' }
+#' }
 #'
-#' \strong{Using \code{mult} and \code{mult.DT}:}
-#'
+#' \subsection{Using \code{mult} and \code{mult.DT}}{
 #' If both of these arguments are not the default \code{"all"}, \code{mult} is
 #' applied first (typically by passing directly to \code{[.data.table}) and
 #' \code{mult.DT} is applied subsequently to eliminate all but the first or last
 #' occurrence of each row of \code{.DT} from the inner part of the join,
 #' producing a 1:1 result. This order of operations can affect the identity of
 #' the rows in the inner join.
+#' }
 #'
-#' \strong{Displaying code and 'mock joins':}
-#'
+#' \subsection{Displaying code and 'mock joins'}{
 #' The option of displaying the join code with \code{show = TRUE} or by passing
 #' null inputs is aimed at \pkg{data.table} users wanting to use the package as
 #' a cookbook of recipes for adaptation. If \code{.DT} and \code{.i} are both
@@ -158,15 +157,16 @@
 #' \code{j = list()} idiom in order to avoid a deep copy of the output made by
 #' \code{as.data.table.list}. (Likewise, internally it takes only shallow copies
 #' of columns when casting inputs or outputs to different classes.)
+#' }
 #'
-#' \strong{Additional notes for \pkg{sf} users:}
-#'
+#' \subsection{Additional notes for \pkg{sf} users}{
 #' If \code{.DT} and \code{.i} are both \code{sf} objects whose active geometries
 #' are selected in the result, the result sets \code{.i}'s geometry.
 #'
 #' Regardless of whether or not the inputs and output are \code{sf}, all
 #' \code{sfc}-class columns in the join result are refreshed after joining (using
 #' \code{sf::st_sfc()} with \code{recompute_bbox = TRUE}).
+#' }
 #'
 #' @seealso
 #'  See the package-level documentation \code{\link{fjoin}} for related
@@ -186,10 +186,27 @@
 #' NULL # section break
 #'
 #' # (1) fjoin_left(df_x, df_y, on = "id_x == id_y", mult.x = "first")
-#' dtjoin(df_y, df_x, on = "id_y == id_x", mult = "first", i.main = TRUE, prefix = "R.", show = TRUE)
+#' dtjoin(
+#'   df_y,
+#'   df_x,
+#'   on = "id_y == id_x",
+#'   mult = "first",
+#'   i.main = TRUE,
+#'   prefix = "R.",
+#'   show = TRUE
+#' )
 #'
 #' # (2) fjoin_left(df_x, df_y, on = "id_x == id_y", mult.x = "first", order = "right")
-#' dtjoin(df_x, df_y, on = "id_x == id_y", mult.DT = "first", nomatch = NULL, nomatch.DT = NA, prefix = "R.", show = TRUE)
+#' dtjoin(
+#'   df_x,
+#'   df_y,
+#'   on = "id_x == id_y",
+#'   mult.DT = "first",
+#'   nomatch = NULL,
+#'   nomatch.DT = NA,
+#'   prefix = "R.",
+#'   show = TRUE
+#' )
 #'
 #' @export
 dtjoin <- function(

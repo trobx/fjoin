@@ -65,8 +65,7 @@
 #' See Details.
 #'
 #' @details
-#' \strong{Input and output class:}
-#'
+#' \subsection{Input and output class}{
 #' Each input can be any object with class \code{data.frame}, or a plain
 #' \code{list} of same-length vectors.
 #'
@@ -79,9 +78,9 @@
 #'   \item finally, if either input is a tibble and the result is not a
 #'   \code{data.table}, add tibble class \code{"tbl-df"}.
 #' }
+#' }
 #'
-#' \strong{Using \code{select}, \code{select.x}, and \code{select.y}:}
-#'
+#' \subsection{Using \code{select}, \code{select.x}, and \code{select.y}}{
 #' Used on its own, \code{select} retains the join columns plus the
 #' specified non-join columns from both inputs if present.
 #'
@@ -94,9 +93,9 @@
 #'  excludes all of \code{x}'s non-join columns.
 #' }
 #' Non-existent column names are ignored without warning.
+#' }
 #'
-#' \strong{Column selection and ordering:}
-#'
+#' \subsection{Column order}{
 #' When \code{select} is specified but \code{select.x} and \code{select.y} are
 #' not, the output consists of all join columns followed by the selected
 #' non-join columns from either input in the order given in \code{select}.
@@ -110,22 +109,15 @@
 #'   \item if \code{on.first} is \code{TRUE}, join columns from both inputs are
 #'   moved to the front of the overall output.
 #' }
+#' }
 #'
-#' \strong{Using \code{mult.x} and \code{mult.y}:}
-#'
+#' \subsection{Using \code{mult.x} and \code{mult.y}}{
 #' See the Examples for an application of using \code{mult.x} and \code{mult.y}
 #' together. Note that \code{mult.y} is applied after \code{mult.x} except in a
 #' right join.
+#' }
 #'
-#' \strong{\code{match.na}:}
-#'
-#' When \code{match.na} is \code{FALSE} (the default), \pkg{fjoin} checks for
-#' the possibility of unwanted matches on \code{NA} or \code{NaN} and if
-#' necessary omits the affected rows from one side of the join before joining.
-#' using a heuristic to choose which side where the join allows.
-#'
-#' \strong{Displaying code and 'mock joins':}
-#'
+#' \subsection{Displaying code and 'mock joins'}{
 #' The option of displaying the join code with \code{show = TRUE} or by passing
 #' null inputs is aimed at \pkg{data.table} users wanting to use the package as
 #' a cookbook of recipes for adaptation. If \code{x} and \code{y} are both
@@ -139,14 +131,9 @@
 #' \code{j = list()} idiom in order to avoid a deep copy of the output made by
 #' \code{as.data.table.list}. (Likewise, internally it takes only shallow copies
 #' of columns when casting inputs or outputs to different classes.)
+#' }
 #'
-#' With \code{match.na = FALSE} (the default), \pkg{fjoin} functions check for
-#' missing values of equality-join columns on both sides and if necessary apply
-#' \code{na.omit.data.table} to remove such rows from one or other side of the
-#' join, using a cost heuristic where there is freedom to choose.
-#'
-#' \strong{Additional notes for \pkg{sf} users:}
-#'
+#' \subsection{Additional notes for \pkg{sf} users}{
 #' Joins (non-spatial) between two \code{sf} objects are supported. If both
 #' active geometries are selected in the result, the result sets \code{x}'s
 #' geometry (\code{y}'s geometry in a right join).
@@ -154,6 +141,7 @@
 #' All \code{sfc}-class columns in the join result are refreshed (using
 #' \code{sf::st_sfc()} with \code{recompute_bbox = TRUE}), whether or not the
 #' output is \code{sf}.
+#' }
 #'
 #' @seealso
 #'  See the package-level documentation \code{\link{fjoin}} for related
@@ -191,18 +179,18 @@
 #' # data frames
 #' dfQ <- data.table::fread(data.table = FALSE, quote ="'", input = "
 #' id quantity notes                  other_cols
-#' 2  5        ''                     ...
-#' 1  6        ''                     ...
-#' 3  7        ''                     ...
-#' NA 8        'oranges (not listed)' ...
+#'  2        5 ''                     ...
+#'  1        6 ''                     ...
+#'  3        7 ''                     ...
+#' NA        8 'oranges (not listed)' ...
 #' ")
 #'
 #' dfP <- data.table::fread(data.table = FALSE, input = "
 #' id item     price other_cols
-#' NA apples   10    ...
-#' 3  bananas  20    ...
-#' 2  cherries 30    ...
-#' 1  dates    40    ...
+#' NA apples      10 ...
+#'  3 bananas     20 ...
+#'  2 cherries    30 ...
+#'  1 dates       40 ...
 #' ")
 #' NULL # section break
 #'
@@ -270,16 +258,16 @@
 #' # data frames
 #' events <- data.table::fread(data.table = FALSE, input = "
 #' event_id event_ts
-#' 1        10
-#' 2        20
-#' 3        40
+#'        1       10
+#'        2       20
+#'        3       40
 #' ")
 #'
 #' reactions <- data.table::fread(data.table = FALSE, input = "
 #' reaction_id reaction_ts
-#' 1        30
-#' 2        50
-#' 3        60
+#'           1          30
+#'           2          50
+#'           3          60
 #' ")
 #' NULL # section break
 #'
@@ -561,6 +549,52 @@ fjoin_full <- function(
 #' fjoin_anti(x, y, on = "country")
 #' fjoin_right_semi(x, y, on = "country")
 #' fjoin_right_anti(x, y, on = "country")
+#'
+#' # ---------------------------------------------------------------------------
+#' # `mult.x` and `mult.y` support
+#' # ---------------------------------------------------------------------------
+#'
+#' # data frames
+#' events <- data.table::fread(data.table = FALSE, input = "
+#' event_id event_ts
+#'        1       10
+#'        2       20
+#'        3       40
+#' ")
+#'
+#' reactions <- data.table::fread(data.table = FALSE, input = "
+#' reaction_id reaction_ts
+#'           1          30
+#'           2          50
+#'           3          60
+#' ")
+#' NULL # section break
+#'
+#' # for each event, the next reaction, provided there was no intervening event (1:1)
+#' fjoin_full(
+#'   events,
+#'   reactions,
+#'   on = c("event_ts < reaction_ts"),
+#'   mult.x = "first",
+#'   mult.y = "last",
+#'   indicate = TRUE
+#' )
+#'
+#' fjoin_semi(
+#'   events,
+#'   reactions,
+#'   on = c("event_ts < reaction_ts"),
+#'   mult.x = "first",
+#'   mult.y = "last"
+#' )
+#'
+#' fjoin_anti(
+#'   events,
+#'   reactions,
+#'   on = c("event_ts < reaction_ts"),
+#'   mult.x = "first",
+#'   mult.y = "last"
+#' )
 #'
 #' @export
 fjoin_left_semi <- function(
