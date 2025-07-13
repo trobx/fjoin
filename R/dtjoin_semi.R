@@ -2,17 +2,16 @@
 #' objects
 #'
 #' @description
-#' Write (and optionally run) data.table code to return the semi-join of
-#' \code{DT} (the rows with at least one match) using an enhanced functional
-#' version of \code{DT[i]}-style join syntax. Arguments are the same as for
-#' \code{\link{dtjoin}} except those controlling the order and prefixing of
-#' output columns, which do not apply.
+#' Write (and optionally run) \pkg{data.table} code to return the semi-join of
+#' \code{DT} (the rows of \code{DT} that join with \code{i}) using a
+#' generalisation of \code{DT[i]} syntax.
 #'
 #' The functions \code{\link{fjoin_left_semi}} and \code{\link{fjoin_right_semi}}
 #' provide a more conventional interface that is recommended over
 #' \code{dtjoin_semi} for most users and cases.
 #'
-#' @inheritParams dtjoin
+#' @inherit dtjoin params return seealso
+#'
 #' @param mult.DT Permitted for consistency with \code{dtjoin} but
 #'   has no effect on the resulting semi-join.
 #' @param nomatch,nomatch.DT Permitted for consistency with \code{dtjoin} but
@@ -21,9 +20,10 @@
 #'   \code{NULL} (the default) selects all columns. Join columns are always
 #'   selected.
 #'
-#' @returns A \code{data.frame}, \code{data.table}, \code{tibble}, or
-#'  \code{sf}/\code{sf}-\code{tibble} depending on the class of \code{.DT}, or
-#'  else \code{NULL} if \code{do} is \code{FALSE}.
+#' @details
+#' Details are as for \code{\link{dtjoin}} except for arguments controlling
+#' the order and prefixing of output columns, which do not apply. Output class
+#' is determined by \code{.DT}.
 #'
 #' @examples
 #' # TODO

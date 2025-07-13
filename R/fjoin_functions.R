@@ -1,17 +1,29 @@
+# Thin wrappers around `dtjoin()`, `dtjoin_semi()`, `dtjoin_anti()`,
+# `dtjoin_cross()` which translate from a `DT[i]`-style to a conventional API.
+#
+# The four true join functions differ only in:
+# - the values of `nomatch` and `nomatch.DT` passed to `dtjoin()`
+# - the default value of `order` ("right" for `fjoin_right()`, "left" otherwise).
+#
+# Currently these are distinct repetitious functions with documentation
+# populated for `fjoin_inner()` and inherited by the others. Change this to a
+# single wrapper with a mode argument for the four types, and use `do.call()`.
+#
+# Similar remarks apply to the semi- and anti-join functions.
+#
 #' Inner join
 #'
 #' @description
 #' Inner join of \code{x} and \code{y}
 #'
-#' @param x,y \code{data.frame}-like objects (plain, \code{tibble},
-#'   \code{data.table} etc.), or else both omitted (\code{NULL}) for a mock join
-#'   statement with no data.
+#' @param x,y \code{data.frame}-like objects (plain, \code{data.table},
+#'   tibble, \code{sf}, \code{list}, etc.) or else both omitted
+#'   (\code{NULL}) for a mock join statement with no data. See Details.
 #' @param on A character vector of join predicates, e.g. \code{c("id", "col_x ==
-#'   col_y", "date < date")}.
-#' @param match.na If \code{TRUE}, allow equality matches between \code{NA}s or
-#'   \code{NaN}s. The default is \code{FALSE}, i.e. such matches are not
-#'   allowed, as in most real-world applications (but unlike other join
-#'   frameworks in R)
+#'   col_y", "date > date", "cost <= budget")}.
+#' @param match.na Whether to allow equality matches between \code{NA}s or
+#'   \code{NaN}s. The default is \code{FALSE}, as in most real-world
+#'   applications (but unlike other join frameworks in R).
 #' @param mult.x When a row of \code{x} has multiple matching rows in \code{y},
 #'   which to accept: \code{"all"} (the default), \code{"first"}, or
 #'   \code{"last"}.
@@ -22,10 +34,10 @@
 #'   from either input if present (\code{select}) or specifically from one or
 #'   other of them (e.g. \code{select.x}). \code{NULL} (the default) selects
 #'   all columns. Use \code{""} (or \code{NA}) to select no columns. Join
-#'   columns are always selected.
+#'   columns are always selected. See Details.
 #' @param order Whether the row order of the result should reflect \code{x} then
 #'   \code{y} (\code{"left"}) or \code{y} then \code{x} (\code{"right"}).
-#'   Default is \code{"left"} for left, inner, full and cross joins,
+#'   Default is \code{"left"} for left, inner, full, and cross joins,
 #'   \code{"right"} for right joins.
 #' @param indicate  Whether to add a column \code{".join"}  at the front of the
 #'   result, with values \code{1L} if from \code{x} only, \code{2L} if from
@@ -35,23 +47,265 @@
 #'   Default \code{FALSE}.
 #' @param prefix.y A prefix to attach to column names in \code{y} that are the
 #'   same as a column name in \code{x}. Default \code{"R."}.
-#' @param preserve (rarely used) Whether to include \code{y}'s equality join
-#'   column(s) in addition to \code{x}'s (equivalent to \code{keep} in dplyr).
-#'   Default \code{FALSE}. Note that non-equality join columns from \code{x} are
-#'   always included separately.
-#' @param do Whether to execute the join. If FALSE, the data.table code for the
-#'   join is printed to the console instead. Default is \code{TRUE} unless \code{x}
-#'   and \code{y} are both omitted/\code{NULL}, in which case a mock join
-#'   statement is produced. See details.
-#' @param show Whether to print the code for the join to the console. Default is
-#'   the opposite of \code{do}. If \code{x} and \code{y} are both
-#'   omitted/\code{NULL}, mock join code is displayed.
+#' @param preserve Whether to include \code{y}'s equality join column(s) in
+#'   addition to \code{x}'s (equivalent to \code{keep} in dplyr). Default
+#'   \code{FALSE}. Note that non-equality join columns from \code{x} are always
+#'   included separately.
+#' @param do Whether to execute the join. If \code{FALSE}, \code{show} is set to
+#'   \code{TRUE} and the \pkg{data.table} code for the join is printed to the
+#'   console instead. Default is \code{TRUE} unless \code{x} and \code{y} are
+#'   both omitted/\code{NULL}, in which case a mock join statement is produced.
+#'   See Details.
+#' @param show Whether to print the \pkg{data.table} code for the join to the
+#'   console. Default is the opposite of \code{do}. If \code{x} and \code{y} are
+#'   both omitted/\code{NULL}, mock join code is displayed.
 #'
-#' @returns A \code{data.frame}, \code{tibble} or \code{data.table}, or else
-#'  \code{NULL} if \code{do} is \code{FALSE}. See details.
+#' @returns A \code{data.frame}, \code{data.table}, tibble, \code{sf}, or
+#' \code{sf}-tibble, or else \code{NULL} if \code{do} is \code{FALSE}.
+#' See Details.
+#'
+#' @details
+#' \strong{Input and output class:}
+#'
+#' Each input can be any object with class \code{data.frame}, or a plain
+#' \code{list} of same-length vectors.
+#'
+#' The output class follows these rules:
+#' \itemize{
+#'   \item if either input is an \code{sf} with its active geometry selected in
+#'   the join, create an \code{sf}
+#'   \item otherwise, return a \code{data.table} if either input is a
+#'   \code{data.table}, or else create a plain \code{data.frame}
+#'   \item finally, if either input is a tibble and the result is not a
+#'   \code{data.table}, add tibble class \code{"tbl-df"}.
+#' }
+#'
+#' \strong{Using \code{select}, \code{select.x}, and \code{select.y}:}
+#'
+#' Used on its own, \code{select} retains the join columns plus the
+#' specified non-join columns from both inputs if present.
+#'
+#' If \code{select.x} is provided (and similarly for \code{select.y}) then:
+#' \itemize{
+#'  \item if \code{select} is also specified, non-join columns of \code{x}
+#'  named in either \code{select} or \code{select.x} are included
+#'  \item if \code{select} is not specified, only non-join columns named in
+#'  \code{select.x} are included from \code{x}. Thus e.g. \code{select.x = ""}
+#'  excludes all of \code{x}'s non-join columns.
+#' }
+#' Non-existent column names are ignored without warning.
+#'
+#' \strong{Column selection and ordering:}
+#'
+#' When \code{select} is specified but \code{select.x} and \code{select.y} are
+#' not, the output consists of all join columns followed by the selected
+#' non-join columns from either input in the order given in \code{select}.
+#'
+#' In all other cases:
+#' \itemize{
+#'   \item columns from \code{x} come before columns from \code{y}
+#'   \item within each group of columns, non-join columns are in the order
+#'   given by \code{select.x}/\code{select.y}, or in their original data order
+#'   if no selection is provided
+#'   \item if \code{on.first} is \code{TRUE}, join columns from both inputs are
+#'   moved to the front of the overall output.
+#' }
+#'
+#' \strong{Using \code{mult.x} and \code{mult.y}:}
+#'
+#' See the Examples for an application of using \code{mult.x} and \code{mult.y}
+#' together. Note that \code{mult.y} is applied after \code{mult.x} except in a
+#' right join.
+#'
+#' \strong{\code{match.na}:}
+#'
+#' When \code{match.na} is \code{FALSE} (the default), \pkg{fjoin} checks for
+#' the possibility of unwanted matches on \code{NA} or \code{NaN} and if
+#' necessary omits the affected rows from one side of the join before joining.
+#' using a heuristic to choose which side where the join allows.
+#'
+#' \strong{Displaying code and 'mock joins':}
+#'
+#' The option of displaying the join code with \code{show = TRUE} or by passing
+#' null inputs is aimed at \pkg{data.table} users wanting to use the package as
+#' a cookbook of recipes for adaptation. If \code{x} and \code{y} are both
+#' \code{NULL}, template code is displayed based on join column names implied by
+#' \code{on}, plus sample non-join column names. \code{select} arguments are
+#' ignored in this case.
+#'
+#' The code displayed is for the join operation after casting the inputs as
+#' \code{data.table}s if necessary, and before casting the result as a tibble
+#' and/or \code{sf} if applicable. Note that \pkg{fjoin} departs from the usual
+#' \code{j = list()} idiom in order to avoid a deep copy of the output made by
+#' \code{as.data.table.list}. (Likewise, internally it takes only shallow copies
+#' of columns when casting inputs or outputs to different classes.)
+#'
+#' With \code{match.na = FALSE} (the default), \pkg{fjoin} functions check for
+#' missing values of equality-join columns on both sides and if necessary apply
+#' \code{na.omit.data.table} to remove such rows from one or other side of the
+#' join, using a cost heuristic where there is freedom to choose.
+#'
+#' \strong{Additional notes for \pkg{sf} users:}
+#'
+#' Joins (non-spatial) between two \code{sf} objects are supported. If both
+#' active geometries are selected in the result, the result sets \code{x}'s
+#' geometry (\code{y}'s geometry in a right join).
+#'
+#' All \code{sfc}-class columns in the join result are refreshed (using
+#' \code{sf::st_sfc()} with \code{recompute_bbox = TRUE}), whether or not the
+#' output is \code{sf}.
+#'
+#' @seealso
+#'  See the package-level documentation \code{\link{fjoin}} for related
+#'  functions.
 #'
 #' @examples
-#' # TO DO
+#' # ---------------------------------------------------------------------------
+#' # True joins: basic usage
+#' # ---------------------------------------------------------------------------
+#'
+#' # data frames
+#' x <- data.table::fread(data.table = FALSE, input = "
+#' country   pop_m
+#' Australia  27.2
+#' Brazil    212.0
+#' Chad        3.0
+#' ")
+#'
+#' y <- data.table::fread(data.table = FALSE, input = "
+#' country forest_pc
+#' Brazil       59.1
+#' Chad          3.2
+#' Denmark      15.8
+#' ")
+#'
+#' fjoin_full(x, y, on = "country", indicate = TRUE)
+#' fjoin_left(x, y, on = "country", indicate = TRUE)
+#' fjoin_right(x, y, on = "country", indicate = TRUE)
+#' fjoin_inner(x, y, on = "country", indicate = TRUE)
+#'
+#' # ---------------------------------------------------------------------------
+#' # Core options and arguments (in a 1:1 equality join with fjoin_full())
+#' # ---------------------------------------------------------------------------
+#'
+#' # data frames
+#' dfQ <- data.table::fread(data.table = FALSE, quote ="'", input = "
+#' id quantity notes                  other_cols
+#' 2  5        ''                     ...
+#' 1  6        ''                     ...
+#' 3  7        ''                     ...
+#' NA 8        'oranges (not listed)' ...
+#' ")
+#'
+#' dfP <- data.table::fread(data.table = FALSE, input = "
+#' id item     price other_cols
+#' NA apples   10    ...
+#' 3  bananas  20    ...
+#' 2  cherries 30    ...
+#' 1  dates    40    ...
+#' ")
+#' NULL # section break
+#'
+#' # (1) basic syntax
+#' # cf. dplyr: full_join(dfQ, dfP, join_by(id), na.matches = "never")
+#' fjoin_full(dfQ, dfP, on = "id")
+#'
+#' # (2) join-select in one line
+#' fjoin_full(dfQ, dfP, on = "id", select = c("item", "price", "quantity"))
+#'
+#' # equivalent operation in dplyr
+#' if (FALSE) {
+#'   x <- dfQ |> select(id, quantity)
+#'   y <- dfP |> select(id, item, price)
+#'   full_join(x, y, join_by(id), na.matches = "never") |>
+#'     select(id, item, price, quantity)
+#' }
+#' NULL # section break
+#'
+#' # (an aside) equality matches on NA if you insist
+#' fjoin_full(dfQ, dfP, on = "id", select = c("item", "price", "quantity", "notes"), match.na = TRUE)
+#'
+#' # (3) indicator column (in Stata since 1985)
+#' fjoin_full(
+#'   dfQ,
+#'   dfP,
+#'   on = "id",
+#'   select = c("item", "price", "quantity"),
+#'   indicate = TRUE
+#' )
+#'
+#' # (4) order rows by y then x
+#' fjoin_full(
+#'   dfQ,
+#'   dfP,
+#'   on = "id",
+#'   select = c("item", "price", "quantity"),
+#'   indicate = TRUE,
+#'   order = "right"
+#' )
+#'
+#' # (5) display code instead
+#' fjoin_full(
+#'   dfQ,
+#'   dfP,
+#'   on = "id",
+#'   select = c("item", "price", "quantity"),
+#'   indicate = TRUE,
+#'   order = "right",
+#'   do = FALSE
+#' )
+#'
+#' # ---------------------------------------------------------------------------
+#' # M:M inequality join reduced to 1:1 using `mult.x` and `mult.y`
+#' # ---------------------------------------------------------------------------
+#'
+#' # data.table (`mult`) and dplyr (`multiple`) have options for reducing the
+#' # cardinality on one side of the join from many ("all") to one ("first" or
+#' # "last"). fjoin (`mult.x`, `mult.y`) permits this on either side of the
+#' # join, or on both sides at once.
+#'
+#' # This example (using fjoin_left()) shows an application to temporally
+#' # ordered data frames of "events" and "reactions".
+#'
+#' # data frames
+#' events <- data.table::fread(data.table = FALSE, input = "
+#' event_id event_ts
+#' 1        10
+#' 2        20
+#' 3        40
+#' ")
+#'
+#' reactions <- data.table::fread(data.table = FALSE, input = "
+#' reaction_id reaction_ts
+#' 1        30
+#' 2        50
+#' 3        60
+#' ")
+#' NULL # section break
+#'
+#' # (1) for each event, all subsequent reactions (M:M)
+#' fjoin_left(
+#'   events,
+#'   reactions,
+#'   on = c("event_ts < reaction_ts"),
+#' )
+#'
+#' # (2) for each event, the next reaction (1:M)
+#' fjoin_left(
+#'   events,
+#'   reactions,
+#'   on = c("event_ts < reaction_ts"),
+#'   mult.x = "first"
+#' )
+#'
+#' # (3) for each event, the next reaction, provided there was no intervening event (1:1)
+#' fjoin_left(
+#'   events,
+#'   reactions,
+#'   on = c("event_ts < reaction_ts"),
+#'   mult.x = "first",
+#'   mult.y = "last"
+#' )
 #'
 #' @export
 fjoin_inner <- function(
@@ -105,14 +359,7 @@ fjoin_inner <- function(
 #' @description
 #' Left join of \code{x} and \code{y}
 #'
-#' @inheritParams fjoin_inner
-#'
-#' @returns A \code{data.table} (the result of the join), or \code{NULL} if
-#'   \code{do} is \code{FALSE}. The data.table code is always printed to the
-#'   console.
-#'
-#' @examples
-#' # TO DO
+#' @inherit fjoin_inner params details return seealso examples
 #'
 #' @export
 fjoin_left <- function(
@@ -166,14 +413,7 @@ fjoin_left <- function(
 #' @description
 #' Right join of \code{x} and \code{y}
 #'
-#' @inheritParams fjoin_inner
-#'
-#' @returns A \code{data.table} (the result of the join), or \code{NULL} if
-#'   \code{do} is \code{FALSE}. The data.table code is always printed to the
-#'   console.
-#'
-#' @examples
-#' # TO DO
+#' @inherit fjoin_inner params details return seealso examples
 #'
 #' @export
 fjoin_right <- function(
@@ -196,21 +436,21 @@ fjoin_right <- function(
 ) {
   check_arg_on(on)
   check_arg_order(order)
-  order.y <- order == "right"
+  order.x <- order == "left"
   xylabels <- c(make_label_fjoin(x, substitute(x)), make_label_fjoin(y, substitute(y)))
   dtjoin(
-    .DT        = if (order.y) x else y,
-    .i         = if (order.y) y else x,
-    on         = if (order.y) on else flip_on(on),
-    mult       = if (order.y) mult.y else mult.x,
-    mult.DT    = if (order.y) mult.x else mult.y,
-    nomatch    = if (order.y) NA else NULL,
-    nomatch.DT = if (order.y) NULL else NA,
+    .DT        = if (order.x) y else x,
+    .i         = if (order.x) x else y,
+    on         = if (order.x) flip_on(on) else on,
+    mult       = if (order.x) mult.x else mult.y,
+    mult.DT    = if (order.x) mult.y else mult.x,
+    nomatch    = if (order.x) NULL else NA,
+    nomatch.DT = if (order.x) NA else NULL,
     select     = select,
-    select.DT  = if (order.y) select.x else select.y,
-    select.i   = if (order.y) select.y else select.x,
-    i.main     = !order.y,
-    .labels    = if (order.y) xylabels else rev(xylabels),
+    select.DT  = if (order.x) select.y else select.x,
+    select.i   = if (order.x) select.x else select.y,
+    i.main     = order.x,
+    .labels    = if (order.x) rev(xylabels) else xylabels,
     match.na   = match.na,
     on.first   = on.first,
     preserve   = preserve,
@@ -227,14 +467,7 @@ fjoin_right <- function(
 #' @description
 #' Full join of \code{x} and \code{y}
 #'
-#' @inheritParams fjoin_inner
-#'
-#' @returns A \code{data.table} (the result of the join), or \code{NULL} if
-#'   \code{do} is \code{FALSE}. The data.table code is always printed to the
-#'   console.
-#'
-#' @examples
-#' # TO DO
+#' @inherit fjoin_inner params details return seealso examples
 #'
 #' @export
 fjoin_full <- function(
@@ -286,21 +519,48 @@ fjoin_full <- function(
 #' Left semi-join
 #'
 #' @description
-#' The semi-join of \code{x} in a join of \code{x} and \code{y}. The alias
-#'   \code{fjoin_semi} can be used instead.
+#' The semi-join of \code{x} in a join of \code{x} and \code{y}, i.e. the rows
+#'   of \code{x} that join at least once. The alias \code{fjoin_semi} can be
+#'   used instead.
 #'
-#' @inheritParams fjoin_inner
+#' @inherit fjoin_inner params return seealso
 #'
-#' @param select Character vector of columns to be selected. \code{NULL} (the
-#'   default) selects all columns. Use \code{""} (or \code{NA}) to select no
-#'   columns. Join columns are always selected.
+#' @param select Character vector of non-join columns to be selected from
+#'   \code{x}. \code{NULL} (the default) selects all columns. Join columns are
+#'   always selected.
 #'
-#' @returns A \code{data.table} (the result of the join), or \code{NULL} if
-#'   \code{do} is \code{FALSE}. The data.table code is always printed to the
-#'   console.
+#' @details
+#' Details are as for e.g. \code{\link{fjoin_inner}} except for arguments
+#' controlling the order and prefixing of output columns, which do not apply.
+#' Output class is determined by \code{x}.
 #'
 #' @examples
-#' # TO DO
+#' # ---------------------------------------------------------------------------
+#' # Semi- and anti-joins: basic usage
+#' # ---------------------------------------------------------------------------
+#'
+#' # data frames
+#' x <- data.table::fread(data.table = FALSE, input = "
+#' country   pop_m
+#' Australia  27.2
+#' Brazil    212.0
+#' Chad        3.0
+#' ")
+#'
+#' y <- data.table::fread(data.table = FALSE, input = "
+#' country forest_pc
+#' Brazil       59.1
+#' Chad          3.2
+#' Denmark      15.8
+#' ")
+#'
+#' # full join with `indicate = TRUE` for comparison
+#' fjoin_full(x, y, on = "country", indicate = TRUE)
+#'
+#' fjoin_semi(x, y, on = "country")
+#' fjoin_anti(x, y, on = "country")
+#' fjoin_right_semi(x, y, on = "country")
+#' fjoin_right_anti(x, y, on = "country")
 #'
 #' @export
 fjoin_left_semi <- function(
@@ -325,8 +585,8 @@ fjoin_left_semi <- function(
     mult      = mult.y,
     mult.DT   = mult.x,
     select    = select,
-    do         = do,
-    show       = show
+    do        = do,
+    show      = show
   )
 }
 
@@ -340,16 +600,19 @@ fjoin_semi <- fjoin_left_semi
 #' Right semi-join
 #'
 #' @description
-#' The semi-join of \code{y} in a join of \code{x} and \code{y}
+#' The semi-join of \code{y} in a join of \code{x} and \code{y}, i.e. the rows
+#'   of \code{y} that join at least once.
 #'
-#' @inheritParams fjoin_left_semi
+#' @inherit fjoin_left_semi params return seealso examples
 #'
-#' @returns A \code{data.table} (the result of the join), or \code{NULL} if
-#'   \code{do} is \code{FALSE}. The data.table code is always printed to the
-#'   console.
+#' @param select Character vector of columns to be selected from \code{y}.
+#' \code{NULL} (the default) selects all columns. Join columns are always
+#' selected.
 #'
-#' @examples
-#' # TO DO
+#' @details
+#' Details are as for e.g. \code{\link{fjoin_inner}} except for arguments
+#' controlling the order and prefixing of output columns, which do not apply.
+#' Output class is determined by \code{y}.
 #'
 #' @export
 fjoin_right_semi <- function(
@@ -378,22 +641,21 @@ fjoin_right_semi <- function(
     show       = show
   )
 }
-
+#'
 # ------------------------------------------------------------------------------
 #' Left anti-join
 #'
 #' @description
-#' The anti-join of \code{x} in a join of \code{x} and \code{y}.  The alias
-#'   \code{fjoin_anti} can be used instead.
+#' The anti-join of \code{x} in a join of \code{x} and \code{y}, i.e. the rows
+#'   of \code{x} that do not join. The alias \code{fjoin_anti} can be used
+#'   instead.
 #'
-#' @inheritParams fjoin_left_semi
+#' @inherit fjoin_left_semi params return seealso examples
 #'
-#' @returns A \code{data.table} (the result of the join), or \code{NULL} if
-#'   \code{do} is \code{FALSE}. The data.table code is always printed to the
-#'   console.
-#'
-#' @examples
-#' # TO DO
+#' @details
+#' Details are as for \code{\link{fjoin_inner}} except for arguments controlling
+#' the order and prefixing of output columns, which do not apply. Output class
+#' is determined by \code{x}.
 #'
 #' @export
 fjoin_left_anti <- function(
@@ -432,16 +694,10 @@ fjoin_anti <- fjoin_left_anti
 #' Right anti-join
 #'
 #' @description
-#' The anti-join of \code{y} in a join of \code{x} and \code{y}
+#' The anti-join of \code{y} in a join of \code{x} and \code{y}, i.e. the rows
+#'   of \code{y} that do not join.
 #'
-#' @inheritParams fjoin_left_semi
-#'
-#' @returns A \code{data.table} (the result of the join), or \code{NULL} if
-#'   \code{do} is \code{FALSE}. The data.table code is always printed to the
-#'   console.
-#'
-#' @examples
-#' # TO DO
+#' @inherit fjoin_right_semi params return seealso details examples
 #'
 #' @export
 fjoin_right_anti <- function(
@@ -471,19 +727,34 @@ fjoin_right_anti <- function(
 }
 
 # ------------------------------------------------------------------------------
-#' Cross-join
+#' Cross join
 #'
 #' @description
-#' Cross-join of \code{x} and \code{y}
+#' Cross join of \code{x} and \code{y}
 #'
-#' @inheritParams fjoin_inner
+#' @inherit fjoin_inner params return seealso
 #'
-#' @returns A \code{data.table} (the result of the join), or \code{NULL} if
-#'   \code{do} is \code{FALSE}. The data.table code is always printed to the
-#'   console.
+#' @details
+#' Details are as for e.g. \code{\link{fjoin_inner}} except for remarks
+#' about join columns and matching logic, which do not apply.
 #'
 #' @examples
-#' # TO DO
+#' # data frames
+#' df1 <- data.table::fread(data.table = FALSE, input = "
+#' bread    kcal
+#' Brown     150
+#' White     180
+#' Baguette  250
+#' ")
+#'
+#' df2 <- data.table::fread(data.table = FALSE, input = "
+#' filling kcal
+#' Cheese   200
+#' Pâté     160
+#' ")
+#'
+#' fjoin_cross(df1, df2)
+#' fjoin_cross(df1, df2, order = "right")
 #'
 #' @export
 fjoin_cross <- function(

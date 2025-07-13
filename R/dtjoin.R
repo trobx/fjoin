@@ -1,9 +1,9 @@
-#' Join two data.frame-like objects using an extended functional form of
-#' data.table \code{DT[i]}-style syntax
+#' Join data.frame-like objects using an extended \code{DT[i]}-style interface
+#' to data.table
 #'
-#' @description Write (and optionally run) data.table code for a join
-#' using a functional form of \code{DT[i]} syntax with many efficient
-#' enhancements. Accepts any \code{data.frame}-like inputs (not only
+#' @description Write (and optionally run) \pkg{data.table} code for a join
+#' using a generalisation of \code{DT[i]} syntax with extended arguments and
+#' enhanced behaviour. Accepts any \code{data.frame}-like inputs (not only
 #' \code{data.table}s), permits left, right, inner, and full joins, prevents
 #' unwanted matches on \code{NA} and \code{NaN} by default, does not garble
 #' join columns in non-equality joins, allows \code{mult} on both sides of the
@@ -12,20 +12,20 @@
 #' control column order and prefixing.
 #'
 #' If run, the join returns a \code{data.frame}, \code{data.table},
-#' \code{tibble}, or \code{sf}/\code{sf}-\code{tibble} according to context.
+#' tibble, \code{sf}, or \code{sf}-tibble according to context.
 #' The generated \code{data.table} code can be printed to the console instead of
 #' (or as well as) being executed. This feature extends to \emph{mock joins},
 #' where no inputs are provided, and template code is produced.
 #'
 #' \code{dtjoin} is the workhorse function for \code{\link{fjoin_inner}},
 #' \code{\link{fjoin_left}}, \code{\link{fjoin_right}}, and
-#' \code{\link{fjoin_full}}, which are wrappers providing a much more
-#' conventional interface for join operations. These functions are recommended
-#' over \code{dtjoin} for most users and cases.
+#' \code{\link{fjoin_full}}, which are wrappers providing a more conventional
+#' interface for join operations. These functions are recommended over
+#' \code{dtjoin} for most users and cases.
 #'
-#' @param .DT,.i \code{data.frame}-like objects (\code{list}, plain
-#'   \code{data.frame}, \code{data.table}, \code{tibble}, \code{sf} etc.), or
-#'   else both omitted (\code{NULL}) for a mock join statement with no data.
+#' @param .DT,.i \code{data.frame}-like objects (plain, \code{data.table}, tibble,
+#'   \code{sf}, \code{list}, etc.), or else both omitted (\code{NULL}) for a mock
+#'   join statement with no data.
 #' @param on A character vector of join predicates, e.g. \code{c("id", "col_DT
 #'   == col_i", "date < date")}.
 #' @param match.na If \code{TRUE}, allow equality matches between \code{NA}s or
@@ -38,7 +38,7 @@
 #' @param mult.DT Like \code{mult}, but with the roles of \code{.DT} and
 #'   \code{.i} reversed, i.e. when a row of \code{.DT} has multiple matching
 #'   rows in \code{.i}, which to accept (default \code{"all"}). Can be combined
-#'   with \code{mult}.
+#'   with \code{mult}. See Details.
 #' @param nomatch (as in \code{[.data.table}) Either \code{NA} (the default) to
 #'   retain rows of \code{.i} with no match in \code{.DT}, or \code{NULL} to
 #'   exclude them.
@@ -54,13 +54,12 @@
 #'   from either input if present (\code{select}) or specifically from one or
 #'   other (\code{select.DT}, \code{select.i}). \code{NULL} (the default)
 #'   selects all columns. Use \code{NA} or \code{""} to select no columns. Join
-#'   columns are always selected.
-#' @param on.first Whether to place the join columns first in the join result.
-#'   Default \code{FALSE}.
+#'   columns are always selected. See Details.
+#' @param on.first Whether to place the join columns from both inputs first in
+#'   the join result. Default \code{FALSE}.
 #' @param i.main Whether to treat \code{.i} as the "home" table and \code{.DT}
 #'   as the "foreign" table for column prefixing and \code{indicate}. Default
-#'   \code{FALSE}, i.e. \code{.DT} is the "home" table, as in
-#'   \code{[.data.table}.
+#'   \code{FALSE}, i.e. \code{.DT} is the "home" table, as in \code{[.data.table}.
 #' @param i.first Whether to place \code{.i}'s columns before \code{.DT}'s in
 #'   the join result. The default is to use the value of \code{i.main}, i.e.
 #'   bring \code{.i}'s columns to the front if \code{.i} is the "home" table.
@@ -83,16 +82,114 @@
 #'   print information to the console during execution. Default \code{FALSE}.
 #' @param ... Further arguments (for internal use).
 #'
-#' @returns A \code{data.frame}, \code{data.table}, \code{tibble}, or
-#'  \code{sf}/\code{sf}-\code{tibble}, or else \code{NULL} if \code{do} is
-#'  \code{FALSE}. See details.
+#' @returns A \code{data.frame}, \code{data.table}, tibble, \code{sf}, or
+#' \code{sf}-tibble, or else \code{NULL} if \code{do} is \code{FALSE}.
+#' See Details.
+#'
+#' @details
+#' \strong{Input and output class:}
+#'
+#' Each input can be any object with class \code{data.frame}, or a plain
+#' \code{list} of same-length vectors.
+#'
+#' The output class follows these rules:
+#' \itemize{
+#'   \item if either input is an \code{sf} with its active geometry selected in
+#'   the join, create an \code{sf}
+#'   \item otherwise, return a \code{data.table} if either input is a
+#'   \code{data.table}, or else create a plain \code{data.frame}
+#'   \item finally, if either input is a tibble and the result is not a
+#'   \code{data.table}, add tibble class \code{"tbl-df"}.
+#' }
+#'
+#' \strong{Using \code{select}, \code{select.DT}, and \code{select.i}:}
+#'
+#' Used on its own, \code{select} retains the join columns plus the specified
+#' non-join columns from both inputs if present.
+#'
+#' If \code{select.DT} is provided (and similarly for \code{select.i}) then:
+#' \itemize{
+#'  \item if \code{select} is also specified, non-join columns of \code{.DT}
+#'  named in either \code{select} or \code{select.DT} are included
+#'  \item if \code{select} is not specified, only non-join columns named in
+#'  \code{select.DT} are included from \code{.DT}. Thus e.g. \code{select.DT = ""}
+#'  excludes all of \code{.DT}'s non-join columns.
+#' }
+#' Non-existent column names are ignored without warning.
+#'
+#' \strong{Column ordering:}
+#'
+#' When \code{select} is specified but \code{select.DT} and \code{select.i} are
+#' not, the output consists of all join columns followed by the selected
+#' non-join columns from either input in the order given in \code{select}.
+#'
+#' In all other cases:
+#' \itemize{
+#'   \item columns from \code{.DT} come before columns from \code{.i} by default
+#'   (but vice versa if \code{i.first} is \code{TRUE})
+#'   \item within each group of columns, non-join columns are in the order
+#'   given by \code{select.DT}/\code{select.i}, or in their original data order
+#'   if no selection is provided
+#'   \item if \code{on.first} is \code{TRUE}, join columns from both inputs are
+#'   moved to the front of the overall output.
+#' }
+#'
+#' \strong{Using \code{mult} and \code{mult.DT}:}
+#'
+#' If both of these arguments are not the default \code{"all"}, \code{mult} is
+#' applied first (typically by passing directly to \code{[.data.table}) and
+#' \code{mult.DT} is applied subsequently to eliminate all but the first or last
+#' occurrence of each row of \code{.DT} from the inner part of the join,
+#' producing a 1:1 result. This order of operations can affect the identity of
+#' the rows in the inner join.
+#'
+#' \strong{Displaying code and 'mock joins':}
+#'
+#' The option of displaying the join code with \code{show = TRUE} or by passing
+#' null inputs is aimed at \pkg{data.table} users wanting to use the package as
+#' a cookbook of recipes for adaptation. If \code{.DT} and \code{.i} are both
+#' \code{NULL}, template code is displayed based on join column names implied by
+#' \code{on}, plus sample non-join column names. \code{select} arguments are
+#' ignored in this case.
+#'
+#' The code displayed is for the join operation after casting the inputs as
+#' \code{data.table}s if necessary, and before casting the result as a tibble
+#' and/or \code{sf} if applicable. Note that \pkg{fjoin} departs from the usual
+#' \code{j = list()} idiom in order to avoid a deep copy of the output made by
+#' \code{as.data.table.list}. (Likewise, internally it takes only shallow copies
+#' of columns when casting inputs or outputs to different classes.)
+#'
+#' \strong{Additional notes for \pkg{sf} users:}
+#'
+#' If \code{.DT} and \code{.i} are both \code{sf} objects whose active geometries
+#' are selected in the result, the result sets \code{.i}'s geometry.
+#'
+#' Regardless of whether or not the inputs and output are \code{sf}, all
+#' \code{sfc}-class columns in the join result are refreshed after joining (using
+#' \code{sf::st_sfc()} with \code{recompute_bbox = TRUE}).
+#'
+#' @seealso
+#'  See the package-level documentation \code{\link{fjoin}} for related
+#'  functions.
 #'
 #' @examples
-#' # Simple mock joins
-#' dtjoin(on = "id", match.na = TRUE)
-#' dtjoin(on = "id")
-#' dtjoin(on = "id", i.main = TRUE)
-#' dtjoin(on = c("id", "t1 < t2"), nomatch.DT = NA)
+#' # An illustration showing:
+#' # - two calls to fjoin_left() (commented out), differing in the `order` argument
+#' # - the resulting calls to dtjoin(), plus `show = TRUE`
+#' # - the generated data.table code and output
+#'
+#' # data frames
+#' set.seed(1)
+#' df_x <- data.frame(id_x = 1:3, col_x = paste0("x", 1:3), val = runif(3))
+#' df_y <- data.frame(id_y = rep(4:2, each = 2), col_y = paste0("y", 1:6), val = runif(6))
+#'
+#' NULL # section break
+#'
+#' # (1) fjoin_left(df_x, df_y, on = "id_x == id_y", mult.x = "first")
+#' dtjoin(df_y, df_x, on = "id_y == id_x", mult = "first", i.main = TRUE, prefix = "R.", show = TRUE)
+#'
+#' # (2) fjoin_left(df_x, df_y, on = "id_x == id_y", mult.x = "first", order = "right")
+#' dtjoin(df_x, df_y, on = "id_x == id_y", mult.DT = "first", nomatch = NULL, nomatch.DT = NA, prefix = "R.", show = TRUE)
 #'
 #' @export
 dtjoin <- function(

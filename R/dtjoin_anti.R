@@ -2,23 +2,15 @@
 #' objects
 #'
 #' @description
-#' Write (and optionally run) data.table code to return the anti-join of
-#' \code{DT} (the rows with no match) using an enhanced functional version of
-#' \code{DT[i]}-style join syntax. Arguments are the same as for
-#' \code{\link{dtjoin}} except those controlling the order and prefixing of
-#' output columns, which do not apply.
+#' Write (and optionally run) \pkg{data.table} code to return the anti-join of
+#' \code{DT} (the rows of \code{DT} not joining with \code{i}) using a
+#' generalisation of \code{DT[i]} syntax.
 #'
 #' The functions \code{\link{fjoin_left_anti}} and \code{\link{fjoin_right_anti}}
 #' provide a more conventional interface that is recommended over
 #' \code{dtjoin_anti} for most users and cases.
 #'
-#' @inheritParams dtjoin_semi
-#' @param nomatch,nomatch.DT Permitted for consistency with \code{dtjoin} but
-#'   have no effect on the resulting anti-join.
-#'
-#' @returns A \code{data.frame}, \code{data.table}, \code{tibble}, or
-#'  \code{sf}/\code{sf}-\code{tibble} depending on the class of \code{.DT}, or
-#'  else \code{NULL} if \code{do} is \code{FALSE}.
+#' @inherit dtjoin_semi params return details seealso
 #'
 #' @examples
 #' # TODO

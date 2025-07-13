@@ -1,4 +1,7 @@
-#' Cross-join data.frame-like objects using functional \code{DT[i]}-style syntax
+#' Anti-join of \code{DT} in a \code{DT[i]}-style join of data.frame-like
+#' objects
+#' Cross-join of data.frame-like objects \code{DT} and \code{i} using
+#' a \code{DT[i]}-style interface to data.table
 #'
 #' @description
 #' Write (and optionally run) \code{data.table} code to return the cross-join of
@@ -9,17 +12,28 @@
 #' The function \code{\link{fjoin_cross}} provides a more conventional interface
 #' that is recommended over \code{dtjoin_cross} for most users and cases.
 #'
-#' @inheritParams dtjoin
-#'
-#' @returns A \code{data.frame}, \code{data.table}, \code{tibble}, or
-#'  \code{sf}/\code{sf}-\code{tibble} depending on the class of \code{.DT}, or
-#'  else \code{NULL} if \code{do} is \code{FALSE}.
+#' @inherit dtjoin params return seealso
 #'
 #' @details
-#' # TODO
+#' Details are as for \code{\link{dtjoin}} except for remarks about join
+#' columns and matching logic, which do not apply.
 #'
 #' @examples
-#' # TODO
+#' # data frames
+#' df1 <- data.table::fread(data.table = FALSE, input = "
+#' bread    kcal
+#' Brown     150
+#' White     180
+#' Baguette  250
+#' ")
+#'
+#' df2 <- data.table::fread(data.table = FALSE, input = "
+#' filling kcal
+#' Cheese   200
+#' Pâté     160
+#' ")
+#'
+#' dtjoin_cross(df1, df2)
 #'
 #' @export
 dtjoin_cross <- function(
