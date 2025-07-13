@@ -166,7 +166,7 @@ dtjoin_semi <- function(
     if (i == 1L && s[2] == "==") {
     # (1) no mult, single equality: in
 
-      if (screen_NAs && na_omit_cost_rc(nrow(.DT), 1L) > na_omit_cost_rc(nrow(.i), length(included))) {
+      if (screen_NAs && na_omit_cost_rc(nrow(.DT), length(included)) > na_omit_cost_rc(nrow(.i), 1L)) {
         .DTtext <- na_omit_text(".DT", na_cols=s[1], sd_cols=if (has_select) included else NULL)
         .itext  <- sprintf(".i$%s", s[3])
         jointext <-
