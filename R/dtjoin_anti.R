@@ -215,9 +215,9 @@ dtjoin_anti <- function(
 
   # will be DF if has_select and DT otherwise
   if (has_select) {
-    if (as_DT) jointext <- sprintf("setDT(%s)", jointext)
+    if (as_DT) jointext <- sprintf("setDT(%s)[]", jointext)
   } else {
-    if (!as_DT) jointext <- sprintf("setDF(%s)", jointext)
+    if (!as_DT) jointext <- sprintf("setDF(%s)[]", jointext)
   }
 
   # ----------------------------------------------------------------------------
