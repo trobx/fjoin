@@ -1,13 +1,10 @@
-#' Anti-join of \code{DT} in a \code{DT[i]}-style join of data.frame-like
-#' objects
-#' Cross-join of data.frame-like objects \code{DT} and \code{i} using
+#' Cross join of data.frame-like objects \code{DT} and \code{i} using
 #' a \code{DT[i]}-style interface to data.table
 #'
 #' @description
-#' Write (and optionally run) \code{data.table} code to return the cross-join of
-#' two \code{data.frame}-like objects using an enhanced functional version of
-#' \code{DT[i]}-style syntax. Arguments for selecting, ordering and prefixing
-#' output columns are as for \code{\link{dtjoin}}.
+#' Write (and optionally run) \code{data.table} code to return the cross join of
+#' two \code{data.frame}-like objects using a generalisation of \code{DT[i]}
+#' syntax.
 #'
 #' The function \code{\link{fjoin_cross}} provides a more conventional interface
 #' that is recommended over \code{dtjoin_cross} for most users and cases.
