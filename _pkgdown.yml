@@ -33,10 +33,10 @@ reference:
   - dtjoin
 - subtitle: Semi-joins
   contents:
-  - dtjoin_semi_i
+  - dtjoin_semi
 - subtitle: Anti-joins
   contents:
-  - dtjoin_anti_DT
+  - dtjoin_anti
 - subtitle: Cross-joins
   contents:
   - dtjoin_cross
