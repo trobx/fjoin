@@ -59,6 +59,7 @@ dtjoin_semi <- function(
   check_arg_TF(verbose)
 
   dot_args <- list(...)
+  check_dot_names(dot_args)
 
   on   <- clean_on(on)
   mock <- is.null(.DT) && is.null(.i)

@@ -1,4 +1,9 @@
 # ------------------------------------------------------------------------------
+check_dot_names <- function(dots, valid_names = c(".labels")){
+  invalid_names <- setdiff(names(dots), valid_names)
+  if(length(invalid_names))
+    stop("Invalid argument name(s): ", paste(invalid_names, collapse=", "))
+}
 check_arg_TF <- function(x) {
   if (!x %in% c(TRUE, FALSE))
     stop(sprintf("Argument '%s' must be TRUE or FALSE", deparse(substitute(x))))

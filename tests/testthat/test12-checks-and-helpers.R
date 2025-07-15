@@ -1,4 +1,9 @@
 # argument checks
+test_that("dots check", {
+  dtjoin(on="id", foo=TRUE) |>
+    expect_error("^Invalid argument name\\(s\\)")
+})
+
 test_that("true/false arg check", {
   dtjoin(on="id", match.na=TRUE) |>
     expect_no_error()

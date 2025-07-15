@@ -223,7 +223,7 @@ test_that(desc, {
 desc <- "dtjoin_cross with sf_column from .DT, colliding name"
 if (PRINT_TEST_NAME) cat("\nTest:", desc, "\n")
 test_that(desc, {
-  result <- dtjoin_cross(SF3_A, SF3_B, nomatch=NULL, select.i="")
+  result <- dtjoin_cross(SF3_A, SF3_B, select.i="")
   if (PRINT_TEST_OBJECTS) print(result)
   expect_identical(attr(result, "sf_column"), "geom")
   expect_identical(SF3_A$geom, data.table::setDT(result)[, first(.SD), .SDcols="geom", keyby=id]$geom)
@@ -232,7 +232,7 @@ test_that(desc, {
 desc <- "dtjoin_cross with sf_column from .DT, colliding name, i.main"
 if (PRINT_TEST_NAME) cat("\nTest:", desc, "\n")
 test_that(desc, {
-  result <- dtjoin_cross(SF3_A, SF3_B, nomatch=NULL, select.i="", i.main=TRUE)
+  result <- dtjoin_cross(SF3_A, SF3_B, select.i="", i.main=TRUE)
   if (PRINT_TEST_OBJECTS) print(result)
   expect_identical(attr(result, "sf_column"), "x.geom")
   expect_identical(SF3_A$geom, data.table::setDT(result)[, first(.SD), .SDcols="x.geom", keyby=x.id]$x.geom)

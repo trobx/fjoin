@@ -60,6 +60,7 @@ dtjoin_cross <- function(
   check_arg_TF(i.main)
 
   dot_args <- list(...)
+  check_dot_names(dot_args)
 
   mock <- is.null(.DT) && is.null(.i)
   do   <- !mock && do
