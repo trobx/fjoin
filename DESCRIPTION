@@ -1,6 +1,6 @@
 Package: fjoin
 Type: Package
-Title: Fast, Friendly, Fully-featured Joins
+Title: Data Frame Joins Backed by 'data.table'
 Version: 0.1.0
 Authors@R: c(
     person(
@@ -9,9 +9,10 @@ Authors@R: c(
       role = c("aut", "cre")
     )
   )
-Description: Fast and Friendly Joins Powered by data.table.
-    TODO fuller description.
-License: GPL-3
+Description: Provides fast general data frame joins with novel convenience
+  features and advanced options in a compact and sensible API. Bridges and
+  extends 'data.table'.
+License: MIT + file LICENSE
 Encoding: UTF-8
 Imports: 
     data.table
