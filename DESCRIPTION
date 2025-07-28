@@ -26,7 +26,8 @@ Suggests:
     rmarkdown,
     kableExtra,
     ggplot2,
-    forcats
+    forcats,
+    bench
 URL: https://github.com/trobx/fjoin
 BugReports: https://github.com/trobx/fjoin/issues
 Config/testthat/edition: 3
