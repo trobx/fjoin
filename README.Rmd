@@ -1,8 +1,16 @@
+---
+output:
+  github_document:
+    toc: false
+
+editor_options:
+  markdown:
+    wrap: 80
+---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 <!-- badges: start -->
-
 [![R-CMD-check](https://github.com/trobx/fjoin/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/trobx/fjoin/actions/workflows/R-CMD-check.yaml)
 [![Dependencies](https://img.shields.io/badge/dependencies-1/1-green)]()
 [![Codecov test
@@ -11,19 +19,31 @@ coverage](https://codecov.io/gh/trobx/fjoin/graph/badge.svg)](https://app.codeco
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 <!-- badges: end -->
 
-# fjoin <img src="man/figures/logo.png" align="right" height="138" alt="" />
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
 
-Data frame joins backed by
-<span style="color:#666666; font-weight:bold;">data.table</span>
+options(width = 80)
+
+pkg <- function(name) {
+  # Inline HTML with inline style attributes as github strips CSS in <style> blocks
+  sprintf('<span style="color:#666666; font-weight:bold;">%s</span>', name)
+}
+```
+
+# fjoin <img src="man/figures/logo.png" align="right" height="138" alt="" />
+Data frame joins backed by `r pkg("data.table")`
 
 ## Installation
 
 Latest version from GitHub :
-
-``` r
+```r
 remotes::install_github("trobx/fjoin")
 ```
-
 ## More information
 
 See [Get started](https://trobx.github.io/fjoin/articles/fjoin.html).
