@@ -17,17 +17,16 @@ fjoin_right_semi(
 )
 }
 \arguments{
-\item{x, y}{\code{data.frame}-like objects (plain, \code{tibble},
-\code{data.table} etc.), or else both omitted (\code{NULL}) for a mock join
-statement with no data.}
+\item{x, y}{\code{data.frame}-like objects (plain, \code{data.table},
+tibble, \code{sf}, \code{list}, etc.) or else both omitted
+(\code{NULL}) for a mock join statement with no data. See Details.}
 
 \item{on}{A character vector of join predicates, e.g. \code{c("id", "col_x ==
-col_y", "date < date")}.}
+col_y", "date > date", "cost <= budget")}.}
 
-\item{match.na}{If \code{TRUE}, allow equality matches between \code{NA}s or
-\code{NaN}s. The default is \code{FALSE}, i.e. such matches are not
-allowed, as in most real-world applications (but unlike other join
-frameworks in R)}
+\item{match.na}{Whether to allow equality matches between \code{NA}s or
+\code{NaN}s. The default is \code{FALSE}, as in most real-world
+applications (but unlike other join frameworks in R).}
 
 \item{mult.x}{When a row of \code{x} has multiple matching rows in \code{y},
 which to accept: \code{"all"} (the default), \code{"first"}, or
@@ -37,28 +36,110 @@ which to accept: \code{"all"} (the default), \code{"first"}, or
 which to accept: \code{"all"} (the default), \code{"first"}, or
 \code{"last"}. Can be combined with \code{mult.x}.}
 
-\item{select}{Character vector of columns to be selected. \code{NULL} (the
-default) selects all columns. Use \code{""} (or \code{NA}) to select no
-columns. Join columns are always selected.}
+\item{select}{Character vector of columns to be selected from \code{y}.
+\code{NULL} (the default) selects all columns. Join columns are always
+selected.}
 
-\item{do}{Whether to execute the join. If FALSE, the data.table code for the
-join is printed to the console instead. Default is \code{TRUE} unless \code{x}
-and \code{y} are both omitted/\code{NULL}, in which case a mock join
-statement is produced. See details.}
+\item{do}{Whether to execute the join. If \code{FALSE}, \code{show} is set to
+\code{TRUE} and the \pkg{data.table} code for the join is printed to the
+console instead. Default is \code{TRUE} unless \code{x} and \code{y} are
+both omitted/\code{NULL}, in which case a mock join statement is produced.
+See Details.}
 
-\item{show}{Whether to print the code for the join to the console. Default is
-the opposite of \code{do}. If \code{x} and \code{y} are both
-omitted/\code{NULL}, mock join code is displayed.}
+\item{show}{Whether to print the \pkg{data.table} code for the join to the
+console. Default is the opposite of \code{do}. If \code{x} and \code{y} are
+both omitted/\code{NULL}, mock join code is displayed.}
 }
 \value{
-A \code{data.table} (the result of the join), or \code{NULL} if
-  \code{do} is \code{FALSE}. The data.table code is always printed to the
-  console.
+A \code{data.frame}, \code{data.table}, tibble, \code{sf}, or
+\code{sf}-tibble, or else \code{NULL} if \code{do} is \code{FALSE}.
+See Details.
 }
 \description{
-The semi-join of \code{y} in a join of \code{x} and \code{y}
+The semi-join of \code{y} in a join of \code{x} and \code{y}, i.e. the rows
+  of \code{y} that join at least once.
+}
+\details{
+Details are as for e.g. \code{\link{fjoin_inner}} except for arguments
+controlling the order and prefixing of output columns, which do not apply.
+Output class is determined by \code{y}.
 }
 \examples{
-# TO DO
+# ---------------------------------------------------------------------------
+# Semi- and anti-joins: basic usage
+# ---------------------------------------------------------------------------
 
+# data frames
+x <- data.table::fread(data.table = FALSE, input = "
+country   pop_m
+Australia  27.2
+Brazil    212.0
+Chad        3.0
+")
+
+y <- data.table::fread(data.table = FALSE, input = "
+country forest_pc
+Brazil       59.1
+Chad          3.2
+Denmark      15.8
+")
+
+# full join with `indicate = TRUE` for comparison
+fjoin_full(x, y, on = "country", indicate = TRUE)
+
+fjoin_semi(x, y, on = "country")
+fjoin_anti(x, y, on = "country")
+fjoin_right_semi(x, y, on = "country")
+fjoin_right_anti(x, y, on = "country")
+
+# ---------------------------------------------------------------------------
+# `mult.x` and `mult.y` support
+# ---------------------------------------------------------------------------
+
+# data frames
+events <- data.table::fread(data.table = FALSE, input = "
+event_id event_ts
+       1       10
+       2       20
+       3       40
+")
+
+reactions <- data.table::fread(data.table = FALSE, input = "
+reaction_id reaction_ts
+          1          30
+          2          50
+          3          60
+")
+NULL # section break
+
+# for each event, the next reaction, provided there was no intervening event (1:1)
+fjoin_full(
+  events,
+  reactions,
+  on = c("event_ts < reaction_ts"),
+  mult.x = "first",
+  mult.y = "last",
+  indicate = TRUE
+)
+
+fjoin_semi(
+  events,
+  reactions,
+  on = c("event_ts < reaction_ts"),
+  mult.x = "first",
+  mult.y = "last"
+)
+
+fjoin_anti(
+  events,
+  reactions,
+  on = c("event_ts < reaction_ts"),
+  mult.x = "first",
+  mult.y = "last"
+)
+
+}
+\seealso{
+See the package-level documentation \code{\link{fjoin}} for related
+ functions.
 }

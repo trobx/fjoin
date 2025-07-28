@@ -2,7 +2,7 @@
 % Please edit documentation in R/fjoin_functions.R
 \name{fjoin_cross}
 \alias{fjoin_cross}
-\title{Cross-join}
+\title{Cross join}
 \usage{
 fjoin_cross(
   x = NULL,
@@ -17,13 +17,13 @@ fjoin_cross(
 )
 }
 \arguments{
-\item{x, y}{\code{data.frame}-like objects (plain, \code{tibble},
-\code{data.table} etc.), or else both omitted (\code{NULL}) for a mock join
-statement with no data.}
+\item{x, y}{\code{data.frame}-like objects (plain, \code{data.table},
+tibble, \code{sf}, \code{list}, etc.) or else both omitted
+(\code{NULL}) for a mock join statement with no data. See Details.}
 
 \item{order}{Whether the row order of the result should reflect \code{x} then
 \code{y} (\code{"left"}) or \code{y} then \code{x} (\code{"right"}).
-Default is \code{"left"} for left, inner, full and cross joins,
+Default is \code{"left"} for left, inner, full, and cross joins,
 \code{"right"} for right joins.}
 
 \item{prefix.y}{A prefix to attach to column names in \code{y} that are the
@@ -33,26 +33,50 @@ same as a column name in \code{x}. Default \code{"R."}.}
 from either input if present (\code{select}) or specifically from one or
 other of them (e.g. \code{select.x}). \code{NULL} (the default) selects
 all columns. Use \code{""} (or \code{NA}) to select no columns. Join
-columns are always selected.}
+columns are always selected. See Details.}
 
-\item{do}{Whether to execute the join. If FALSE, the data.table code for the
-join is printed to the console instead. Default is \code{TRUE} unless \code{x}
-and \code{y} are both omitted/\code{NULL}, in which case a mock join
-statement is produced. See details.}
+\item{do}{Whether to execute the join. If \code{FALSE}, \code{show} is set to
+\code{TRUE} and the \pkg{data.table} code for the join is printed to the
+console instead. Default is \code{TRUE} unless \code{x} and \code{y} are
+both omitted/\code{NULL}, in which case a mock join statement is produced.
+See Details.}
 
-\item{show}{Whether to print the code for the join to the console. Default is
-the opposite of \code{do}. If \code{x} and \code{y} are both
-omitted/\code{NULL}, mock join code is displayed.}
+\item{show}{Whether to print the \pkg{data.table} code for the join to the
+console. Default is the opposite of \code{do}. If \code{x} and \code{y} are
+both omitted/\code{NULL}, mock join code is displayed.}
 }
 \value{
-A \code{data.table} (the result of the join), or \code{NULL} if
-  \code{do} is \code{FALSE}. The data.table code is always printed to the
-  console.
+A \code{data.frame}, \code{data.table}, tibble, \code{sf}, or
+\code{sf}-tibble, or else \code{NULL} if \code{do} is \code{FALSE}.
+See Details.
 }
 \description{
-Cross-join of \code{x} and \code{y}
+Cross join of \code{x} and \code{y}
+}
+\details{
+Details are as for e.g. \code{\link{fjoin_inner}} except for remarks
+about join columns and matching logic, which do not apply.
 }
 \examples{
-# TO DO
+# data frames
+df1 <- data.table::fread(data.table = FALSE, input = "
+bread    kcal
+Brown     150
+White     180
+Baguette  250
+")
 
+df2 <- data.table::fread(data.table = FALSE, input = "
+filling kcal
+Cheese   200
+Pâté     160
+")
+
+fjoin_cross(df1, df2)
+fjoin_cross(df1, df2, order = "right")
+
+}
+\seealso{
+See the package-level documentation \code{\link{fjoin}} for related
+ functions.
 }

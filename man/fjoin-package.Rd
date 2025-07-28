@@ -6,29 +6,33 @@
 \alias{fjoin-package}
 \title{fjoin}
 \description{
-fjoin is a comprehensive new join package in R, resting on data.table but
-accessible to all users. It provides high-performance equi and non-equi joins
-with convenience features and advanced options. For an easy entry to fjoin,
-please see the ' \href{../doc/fjoin-quickstart.html}{Quickstart Guide} and
-further links.
+\pkg{fjoin} is a general-purpose data frame join package that runs on
+\pkg{data.table} and works seamlessly in general workflows and tidyverse
+pipelines. It is lightweight, fast, and has short and clear syntax with
+options not found in other frameworks.
 }
-\details{
-The \code{fjoin_*()} family of functions provides fast and option-rich
-implementations of all main join styles via a simple interface:
+\section{Vignettes}{
+
+Visit the package website \url{https://trobx.github.io/fjoin} or access
+locally in R:
 \itemize{
-\item True joins: \code{\link{fjoin_inner}()}, \code{\link{fjoin_left}()},
-\code{\link{fjoin_right}()}, \code{\link{fjoin_full}()} \item Semi-joins:
-\code{\link{fjoin_left_semi}()} (aka \code{\link{fjoin_semi}()}),
-\code{\link{fjoin_right_semi}()} \item Anti-joins:
-\code{\link{fjoin_left_anti}()} (aka \code{\link{fjoin_anti}()}),
-\code{\link{fjoin_right_anti}()}
-\item Cross-joins: \code{\link{fjoin_cross}()}
+  \item Guide to fjoin: \code{vignette("fjoin")}
+  \item Performance overview: \code{vignette("fjoin-performance")}
 }
-These functions are wrappers around a greatly extended data.table-like
-interface, which is also exported: \code{\link{dtjoin}()},
-\code{\link{dtjoin_semi}()}, \code{\link{dtjoin_anti}()},
-\code{\link{dtjoin_cross}()}
 }
+
+\section{API}{
+
+\tabular{ll}{
+\strong{fjoin_* functions} \tab \strong{dtjoin* functions} \cr
+\emph{\code{x}/\code{y} style} \tab \emph{Extended \code{DT[i]}-like interface} \cr
+\code{\link{fjoin_inner}()}, \code{\link{fjoin_left}()}, \code{\link{fjoin_right}()}, \code{\link{fjoin_full}()} \tab \code{\link{dtjoin}()} \cr
+\code{\link{fjoin_left_semi}()} (alias \code{\link{fjoin_semi}()}), \code{\link{fjoin_right_semi}()} \tab \code{\link{dtjoin_semi}()} \cr
+\code{\link{fjoin_left_anti}()} (alias \code{\link{fjoin_anti}()}), \code{\link{fjoin_right_anti}()} \tab \code{\link{dtjoin_anti}()} \cr
+\code{\link{fjoin_cross}()} \tab \code{\link{dtjoin_cross}()} \cr
+}
+}
+
 \seealso{
 Useful links:
 \itemize{

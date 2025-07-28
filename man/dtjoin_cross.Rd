@@ -2,7 +2,8 @@
 % Please edit documentation in R/dtjoin_cross.R
 \name{dtjoin_cross}
 \alias{dtjoin_cross}
-\title{Cross-join data.frame-like objects using functional \code{DT[i]}-style syntax}
+\title{Cross join of data.frame-like objects \code{DT} and \code{i} using
+a \code{DT[i]}-style interface to data.table}
 \usage{
 dtjoin_cross(
   .DT = NULL,
@@ -19,15 +20,15 @@ dtjoin_cross(
 )
 }
 \arguments{
-\item{.DT, .i}{\code{data.frame}-like objects (\code{list}, plain
-\code{data.frame}, \code{data.table}, \code{tibble}, \code{sf} etc.), or
-else both omitted (\code{NULL}) for a mock join statement with no data.}
+\item{.DT, .i}{\code{data.frame}-like objects (plain, \code{data.table}, tibble,
+\code{sf}, \code{list}, etc.), or else both omitted (\code{NULL}) for a mock
+join statement with no data.}
 
 \item{select, select.DT, select.i}{Character vectors of columns to be selected
 from either input if present (\code{select}) or specifically from one or
 other (\code{select.DT}, \code{select.i}). \code{NULL} (the default)
 selects all columns. Use \code{NA} or \code{""} to select no columns. Join
-columns are always selected.}
+columns are always selected. See Details.}
 
 \item{i.first}{Whether to place \code{.i}'s columns before \code{.DT}'s in
 the join result. The default is to use the value of \code{i.main}, i.e.
@@ -35,8 +36,7 @@ bring \code{.i}'s columns to the front if \code{.i} is the "home" table.}
 
 \item{i.main}{Whether to treat \code{.i} as the "home" table and \code{.DT}
 as the "foreign" table for column prefixing and \code{indicate}. Default
-\code{FALSE}, i.e. \code{.DT} is the "home" table, as in
-\code{[.data.table}.}
+\code{FALSE}, i.e. \code{.DT} is the "home" table, as in \code{[.data.table}.}
 
 \item{prefix}{A prefix to attach to column names in the "foreign" table that
 are the same as a column name in the "home" table. The default is
@@ -55,23 +55,41 @@ omitted/\code{NULL}, mock join code is displayed.}
 \item{...}{Further arguments (for internal use).}
 }
 \value{
-A \code{data.frame}, \code{data.table}, \code{tibble}, or
- \code{sf}/\code{sf}-\code{tibble} depending on the class of \code{.DT}, or
- else \code{NULL} if \code{do} is \code{FALSE}.
+A \code{data.frame}, \code{data.table}, tibble, \code{sf}, or
+\code{sf}-tibble, or else \code{NULL} if \code{do} is \code{FALSE}.
+See Details.
 }
 \description{
-Write (and optionally run) \code{data.table} code to return the cross-join of
-two \code{data.frame}-like objects using an enhanced functional version of
-\code{DT[i]}-style syntax. Arguments for selecting, ordering and prefixing
-output columns are as for \code{\link{dtjoin}}.
+Write (and optionally run) \code{data.table} code to return the cross join of
+two \code{data.frame}-like objects using a generalisation of \code{DT[i]}
+syntax.
 
 The function \code{\link{fjoin_cross}} provides a more conventional interface
 that is recommended over \code{dtjoin_cross} for most users and cases.
 }
 \details{
-# TODO
+Details are as for \code{\link{dtjoin}} except for remarks about join
+columns and matching logic, which do not apply.
 }
 \examples{
-# TODO
+# data frames
+df1 <- data.table::fread(data.table = FALSE, input = "
+bread    kcal
+Brown     150
+White     180
+Baguette  250
+")
 
+df2 <- data.table::fread(data.table = FALSE, input = "
+filling kcal
+Cheese   200
+Pâté     160
+")
+
+dtjoin_cross(df1, df2)
+
+}
+\seealso{
+See the package-level documentation \code{\link{fjoin}} for related
+ functions.
 }

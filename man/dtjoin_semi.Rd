@@ -22,9 +22,9 @@ dtjoin_semi(
 )
 }
 \arguments{
-\item{.DT, .i}{\code{data.frame}-like objects (\code{list}, plain
-\code{data.frame}, \code{data.table}, \code{tibble}, \code{sf} etc.), or
-else both omitted (\code{NULL}) for a mock join statement with no data.}
+\item{.DT, .i}{\code{data.frame}-like objects (plain, \code{data.table}, tibble,
+\code{sf}, \code{list}, etc.), or else both omitted (\code{NULL}) for a mock
+join statement with no data.}
 
 \item{on}{A character vector of join predicates, e.g. \code{c("id", "col_DT
 == col_i", "date < date")}.}
@@ -62,22 +62,29 @@ print information to the console during execution. Default \code{FALSE}.}
 \item{...}{Further arguments (for internal use).}
 }
 \value{
-A \code{data.frame}, \code{data.table}, \code{tibble}, or
- \code{sf}/\code{sf}-\code{tibble} depending on the class of \code{.DT}, or
- else \code{NULL} if \code{do} is \code{FALSE}.
+A \code{data.frame}, \code{data.table}, tibble, \code{sf}, or
+\code{sf}-tibble, or else \code{NULL} if \code{do} is \code{FALSE}.
+See Details.
 }
 \description{
-Write (and optionally run) data.table code to return the semi-join of
-\code{DT} (the rows with at least one match) using an enhanced functional
-version of \code{DT[i]}-style join syntax. Arguments are the same as for
-\code{\link{dtjoin}} except those controlling the order and prefixing of
-output columns, which do not apply.
+Write (and optionally run) \pkg{data.table} code to return the semi-join of
+\code{DT} (the rows of \code{DT} that join with \code{i}) using a
+generalisation of \code{DT[i]} syntax.
 
 The functions \code{\link{fjoin_left_semi}} and \code{\link{fjoin_right_semi}}
 provide a more conventional interface that is recommended over
 \code{dtjoin_semi} for most users and cases.
 }
+\details{
+Details are as for \code{\link{dtjoin}} except for arguments controlling
+the order and prefixing of output columns, which do not apply. Output class
+is determined by \code{.DT}.
+}
 \examples{
 # TODO
 
+}
+\seealso{
+See the package-level documentation \code{\link{fjoin}} for related
+ functions.
 }
