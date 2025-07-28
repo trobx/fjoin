@@ -1,8 +1,26 @@
+# RStudio project files
 *.Rproj
 .Rproj.user
+
+# R session files
 .Rhistory
 .RData
 .Ruserdata
+
+# Package build artifacts
 /doc/
 /Meta/
-docs
+
+# Pkgdown site and cache
+docs/
+pkgdown/
+
+# Quarto cache
+vignettes/.quarto/
+
+# OS-specific files
+Thumbs.db
+.DS_Store   # optional (for macOS collaborators)
+
+# Coverage reports and CI configs
+codecov.yml

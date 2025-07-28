@@ -1,12 +1,25 @@
+# RStudio project files
 ^.*\.Rproj$
 ^\.Rproj\.user$
+
+# GitHub Actions workflows
 ^\.github$
+
+# Code coverage config
 ^codecov\.yml$
+
+# Internal build directories
 ^doc$
 ^Meta$
+
+# pkgdown files
 ^_pkgdown\.yml$
 ^docs$
 ^pkgdown$
+
+# License and README source
 ^LICENSE\.md$
 ^README\.Rmd$
+
+# Quarto cache
 ^vignettes/\.quarto$
