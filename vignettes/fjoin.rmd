@@ -1,0 +1,890 @@
+---
+title: "Quickstart"
+output:
+  rmarkdown::html_vignette:
+    toc: true
+    toc_depth: 2
+    number_sections: false
+vignette: >
+  %\VignetteIndexEntry{Quickstart}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, echo=FALSE, results='asis'}
+cat("
+<style>
+  /* Package name styling */
+  span.pkg {
+    color: grey;
+    font-weight: bold;
+    font-family: inherit;
+  }
+
+  /* Wrap console output */
+  .r-output pre,
+  .cell-output-stdout pre,
+  .cell-output-message pre,
+  .cell-output-warning pre {
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  /* Float TOC */
+  .toc {
+    position: sticky;
+    top: 80px;
+    max-height: calc(100vh - 100px);
+    overflow-y: auto;
+  }
+</style>
+")
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+
+[fjoin]{.pkg} is an extremely fast, friendly, and flexible general-purpose dataframe join package bridging `data.table`{.pkg}. It is lightweight, zero-conflict, and plug-and-play with tidyverse and other non-data.table workflows
+
+## Features
+
+Key features of `fjoin`{.pkg} are:
+
+- Generality: `fjoin`{.pkg} functions accept any data frame-like
+  lists or objects, and return a `data.frame`, `data.table`, tibble, `sf`, or
+  `sf`-tibble according to context. See also perks for sf users.
+- Plug and play compatibility with general and tidyverse workflows `df1 |> fjoin::fjoin_left(df2) |> ...` (no knowledge of `data.table`{.pkg} needed, and no manual object conversions): 
+- Oustanding performance through an internal cookbook of `data.table`{.pkg} join recipes and efficient casting of inputs and outputs avoiding redundant deep copies. (`fjoin`{.pkg} is faster and more memory
+  efficient than `data.table`{.pkg} itself in some cases)
+- Scope: True, semi- and anti-joins with equality and inequality conditions,
+  plus cross joins
+- A pleasant API with many features not present in other frameworks including:
+  - all joins `NA`-safe by default (`match.na = FALSE`)
+  - `select` for efficient join-select in a short-and-sweet one-liner
+  - `order` for left- or right-ordering of outputs, efficiently
+  handled with no sorting
+  - `indicate` for an optional indicator column for the origin of the
+  rows in the result, modelled on Stata
+  - `mult.x`, `mult.y` for multiple-match handling on either side of the join,
+  or both simultaneously, also supported in semi- and anti-joins
+- Transparency, by allowing the code to be printed at the console instead of (or
+  as well as) being executed, plus mock joins with no inputs that produce 
+  template code
+- Lightweight design with a single dependency on `data.table`{.pkg}, a long-term stable package with zero dependencies.
+
+## Organisation
+
+`fjoin`{.pkg} has a simple structure:
+
+#### `fjoin_*`: Join functions in a mainstream left/right (`x`/`y`) style
+
+- True joins: `fjoin_inner`, `fjoin_left`, `fjoin_right`, `fjoin_full`
+- Semi-joins: `fjoin_left_semi` (or just `fjoin_semi`), `fjoin_right_semi`
+- Anti-joins: `fjoin_left_anti` (or just `fjoin_anti`), `fjoin_right_anti`
+- Cross joins: `fjoin_cross`
+
+#### `dtjoin*`: An extended `data.table`{.pkg} `DT[i]`-style join interface
+
+- `dtjoin`, `dtjoin_semi`, `dtjoin_anti`, `dtjoin_cross`
+
+The `dtjoin*()` functions are the workhorses, which write `data.table`{.pkg}
+code. The `dtjoin*()` layer is fully documented and exported, and is potentially
+of interest to users of `data.table`{.pkg}.
+
+The `fjoin_*()` functions are thin wrappers that translate to a more
+conventional and accessible API designed for general use.
+
+`fjoin`{.pkg} has no internals to speak of other than simple functions to
+perform efficient (shallow) conversions to and from `data.table` class. The
+power of the package comes from its sensible API design, embedded cookbook of
+highly optimised `data.table`{.pkg} join recipes, and ultimately the power 
+of `data.table`{.pkg} itself.
+
+## Usage
+
+These examples are limited to true joins.
+
+```{r}
+library(fjoin)
+```
+
+#### Example 1: basic usage and options
+
+We'll use `fjoin_full()` to illustrate the basics since it nests the other three joins.
+
+```{r}
+# data frames
+dfQ <- data.table::fread(data.table = FALSE, quote ="'", input = "
+id   quantity   notes                    other_cols
+ 2          5   ''                       ...
+ 1          6   ''                       ...
+ 3          7   ''                       ...
+NA          8   'oranges (not listed)'   ...
+")
+
+dfP <- data.table::fread(data.table = FALSE, input = "
+id   item       price   other_cols
+NA   apples        10   ...
+ 3   bananas       20   ...
+ 2   cherries      30   ...
+ 1   dates         40   ...
+")
+```
+
+###### (1) Basic syntax (with default `match.na = FALSE`)
+
+```{r}
+fjoin_full(dfQ, dfP, on = "id")
+```
+
+###### (2) Efficient join-select in one line
+
+```{r}
+fjoin_full(dfQ, dfP, on = "id", select = c("item", "price", "quantity"))
+```
+
+Compare the equivalent operation in dplyr:
+```{r eval = FALSE}
+x <- dfQ |> select(id, quantity)
+y <- dfP |> select(id, item, price)
+full_join(x, y, join_by(id), na.matches = "never") |>
+  select(id, item, price, quantity)
+```
+
+###### (3) Indicator column for row origin (in Stata since 1985): 1 left, 2 right, 3 both (joined)
+```{r}
+fjoin_full(
+  dfQ,
+  dfP,
+  on = "id",
+  select = c("item", "price", "quantity"),
+  indicate = TRUE
+)
+```
+
+###### (4) Order rows by `y` then `x`
+```{r}
+fjoin_full(
+  dfQ,
+  dfP,
+  on = "id",
+  select = c("item", "price", "quantity"),
+  indicate = TRUE,
+  order = "right"
+)
+```
+
+###### (5) Display code instead of executing
+```{r}
+fjoin_full(
+  dfQ,
+  dfP,
+  on = "id",
+  select = c("item", "price", "quantity"),
+  indicate = TRUE,
+  order = "right",
+  do = FALSE
+)
+```
+
+### Example 2: M:M inequality join reduced to 1:1 using `mult.x` and `mult.y`
+
+data.table (`mult`) and dplyr (`multiple`) have options for reducing the
+cardinality on one side of the join from many ("all") to one ("first" or
+"last"). fjoin (`mult.x`, `mult.y`) permits this on either side of the
+join, or on both sides at once. This example (using `fjoin_left()`) shows an
+application to temporally ordered data frames of "events" and "reactions".
+
+```{r}
+# data frames
+events <- data.table::fread(data.table = FALSE, input = "
+event_id event_ts
+       1       10
+       2       20
+       3       40
+")
+
+reactions <- data.table::fread(data.table = FALSE, input = "
+reaction_id reaction_ts
+          1          30
+          2          50
+          3          60
+")
+```
+
+##### (1) For each event, all subsequent reactions (M:M)
+```{r}
+fjoin_left(
+  events,
+  reactions,
+  on = c("event_ts < reaction_ts"),
+)
+```
+
+##### (2) For each event, the next reaction (1:M)
+```{r}
+fjoin_left(
+  events,
+  reactions,
+  on = c("event_ts < reaction_ts"),
+  mult.x = "first"
+)
+```
+
+##### (3) For each event, the next reaction, provided there was no intervening event (1:1)
+```{r}
+fjoin_left(
+  events,
+  reactions,
+  on = c("event_ts < reaction_ts"),
+  mult.x = "first",
+  mult.y = "last"
+)
+```
+
+### Example 3: `fjoin_*` to `dtjoin*` to data.table code and outputs
+
+
+## Notes for tidyverse users
+While `dplyr`{.pkg} is the most feature-complete of the major packages in terms of
+ready-made join functionality, reasons to use `fjoin`{.pkg} are its shorter-and-sweeter
+syntax, noticeably faster performance, and options that `dplyr::*_join()` doesn't
+support (the converse is also true -- see below). `fjoin`{.pkg} is zero-conflict
+with tidyverse and other packages, and there is no particular need to attach it
+anyway.
+
+```{r message=FALSE}
+library(dplyr)
+
+dfQ |>
+  as_tibble() |>
+  fjoin::fjoin_left(dfP,
+                    on = "id",
+                    select = c("item", "price", "quantity"),
+                    indicate = TRUE,
+                    order = "right") |>
+  mutate(revenue = price * quantity)
+```
+
+It's also worth mentioning that `fjoin`{.pkg} is easier to use and much more
+feature-complete than `dtplyr`{.pkg}'s `data.table`{.pkg}-backed implementation
+of joins, which does not support `dplyr`{.pkg}'s additional join arguments
+(e.g. `na.matches`, `multiple`) and in fact silently ignores them.
+
+On the other hand, `fjoin`{.pkg} currently has no equivalent of
+`dplyr::*_join()`'s `relationship` argument: it is silent and laissez-faire
+about cardinality. Also, it does not yet support rolling and asof joins, which
+`dplyr`{.pkg} achieves elegantly via helper functions in `join_by`. Both of 
+these things are on the roadmap. There are no plans to support nested joins and
+joins on list columns, which `dplyr::*_join()` offers.
+
+## Notes for data.table users
+`fjoin`{.pkg} vastly outclasses `merge.data.table`
+and makes the power of native data.table for joins much more conveniently
+accessible. Even in simple situations, there is not much reason *not* to use it:
+its solutions are as fast or faster than `merge`, and faster and more efficient
+than "native-idiom" `data.table`{.pkg} joins in some circumstances (see
+internals).
+
+`fjoin`{.pkg} does not do:
+
+- compute-on-join, i.e. the ability to specify computations on the joined
+  columns inside `j`, rather than simply select them (including data.table's
+  memory-efficient `by=.EACHI` mechanism for "`j`-as-you-go" computations).
+  However, using `do = FALSE` can give a coding headstart in such cases, by
+  swiping the console output and editing the `j`-expression(s).
+- joins by reference of the direct type `DT[i, on = "id" , v := i.v]` (although
+  the "plonking" construction e.g. `DT[, v := fjoin_left(DT, i, on = "id", select = "v")$v`
+  works perfectly well)
+- for now, rolling and overlap joins.
+
+The package actually began life as a tool to solve data.table's garbling of
+join columns in non-equi joins. It still does that:
+
+```{r}
+DT1 <- data.table::data.table(t=c(5,25,45))
+DT2 <- data.table::data.table(t_start=c(1,21), t_end=c(10,30))
+```
+
+Range join with fjoin:
+```{r}
+dtjoin(DT2, DT1, on=c("t_start <= t", "t_end >= t"), show = TRUE)
+```
+
+Compare the output from data.table:
+```{r message=FALSE}
+library(data.table)
+DT2[DT1, on=.(t_start <= t, t_end >= t)]
+```
+
+If you are wondering why `fjoin`{.pkg} prefers `setDT()` and `data.frame()` to
+the more usual `list()`, this is for efficiency. See internals below.
+
+## Notes for sf users
+
+TODO perks for sf users (attribute joins between sf objects permitted,
+sfc-class output columns always detected and refreshed regardless of data
+
+
+
+`fjoin`{.pkg} is a comprehensive new package for data frame joins. It rests transparenelty on `data.table`{.pkg}, making all code visible. It handles conversions highly efficiently in the background. It benchmarks strongly against other frameworks. Its main interface is a family of join functions, `fjoin_*()`, roughly comparable to `dplyr::*_join()` but faster, friendlier, and more flexible. These functions are easy to use and require no familiarity at all with `data.table`{.pkg}.
+
+Underneath them is a function `dtjoin()`, plus counterparts for semi-, anti- and cross-joins, which enhance and extend `data.table`{.pkg}'s `DT[i]`-style join API through efficient enhancements and additional arguments. These functions write (and optionally run) high-quality `data.table`{.pkg} code, employing case-specific solutions and heuristics for performance.
+
+The `dtjoin*()` functions are the workhorses: the `fjoin_*()` functions are wrappers that translate `dtjoin*()`'s `data.table`{.pkg}-like API to a more conventional and accessible join idiom.
+
+`fjoin`{.pkg} is well documented, heavily tested, and easy to install and use. It is badged as experimental while aspects of the interface are settled, issues are flushed out, and some additional features are added. Please try it! Feedback will be gratefully received and acknowledged.
+
+### Installation
+
+TODO
+
+The short but comprehensive examples will give you a strong start. Look at `?fjoin` for the overall organisation of the package, and e.g. `?fjoin_full`.
+
+### The `fjoin_*()` family: join functions with a conventional left/right style API
+
+The `fjoin_*()` family is roughly comparable to `dplyr::*_join()`, but more flexible and typically much faster, and requires no familiarity with `data.table`{.pkg}. It has nine members:
+
+###### True joins
+- `fjoin_inner()`, `fjoin_left()`, `fjoin_right()`, `fjoin_full()`
+
+###### Semi-joins
+- `fjoin_left_semi()` (or just `fjoin_semi()`), `fjoin_right_semi()` 
+
+###### Anti-joins
+- `fjoin_left_anti()` (or just `fjoin_anti()`), `fjoin_right_anti()`
+
+###### Cross-join
+- `fjoin_cross()`
+
+The arguments for the true joins are shown below, exemplified by `fjoin_left()`. The arguments for semi-, anti- and cross joins are subsets of these:
+
+```{r eval=FALSE}
+fjoin_left <- function(
+  x         = NULL,
+  y         = NULL,
+  on,
+  match.na  = FALSE,
+  mult.x    = "all",
+  mult.y    = "all",
+  order     = "left",
+  select    = NULL,
+  select.x  = NULL,
+  select.y  = NULL,
+  indicate  = FALSE,
+  prefix.y  = "R.",
+  on.first  = FALSE,
+  preserve  = FALSE,
+  do        = !(is.null(x) && is.null(y)),
+  show      = !do
+)
+```
+
+See `?fjoin_left` for the full documentation. The remarks that follow point out some comparisons with `dplyr::*_join()`. 
+
+###### Support for equi and non-equi joins
+- Also in semi and anti - dplyr?? Full
+
+###### Full support across semi and anti-joins
+- All options for true joins supported for (filtering joins in dplyr parlance). Moreover, they are based on highly efficient recipes: they do not perform the corresponding true join then reduce the result. (check what dplyr does and doesn't do)
+
+###### Class-agnostic
+- Accepts/returns... Also perks for sf users.
+
+###### Matches on missing values disallowed by default
+- The argument `match.na` is comparable to `na_matches` in `dplyr::*_join()`. But in `fjoin`{.pkg} the default is `match.na = FALSE` (equivalent to `na_matches = "never"`). In other words, you can have equality matches on `NA` or `NaN` if you really want them (does anyone?), but you have to say so. Disallowing such matches is surely what most users intend, and agrees with behaviour in SQL and outside of R generally.
+
+###### Column selection within the join statement
+- `fjoin_*()` blah
+
+###### An indicator column for row origin
+- All `fjoin_*()` functions support an `indicate` argument, based directly on `_merge` in Stata. With `indicate = TRUE`, a column named `.join` is placed at the front of the result with value `1L` if the row is from `x` only, `2L` if from `y` only, and `3L` if it is joined from both tables. This extremely useful feature does not exist in *dplyr*.
+
+###### Control over output row order
+- `fjoin_*()` provides an `order` argument controlling whether the result should reflect the row order of the left then the right table, or vice versa. By contrast, the behaviour of `dplyr::*_join()` is always equivalent to `order = "x"`. (No functions in `fjoin`{.pkg} ever actually sort the result of a join; instead, they flip the tables to exploit the natural order that results from a `data.table`{.pkg} binary search join, and employ additional devices.)
+
+###### Multiple-match handling on both sides of the join
+- `mult.x` corresponds to `dplyr::*_join()`'s `multiple`, and sets the policy when a row of the left table encounters multiple matches. But `fjoin`{.pkg} also allows an analogous argument `mult.y` for the right table, and even the combination of the two. Moreover, `fjoin`{.pkg} implements these arguments for semi- and anti-joins, while `dplyr::semi_join()` and  `anti_join()` do not support `multiple`. 
+
+###### Column order options
+- All `fjoin_*()` functions support an `on.first` argument, controlling whether the join columns should be placed at the front of the result. There is no such option in *dplyr*.
+
+###### Preserving both join columns in an equality predicate
+- `preserve` is a rarely used argument equivalent to `keep` in `dplyr::*_join()`.
+
+###### Ability to show the resulting code
+On the other hand, `dplyr::*_join()` supports functionality that `fjoin_*()` at this stage doesn't:
+
+###### Functionality not (yet) offered by `fjoin_*()`
+On the other hand, `dplyr::*_join()` supports functionality that `fjoin_*()` at this stage doesn't:
+
+- *cardinality checks*: `fjoin`{.pkg} suspends `data.table`{.pkg}'s (rudimentary) `allow.cartesian` test, and is laissez-faire and uninformative about cardinality 
+- *rolling joins*: although innovative when introduced, `data.table`{.pkg}'s 2014 implementation of rolling joins is actually rather warty and incomplete when compared to that of *dplyr* (2023), which it inspired. A future version of `fjoin`{.pkg} will implement complete support for rolling joins, including things like multiple matches, rolling on strict inequalities, and nearest matches within a tolerance TODO RESEARCH/REMIND ABOUT ALL THIS 
+- *joins by equality on list columns*: *dplyr* handles these elegantly and fast (presumably by joining on address?), while `data.table`{.pkg} does not permit them. Unless there is a clamour for this functionality, `fjoin`{.pkg} will probably leave it out. 
+
+See plans later.
+
+#' The following advanced \pkg{data.table} functionality is not supported:
+#' \itemize{
+#'  \item computation inside \code{j}, and by extension \code{by = .EACHI}
+#'  \item joins by reference of the form \code{DT[i, on = , v := i.v]}
+#'  \item \code{roll} and \code{rollends} arguments
+#' }
+#'
+
+
+### Features
+
+The main features of `fjoin`{.pkg} are:
+
+class-agnostic design: `fjoin`{.pkg} accepts .... It also offers perk for sf users.
+convenient syntax: `fjoin`{.pkg} reduces join operations to short and sweet one-liners
+sensible defaults:
+speed: `fjoin`{.pkg} outperforms `dplyr`{.pkg} and collapse over a range of use cases, and is faster than idiomatic data.table itself
+comprehensive functionality: spports equi and non-equi joins across the four true joins, plus semi, anti and cross joins. It provides arguments and options that other frameworks don't
+transparency: `fjoin`{.pkg} generates data.table code that can be inspected or modified
+low footprint
+
+It is the first to make proper use of data.table for this purpose (but you don't need to know a thing about data.table to use it).
+
+### Basic usage
+
+```{r message=FALSE}
+library(dplyr)
+library(fjoin)
+```
+
+Consider a typical join operation in which we join two `data.frame`s and select a subset of their columns in a particular order:
+
+```{r eval=FALSE}
+x_join <- x |> select(a, b, w)
+y_join <- y |> select(a, b, v)
+left_join(x_join, y_join, join_by(a, b), na_matches = "never") |>
+  select(a, b, v, w)
+```
+
+The example is quoted from the Tidyverse style guide, with the addition of `na_matches` (`dplyr`{.pkg} >= v.1.0.0) to guard against matching on `NA`s or `NaN`s as first-class values, and a final `select` (or else `relocate`) to customise the order of the resulting columns. The first two lines are still needed to avoid inflating the join with irrelevant columns.
+
+In `fjoin`{.pkg} the equivalent operation reads:
+
+```{r eval=FALSE}
+fjoin_left(x, y, on = c("a", "b"), select = c("v", "w"))
+```
+
+`fjoin`{.pkg} is `NA`-safe by default, and its `select` argument makes efficient joins easier to write. Selection on the fly is nothing new to anyone familiar with `data.table`{.pkg}. But `data.table`{.pkg} provides no option to avoid matches on missings, and this is only the tip of the iceberg: `fjoin`{.pkg} conveniently packages an array of join functionality that `data.table`{.pkg} (and in some cases even `dplyr`{.pkg}) doesn't.
+
+Let's switch to concrete data to illustrate a couple more aspects of basic usage:
+
+```{r echo=FALSE}
+df1 <- data.frame(id=c(NA,2,1,3), quantity=c(8,7,6,5), etc=rep("...",4))
+df2 <- data.frame(id=c(4:2,NA), product=c("apples","bananas","cherries","don't know"), price=c(10,20,30,40), etc=rep("...",4))
+```
+
+```{r}
+df1
+df2
+```
+
+The `indicate` argument adds an indicator column to the join result:
+
+```{r}
+fjoin_left(df1,
+           df2,
+           on = "id",
+           select = c("price", "quantity"),
+           indicate = TRUE)
+```
+
+Here, `1` refers to a row from the left data.frame, `2` to a row from the right (absent in a left join), and `3` to a row joined from both. This extremely useful feature has existed in Stata for 40 years.
+
+The row order of `fjoin_left` follows the left-hand data.frame by default (as in `dplyr`{.pkg}). But we could also have it reflect the row order of the _right-hand_ data.frame (which `fjoin`{.pkg} does efficiently, without sorting).
+
+```{r}
+fjoin_left(df1,
+           df2,
+           on = "id",
+           select = c("product", "price", "quantity"),
+           indicate = TRUE,
+           order = "right")
+```
+
+To close this small illustration, we will use the `do` argument to suppress execution and print the code to the console instead:
+
+```{r}
+fjoin_left(df1,
+           df2,
+           on = "id",
+           select = c("product", "price", "quantity"),
+           indicate = TRUE,
+           order = "right",
+           do = FALSE)
+```
+
+To a non-data.table user this is a wall of code, but a data.table user could swipe and adapt it, for example to do something more interesting in `j` than merely select columns.
+
+### Performance
+
+```{r echo=FALSE}
+pal <- c(
+  "#B8860B",
+  "grey60",
+  "#66C2A5",
+  "#1B9E77"
+)
+
+pl <- function(x) {
+  library(ggplot2)
+  ggplot(x, aes(x = soln, y = ifelse(is.na(median_secs), 0, median_secs), fill = soln)) +
+    geom_bar(stat = "identity", position = "dodge") +
+    geom_text(aes(label = sprintf("%.1f", median_secs)), vjust = -0.3, size = 3) +
+    facet_grid(forcats::fct_inorder(style) ~ forcats::fct_inorder(xyargs), switch = "y") +
+    scale_fill_manual(values = pal) +
+    #facet_wrap(~ interaction(forcats::fct_inorder(position), forcats::fct_inorder(style)), scales = "free_x", ncol = 2) +
+    #facet_wrap(~ interaction(forcats::fct_inorder(style), forcats::fct_inorder(position)), scales = "free_x", ncol = 4) +
+    scale_y_continuous(limits = c(0, k)) +
+    #theme_minimal() +
+    theme(
+      legend.position = "none",
+      axis.title.y = element_blank(),
+      axis.text.y = element_blank(),
+      axis.ticks.y = element_blank(),
+      #strip.placement.y = "left",
+      strip.text.y.left = element_text(angle = 0),
+    ) +
+    labs(
+      x = NULL,
+      title = x[, unique(description)],
+      subtitle = sprintf("median time in secs, %s runs per join",x[, unique(na.omit(N))])
+      )
+}
+
+dat <- structure(list(style = c("Inner join", "Inner join", "Inner join", 
+"Inner join", "Inner join", "Inner join", "Inner join", "Inner join", 
+"Left join", "Left join", "Left join", "Left join", "Left join", 
+"Left join", "Left join", "Left join", "Right join (ordered by left)", 
+"Right join (ordered by left)", "Right join (ordered by left)", 
+"Right join (ordered by left)", "Right join (ordered by left)", 
+"Right join (ordered by left)", "Right join (ordered by left)", 
+"Right join (ordered by left)", "Right join (ordered by right)", 
+"Right join (ordered by right)", "Right join (ordered by right)", 
+"Right join (ordered by right)", "Right join (ordered by right)", 
+"Right join (ordered by right)", "Right join (ordered by right)", 
+"Right join (ordered by right)", "Full join", "Full join", "Full join", 
+"Full join", "Full join", "Full join", "Full join", "Full join"
+), xyargs = c("small on left", "small on left", "small on left", 
+"small on left", "big on left", "big on left", "big on left", 
+"big on left", "small on left", "small on left", "small on left", 
+"small on left", "big on left", "big on left", "big on left", 
+"big on left", "small on left", "small on left", "small on left", 
+"small on left", "big on left", "big on left", "big on left", 
+"big on left", "small on left", "small on left", "small on left", 
+"small on left", "big on left", "big on left", "big on left", 
+"big on left", "small on left", "small on left", "small on left", 
+"small on left", "big on left", "big on left", "big on left", 
+"big on left"), soln = structure(c(1L, 2L, 3L, 4L, 1L, 2L, 3L, 
+4L, 1L, 2L, 3L, 4L, 1L, 2L, 3L, 4L, 1L, 2L, 3L, 4L, 1L, 2L, 3L, 
+4L, 1L, 2L, 3L, 4L, 1L, 2L, 3L, 4L, 1L, 2L, 3L, 4L, 1L, 2L, 3L, 
+4L), levels = c("fjoin", "merge", "dplyr", "collapse"), class = "factor"), 
+    description = c("No missing values, tables unordered", "No missing values, tables unordered", 
+    "No missing values, tables unordered", "No missing values, tables unordered", 
+    "No missing values, tables unordered", "No missing values, tables unordered", 
+    "No missing values, tables unordered", "No missing values, tables unordered", 
+    "No missing values, tables unordered", "No missing values, tables unordered", 
+    "No missing values, tables unordered", "No missing values, tables unordered", 
+    "No missing values, tables unordered", "No missing values, tables unordered", 
+    "No missing values, tables unordered", "No missing values, tables unordered", 
+    "No missing values, tables unordered", "No missing values, tables unordered", 
+    "No missing values, tables unordered", "No missing values, tables unordered", 
+    "No missing values, tables unordered", "No missing values, tables unordered", 
+    "No missing values, tables unordered", "No missing values, tables unordered", 
+    "No missing values, tables unordered", "No missing values, tables unordered", 
+    "No missing values, tables unordered", "No missing values, tables unordered", 
+    "No missing values, tables unordered", "No missing values, tables unordered", 
+    "No missing values, tables unordered", "No missing values, tables unordered", 
+    "No missing values, tables unordered", "No missing values, tables unordered", 
+    "No missing values, tables unordered", "No missing values, tables unordered", 
+    "No missing values, tables unordered", "No missing values, tables unordered", 
+    "No missing values, tables unordered", "No missing values, tables unordered"
+    ), N = c(5L, 5L, 5L, 5L, 5L, 5L, 5L, 5L, 5L, 5L, 5L, 5L, 
+    5L, 5L, 5L, 5L, 5L, 5L, 5L, NA, 5L, 5L, 5L, NA, 5L, NA, NA, 
+    5L, 5L, NA, NA, 5L, 5L, 5L, 5L, 5L, 5L, 5L, 5L, 5L), median_secs = c(6.1902577, 
+    6.1713217, 19.9907639, 19.7675571, 6.1000215, 6.1203305, 
+    13.3964799, 7.0342887, 6.2597127, 6.2432609, 19.9681676, 
+    20.1874484, 5.6448957, 5.6632873, 13.6564839, 5.5813086, 
+    10.4640203, 10.8960488, 22.8774932, NA, 8.5460365, 12.2154671, 
+    14.2776151, NA, 5.9763782, NA, NA, 5.6241829, 5.7766581, 
+    NA, NA, 20.3630658, 10.6481448, 10.864006, 23.0229502, 23.5587724, 
+    9.8157773, 13.6417876, 15.7693984, 9.0004465)), row.names = c(NA, 
+-40L), class = c("data.frame", "data.table"))
+
+```
+
+The main claim for `fjoin`{.pkg} is its breadth of functionality and ease of syntax, `fjoin`{.pkg} is also faster than other frameworks. In particular, it appears to be more robust to the direction of the join. To allow comparison with `merge` and `collapse`, which have very limited feature sets, these examples are very simple, and the performance of `fjoin`{.pkg} essentially reflects the innate excellence using `data.table`{.pkg}. Notice, however, that its recipes for right and full joins are superior to `merge.data.table`. This is symptomatic: `fjoin`{.pkg}'s solutions for join types and additional options that are non-straightforward in native data.table have been developed with great attention to performance (see internals).
+
+It's right and full join recipes appear to superior to those of `merge.data.table`.  
+
+The main claim for `fjoin`{.pkg} is its breadth of functionality and ease of syntax, but its solutions have been developed with great attention to speed in order to table maximise advantage of data.table's native speed. This benchmark is a on a trivial example and does not do justice the much richer functionality of `fjoin`{.pkg} and `dplyr`{.pkg} as compared with `collapse`{.pkg} and  `merge.data.table`. 
+
+
+```{r echo=FALSE}
+library(data.table)
+k <- 30 
+setDT(dat)
+pl(dat)
+```
+
+
+It:
+
+- avoids copies that data.table makes
+- uses better recipes even for straightforward cases
+- uses case-specific solutions (e.g. 3 recipes for semi-joins)
+- uses smart logic and heuristics for avoding NA matches (choosing which side of the join to omit then from when it has the choice)
+
+
+
+### Remarks for tidyverse users
+
+As of v.1.0 (2023), `dplyr`{.pkg} provides a thorough and performant API for joins, certainly the most feature-complete of the major packages in terms of canned functionality. Nevertheless there is good reason to add `fjoin`{.pkg} to your toolset:
+
+- it is lightweight, zero-conflict, and plug-and-play with tidyverse workflows
+- its syntax and shorter, sweeter, and safer
+- it does things that `dplyr`{.pkg} doesn't (the converse is also true; see below)
+- it is often a lot faster: see performance below
+
+```{r}
+as_tibble(df1) |>
+  fjoin::fjoin_left(df2,
+                    on = "id",
+                    select = c("product", "price", "quantity"),
+                    indicate = TRUE,
+                    order = "right") |>
+  mutate(.join, id, product, revenue = price * quantity, .keep = "none")
+```
+
+It's also worth mentioning that `fjoin`{.pkg} is easier to use and much more feature-complete than `dtplyr`{.pkg}'s `data.table`{.pkg}-backed implementation of joins, which does not support `dplyr`{.pkg}'s additional join arguments (including `na.matches`) and in fact _silently ignores them_.
+
+That said, there are things `fjoin`{.pkg} doesn't do, at least currently.
+
+### Remarks for data.table users
+
+`fjoin`{.pkg} vastly outclasses `merge` and makes the power of native data.table for joins much more conveniently accessible. There is no performance penalty from using `fjoin` and there may be a benefit: its solutions for right and full joins appear to be faster than those of `merge` (see performance article) and it can be faster than "native" data.table joins in some circumstances (see internals).
+
+The `fjoin_*` functions are powered by `dtjoin` and friends, which greatly extend native data.table's `DT[i]`-style API. These functions are exported and fully documented, though generally you won't need them. See the section on internal below.
+
+data.table's join functionality is nevertheless `fjoin`{.pkg} does not do:
+
+- compute-on-join, i.e. the ability to specify computations on the joined columns inside `j`, rather than simply select them (including data.table's memory-efficient `by=.EACHI` mechanism for "`j`-as-you-go" computations)
+- for now, rolling and overlap joins (although you can roll or fold your own)
+- update joins of the type `DT[i, on = "id" , v := i.v]` (although the alternative idiom `DT[, v := fjoin_left(DT, i, on = "id", select = "v")` can be used)
+
+`fjoin`{.pkg} began as a tool to solve data.table's garbling of join columns in non-equi joins. Of course, it still does that:
+
+```{r}
+suppressPackageStartupMessages(library(data.table))
+DT1 <- data.table(t=c(5,25,45))
+DT2 <- data.table(t_start=c(1,21), t_end=c(10,30))
+
+# range join
+DT2[DT1, on=.(t_start <= t, t_end >= t)]
+dtjoin(DT2, DT1, on=c("t_start <= t", "t_end >= t"), show = TRUE)
+```
+
+If you are wondering why `fjoin`{.pkg} prefers `setDT()` and `data.frame()` to the more usual `list()`, this is for efficiency. See internals below.
+
+### Remarks for sf users
+
+`fjoin`{.pkg} permits (non-spatial) joins between two sf's, an operation that throws an error in `dplyr`{.pkg}, which has been a cause of frustration for sf users in the past. It also comes out around twice as fast as `dplyr`{.pkg} for non-spatial joins between a sf and a data.frame.
+
+All sfc column attributes (`bbox`, `n_empty`) are refreshed on joining; this is unlike collapse, which also permits (equality-only) joins between sf's, but results in stale attributes. Moreover, `fjoin`{.pkg} detects and refreshes sfc-class columns even when they are held in non-sf objects and the return type is a non-sf data.frame, tibble or data.table.
+
+The following example shows a join between two sf's with both active and inactive geometries.
+
+All three sfc-class columns are refreshed. Note that the active geometry is taken by preference from the left table, as it is in all cases except for right joins. If there other sfc-class columns had been rpesent and selected, they too would have been refreshed.
+
+### Internals
+
+`fjoin`{.pkg} has no internals to speak of: it is a dispenser of `data.table`{.pkg} code that it then executes. This makes it transparent: apart from the initial shallow conversion to `data.table`, and any final casting from `data.frame` to `tibble` and `sf` (including refreshing `sfc` column attributes), everything that `fjoin`{.pkg} does can be inspected and verified in the form of unparsed `data.table`{.pkg} code, reflecting its original intention as a cut-and-paste coding aid at the console.
+
+`fjoin`{.pkg} is driven by `dtjoin` (and counterparts `dtjoin_semi`, `dtjoin_anti`, `dtjoin_cross`), which extend data.table's `DT[i]`-style join syntax with many additional arguments, plus improvements in default behaviour (e.g. sensible naming of columns in non-equi joins, acceptance of non-data.tables in the `DT` argument, outputs of various classes). They construct data.table code, consisting of over a dozen core case-specific optimised recipes developed for specific cases, plus handling of other arguments.
+
+The `fjoin_*` functions are paper-thin: they are repetitious functions that simply flick different switches on `dtjoin` and friends. For example, `fjoin_inner` and `fjoin_full` differ only in the values of the `nomatch` and `nomatch.DT` parameters passed to `dtjoin` (both `NULL` in the first case and `NA` in the second), where `nomatch.DT` is an extended argument not present in data.table, but with an obvious meaning.
+
+To illustrate these points, here is the template code created by `fjoin_semi` using the facility for _mock joins_ (with null inputs):
+
+```{r}
+fjoin_semi(on = "id")
+fjoin_semi(on = c("id", "date > date"))
+fjoin_semi(on = c("id", "date > date"), mult.y = "last")
+```
+
+Notice that these three solutions are distinct (there's actually a fourth variant, which would be triggered if it were more efficient to `na.omit` on `.DT` in the first example according to an internal heuristic). The second is the most usual case, and is novel.
+
+`fjoin`{.pkg}'s way of working with non-`data.table` inputs and outputs is simple: if an input is not already a data.table, a new one is set up that holds shallow copies of the input columns, avoiding a deep copy while keeping the original object intact. `fjoin`{.pkg} likewise "shallow-casts" the join output as necessary to the appropriate class (currently one of `data.frame`, `data.table`, `tibble`, `sf`, or `sf`/`tibble`), which avoids a redundant copy made by data.table in some circumstances. Shallow conversion is not a safe general method of operating with foreign objects with data.table, but it works for joins, because the input vectors only need to be read, and the output vectors are guaranteed to be unshared.
+
+One consequence of this is that `fjoin`{.pkg} is faster than data.table itself with standard idioms. Consider the following (exaggerated) example, where the `i` expression is a data.frame and we select columns in `j` with `list()` (`.()`) in the usual way:
+
+```{r}
+suppressPackageStartupMessages(library(data.table))
+
+n <- 1e6L; ncolDT <- 2L; ncolDF <- 10L
+DT <- data.table(id = rep(1:n, each = 5L), matrix(runif(n * ncolDT), ncol = ncolDT))
+DF <- data.frame(id = 1:n, matrix(runif(n * ncolDF), ncol = ncolDF))
+
+bench::mark(
+  iterations = 5,
+  check      = TRUE,
+  data.table = DT[DF, on = .(id), .(id, V1, V2, X1, X3, X5, X7, X9)],
+  fjoin      = dtjoin(DT, DF, on = "id", select.i = c("X1", "X3", "X5", "X7", "X9"))
+) |> summary() |> subset(select = c("expression", "n_itr", "median",  "mem_alloc"))
+```
+
+`fjoin`{.pkg} is faster than idiomatic data.table here because it dodges a call to `as.data.table.data.frame` on the way in, and a call to `as.data.table.list` on the way out, both of which (currently) deep-copy. The `bench::mark` memory measurements exclude C-level allocations, but the difference between them reflects these R-level copies. This behaviour will eventually change in data.table, at which point `fjoin`{.pkg} will revert to the more familiar `j = list()` idiom. 
+
+```{r}
+dtjoin(DT, DF, on = "id", select.i = c("X1", "X3", "X5", "X7", "X9"), do = FALSE)
+```
+Here, `.i` is `setDT(unclass(DF))`. The temporary vector is 
+
+### Final comment
+
+Writing `fjoin`{.pkg} has been an education, and the outcome has been a pleasant suprise: a package that fills a gap in core functionality and (I believe) deserves to be widely adopted. It says something about the brilliance of data.table that it can be bent to this purpose. Huge thanks to the originators and current and new developers of the data.table.
+
+
+
+### Plug-and-play use with the Tidyverse 
+
+fjoin is designed for universal use: it accepts any data.frame-based objects or lists of same-length vectors, never modifies the inputs, and returns a plain data.frame, data.table, tibble, or sf/sf-tibble according to context. It is zero-conflict with the Tidyverse and other packages, and depends only on data.table (which means it has no indirect dependencies). There's often no need to attach it anyway: you can just dip into `fjoin::` for joins that are faster, clearer, safer and more flexible. 
+
+```{r}
+as_tibble(df1) |>
+  fjoin::fjoin_left(df2,
+                    on = "id",
+                    select = c("product", "price", "quantity"),
+                    indicate = TRUE,
+                    order = "right") |>
+  mutate(.join, id, product, revenue = price * quantity, .keep = "none")
+```
+
+fjoin achieves this in a simple way: if an input is not already a data.table, its vectors are shallow-copied into one. It also avoids a redundant copy of the join output by shallow-coercing it to the appropriate class. This is not a safe general method of operating with non-data.tables (link to Krylov), but it works for joins, because the input vectors only need to be read, and the output vectors are guaranteed to be new.
+
+One consequence of this is that fjoin is faster than data.table itself with standard idioms. Consider the following (admittedly rigged) example, where the `i` expression is a data.frame and we select columns in `j` with `list` (written (`.(...)`) in the usual way:
+
+```{r}
+library(data.table)
+
+n <- 1e6L
+DT <- data.table(id = rep(1:n, each = 5L), matrix(runif(n * 2), ncol = 2))
+DF <- data.frame(id = 1:n, matrix(runif(n * 10), ncol = 10))
+
+bench::mark(
+  iterations = 3,
+  check = FALSE, # correct this
+  dplyr      = DF |> select(id, X1, X3, X5, X7, X9) |> left_join(DT, join_by(id)),
+  data.table = DT[DF, on = .(id), .(id, V1, V2, X1, X3, X5, X7, X9)],
+  fjoin      = dtjoin(DT, DF, on = "id", select.i = c("X1", "X3", "X5", "X7", "X9"))
+) |> summary() |> subset(select = c("expression", "n_itr", "median",  "mem_alloc"))
+```
+
+fjoin is faster than idiomatic data.table here because it dodges a call to `as.data.table.data.frame` on the way in, and a call to `as.data.table.list` on the way out, both of which currently deep-copy. The `bench::mark` memory measurements exclude C-level allocations, but the difference between them reflects these R-level copies. 
+
+```{r}
+print(object.size(DF), units = "Mb")
+print(object.size(DT[DF, on = .(id), .(id, V1, V2, X1, X3, X5, X7, X9)]), units = "Mb")
+```
+
+### Speed
+
+It's also significantly faster than `dplyr`{.pkg}, because it uses data.table (and does so in a particularly efficient way). See the performance vignette for a comparison between fjoin, merge.data.table, `dplyr`{.pkg}, and collapse.
+
+### Perks for sf users
+
+fjoin solves a well-known problem with non-spatial joins between sf's (see e.g. xxx), which `dplyr`{.pkg}'s sf methods don't allow. It also refreshes the attributes of all sfc columns in the output, and restores the active geometry. (Note that collapse will also happily join sf's, but those attributes are not updated.)
+
+TODO
+
+Almost all workflows involve joins. fjoin is an overdue package that exploits data.table to provide a convenient and performant one-stop shop for these operations suitable for universal use in R.
+
+### Plug-and-play use with the Tidyverse 
+
+fjoin is designed for universal use: it accepts any data.frame-based objects or lists of same-length vectors, never modifies the inputs, and returns a plain data.frame, data.table, tibble, or sf/sf-tibble according to context. It is zero-conflict with the Tidyverse and other packages, and depends only on data.table (which means it has no indirect dependencies). There's often no need to attach it anyway: you can just dip into `fjoin::` for joins that are faster, clearer, safer and more flexible. 
+
+```{r}
+as_tibble(df1) |>
+  fjoin::fjoin_left(df2,
+                    on = "id",
+                    select = c("product", "price", "quantity"),
+                    indicate = TRUE,
+                    order = "right") |>
+  mutate(.join, id, product, revenue = price * quantity, .keep = "none")
+```
+
+```{r include=FALSE}
+df1 |>
+  as_tibble() |>
+  fjoin::fjoin_left(df2, on = "id", select = c("price", "quantity"), indicate = TRUE) |>
+  mutate(revenue = price * quantity) |>
+  select(.join, id, revenue)
+
+df1 |>
+  as_tibble() |>
+  fjoin::fjoin_left(df2, on = "id", select = c("price", "quantity"), indicate = TRUE) |>
+  transmute(.join, id, revenue = price * quantity)
+
+df1 |>
+  as_tibble() |>
+  fjoin::fjoin_left(df2, on = "id", select = c("price", "quantity"), indicate = TRUE) |>
+  mutate(.join, id, revenue = price * quantity, .keep = "none")
+```
+
+### A data.table coding aid
+
+```{r message=FALSE}
+library(data.table)
+dt1 <- as.data.table(df1)
+dt2 <- as.data.table(df2)
+```
+
+For data.table users, there is another way of working with fjoin. Instead of running the join, just grab the code:
+
+```{r}
+fjoin_left(dt1,
+           dt2,
+           on = "id",
+           select = c("product", "price", "quantity"),
+           indicate = TRUE,
+           do = FALSE)
+```
+
+Then adapt the `j` expression:
+```{r}
+setDT(dt2[, na.omit(.SD, cols = "id"), .SDcols = c("id", "product", "price")][, fjoin.ind := TRUE][dt1, on = "id", data.frame(.join = fifelse(is.na(fjoin.ind), 1L, 3L), id, product, revenue = price * quantity), allow.cartesian = TRUE])[]
+```
+
+This saves typing and mental effort (and this is a particularly simple example). It's also possible to generate template code via _mock joins_ with no data at all.
+
+(If you are wondering why fjoin prefers `j = data.frame(...)` and `setDT()` to the more usual `j = list(...)` pattern (usually written `.(...)`), it is to avoid a redundant deep copy on the way out. Likewise, fjoin makes -- at most -- only shallow copies on the way in, and pays close attention to efficiency and speed in its data.table recipes generally.)
+
+### Summary
+
+fjoin has the single-minded aim of being the best all-round one-stop shop for joins in R.
+
+That's it for a quick view of things. For more detail see (introduction), (benchmarks), and the function documentation. If you are a data.table user, you should look at `dtjoin()` and friends, which greatly extend data.table's join API and act as workhorses for the `fjoin_*()` functions. 
+
+### Details
+
+#### Output type hierarchy
+
+The class of the output is determined by these rules:  
+ 
+- if the `sf` package is installed and either input is an `sf` whose active geometry is selected in the join, return an `sf` (with `.i` taking precedence over `.DT` in setting the active geometry) 
+- otherwise, if either input is a (pure) `data.table`, return a `data.table`
+- otherwise return a `data.frame`
+- finally, if the output is not a `data.table` and either input is a `tibble`, add `tibble` class
+
+
+
+
+
