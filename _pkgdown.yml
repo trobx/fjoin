@@ -1,12 +1,23 @@
 url: ~
 template:
   bootstrap: 5
+  bootswatch: flatly
+
+home:
+  readme: README.md
+  sidebar:
+    structure:
+      - links
+      - license
+      - citation
+      - authors
+      - dev       # badges
 
 reference:
 
 - title: The `fjoin_*` family
   desc: >
-    Fast joins in a familiar style
+    Fast data frame joins in a familiar `x`/`y` style
 - subtitle: True joins
   contents:
   - fjoin_inner
@@ -27,7 +38,7 @@ reference:
 
 - title: The `dtjoin*` family
   desc: >
-    An extended interface for `DT[i]`-style data.table joins
+    An extended interface for `DT[i]`-style <span style="color:#666666; font-weight:bold;">data.table</span> joins
 - subtitle: True joins
   contents:
   - dtjoin
@@ -37,6 +48,6 @@ reference:
 - subtitle: Anti-joins
   contents:
   - dtjoin_anti
-- subtitle: Cross-joins
+- subtitle: Cross joins
   contents:
   - dtjoin_cross
