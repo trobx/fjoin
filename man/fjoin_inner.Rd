@@ -222,12 +222,10 @@ fjoin_full(dfQ, dfP, on = "id")
 fjoin_full(dfQ, dfP, on = "id", select = c("item", "price", "quantity"))
 
 # equivalent operation in dplyr
-if (FALSE) {
-  x <- dfQ |> select(id, quantity)
-  y <- dfP |> select(id, item, price)
-  full_join(x, y, join_by(id), na.matches = "never") |>
-    select(id, item, price, quantity)
-}
+# x <- dfQ |> select(id, quantity)
+# y <- dfP |> select(id, item, price)
+# full_join(x, y, join_by(id), na.matches = "never") |>
+#   select(id, item, price, quantity)
 NULL # section break
 
 # (an aside) equality matches on NA if you insist
