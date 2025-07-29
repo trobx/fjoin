@@ -5,9 +5,7 @@
 
 [![R-CMD-check](https://github.com/trobx/fjoin/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/trobx/fjoin/actions/workflows/R-CMD-check.yaml)
 [![Dependencies](https://img.shields.io/badge/dependencies-1/1-green)]()
-[![Codecov test
-coverage](https://codecov.io/gh/trobx/fjoin/graph/badge.svg)](https://app.codecov.io/gh/trobx/fjoin)
-[![Lifecycle:
+[![codecov](https://codecov.io/gh/trobx/fjoin/branch/main/graph/badge.svg?token=CMINLAO40Y)](https://codecov.io/gh/trobx/fjoin)[![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 <!-- badges: end -->
 
