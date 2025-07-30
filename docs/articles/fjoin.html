@@ -18,7 +18,7 @@
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><script src="fjoin_files/libs/quarto-html/popper.min.js"></script><script src="fjoin_files/libs/quarto-html/tippy.umd.min.js"></script><link href="fjoin_files/libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="fjoin_files/libs/quarto-html/light-border.css" rel="stylesheet">
 <!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Guide to fjoin">
-<meta property="og:image" content="/logo.png">
+<meta property="og:image" content="https://trobx.github.io/fjoin/logo.png">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -154,7 +154,7 @@ div.sourceCode + pre, pre {
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># data frames</span></span>
-<span><span class="va">dfQ</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="st">"</span></span>
+<span><span class="va">dfQ</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="st">"</span></span>
 <span><span class="st">id   quantity                    notes   other_cols</span></span>
 <span><span class="st"> 2          5                       ''          ...</span></span>
 <span><span class="st"> 1          6                       ''          ...</span></span>
@@ -162,7 +162,7 @@ div.sourceCode + pre, pre {
 <span><span class="st">NA          8   'oranges (not listed)'          ...</span></span>
 <span><span class="st">"</span>, quote <span class="op">=</span><span class="st">"'"</span>, data.table <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">dfP</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="st">"</span></span>
+<span><span class="va">dfP</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="st">"</span></span>
 <span><span class="st">id       item    price   other_cols</span></span>
 <span><span class="st">NA     apples       10          ...</span></span>
 <span><span class="st"> 3    bananas       20          ...</span></span>
@@ -265,14 +265,14 @@ div.sourceCode + pre, pre {
 <div class="cell">
 <div class="sourceCode cell-code" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># data frames</span></span>
-<span><span class="va">events</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="st">"</span></span>
+<span><span class="va">events</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="st">"</span></span>
 <span><span class="st">event_id event_ts</span></span>
 <span><span class="st">       1       10</span></span>
 <span><span class="st">       2       20</span></span>
 <span><span class="st">       3       40</span></span>
 <span><span class="st">"</span>, data.table <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">reactions</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="st">"</span></span>
+<span><span class="va">reactions</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="st">"</span></span>
 <span><span class="st">reaction_id reaction_ts</span></span>
 <span><span class="st">          1          30</span></span>
 <span><span class="st">          2          50</span></span>
@@ -433,8 +433,8 @@ div.sourceCode + pre, pre {
 <div class="sourceCode cell-code" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">DT1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></span><span class="op">(</span>t<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>,<span class="fl">25</span>,<span class="fl">45</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">DT2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></span><span class="op">(</span>t_start<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">21</span><span class="op">)</span>, t_end<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span>,<span class="fl">30</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">DT1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a></span><span class="op">(</span>t<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>,<span class="fl">25</span>,<span class="fl">45</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">DT2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a></span><span class="op">(</span>t_start<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">21</span><span class="op">)</span>, t_end<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span>,<span class="fl">30</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <p>Range join with fjoin:</p>
 <div class="cell">
@@ -460,12 +460,12 @@ div.sourceCode + pre, pre {
 <span><span class="co">#&gt; 2:      25    25</span></span>
 <span><span class="co">#&gt; 3:      45    45</span></span></code></pre></div>
 </div>
-<p>The reason <span style="color:#666666; font-weight:bold;">fjoin</span> prefers <code><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame()</a></code> coupled with <code><a href="https://rdatatable.gitlab.io/data.table/reference/setDT.html" class="external-link">setDT()</a></code> to the more usual <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> in <code>j</code> is to avoid an unnecessary deep copy of the joined columns. Likewise, <span style="color:#666666; font-weight:bold;">fjoin</span> avoids deep copies on the way in and out by “shallow-casting” inputs and outputs to and from <code>data.table</code>s as necessary. Shallow conversion is not a safe general way of operating with foreign objects in <span style="color:#666666; font-weight:bold;">data.table</span>, but it works for joins, because the input vectors only need to be read, and the output vectors are guaranteed to be unshared.</p>
+<p>The reason <span style="color:#666666; font-weight:bold;">fjoin</span> prefers <code><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame()</a></code> coupled with <code><a href="https://rdrr.io/pkg/data.table/man/setDT.html" class="external-link">setDT()</a></code> to the more usual <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> in <code>j</code> is to avoid an unnecessary deep copy of the joined columns. Likewise, <span style="color:#666666; font-weight:bold;">fjoin</span> avoids deep copies on the way in and out by “shallow-casting” inputs and outputs to and from <code>data.table</code>s as necessary. Shallow conversion is not a safe general way of operating with foreign objects in <span style="color:#666666; font-weight:bold;">data.table</span>, but it works for joins, because the input vectors only need to be read, and the output vectors are guaranteed to be unshared.</p>
 <p>One consequence of this is that <span style="color:#666666; font-weight:bold;">fjoin</span> is faster than <span style="color:#666666; font-weight:bold;">data.table</span> itself with standard interactive idioms. Consider the following exaggerated example, where the <code>i</code> expression is a <code>data.frame</code> and we select columns in <code>j</code> with <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> (aliased <code>.()</code>) in the usual way:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">1e6L</span>; <span class="va">ncolDT</span> <span class="op">&lt;-</span> <span class="fl">2L</span>; <span class="va">ncolDF</span> <span class="op">&lt;-</span> <span class="fl">10L</span></span>
-<span><span class="va">DT</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></span><span class="op">(</span>id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="va">n</span>, each <span class="op">=</span> <span class="fl">5L</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="va">n</span> <span class="op">*</span> <span class="va">ncolDT</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="va">ncolDT</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">DT</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a></span><span class="op">(</span>id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="va">n</span>, each <span class="op">=</span> <span class="fl">5L</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="va">n</span> <span class="op">*</span> <span class="va">ncolDT</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="va">ncolDT</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">DF</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>id <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="va">n</span>, <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="va">n</span> <span class="op">*</span> <span class="va">ncolDF</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="va">ncolDF</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">bench</span><span class="fu">::</span><span class="fu"><a href="https://bench.r-lib.org/reference/mark.html" class="external-link">mark</a></span><span class="op">(</span></span>
@@ -477,8 +477,8 @@ div.sourceCode + pre, pre {
 <span><span class="co">#&gt; # A tibble: 2 × 3</span></span>
 <span><span class="co">#&gt;   expression   median mem_alloc</span></span>
 <span><span class="co">#&gt;   &lt;bch:expr&gt; &lt;bch:tm&gt; &lt;bch:byt&gt;</span></span>
-<span><span class="co">#&gt; 1 data.table    399ms     752MB</span></span>
-<span><span class="co">#&gt; 2 fjoin         214ms     366MB</span></span></code></pre></div>
+<span><span class="co">#&gt; 1 data.table    372ms     752MB</span></span>
+<span><span class="co">#&gt; 2 fjoin         198ms     366MB</span></span></code></pre></div>
 </div>
 <p><span style="color:#666666; font-weight:bold;">fjoin</span> is faster here because it dodges a call to <code>as.data.table.data.frame</code> on the way in, and a call to <code>as.data.table.list</code> on the way out, both of which (currently) deep-copy. The <code><a href="https://bench.r-lib.org/reference/mark.html" class="external-link">bench::mark</a></code> memory measurements <a href="https://rdatatable-community.github.io/The-Raft/posts/2025-07-14-memory_R-jangorecki/" class="external-link">exclude C-level allocations</a>, but the difference between them reflects these R-level copies. This behaviour will eventually change in <span style="color:#666666; font-weight:bold;">data.table</span>, at which point <span style="color:#666666; font-weight:bold;">fjoin</span> will revert to the more familiar <code>j = list()</code> idiom.</p>
 </section><section class="section level3"><h3 id="notes-for-sf-users">Notes for <span style="color:#666666; font-weight:bold;">sf</span> users<a class="anchor" aria-label="anchor" href="#notes-for-sf-users"></a>
