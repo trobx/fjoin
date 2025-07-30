@@ -11,12 +11,13 @@
 /doc/
 /Meta/
 
-# Pkgdown site and cache
-docs/
+# Pkgdown cache (but NOT docs/, since deploying website manually)
 pkgdown/
 
-# Quarto cache
+# Quarto cache and preview outputs (temp files from rendering vignettes locally)
 vignettes/.quarto/
+vignettes/*_files/
+vignettes/*.html
 
 # OS-specific files
 Thumbs.db
