@@ -34,13 +34,15 @@ pkg <- function(name) {
 }
 ```  
   
-
 ## Description
 
-`r pkg("fjoin")` is a general-purpose data frame join package that runs on
-`r pkg("data.table")` and works seamlessly in general workflows and tidyverse
-pipelines. It is lightweight, fast, and has short and sweet syntax with options
-not found in other frameworks.
+`r pkg("fjoin")` is a data frame join package that runs on `r pkg("data.table")`,
+using no-copy conversions and case-specific solutions for very fast performance
+on equi and non-equi joins of all styles. It plugs seamlessly into tidyverse
+pipelines and general workflows, and has features not found in other
+frameworks, including NA-safety by default, on-the-fly column selection,
+flexible row-order preservation, multiple-match handling on both sides, and an
+indicator column for row origin.
 
 ## Installation
 
@@ -55,8 +57,8 @@ remotes::install_github("trobx/fjoin")
 data.table, tibble, sf, sf‑tibble, or list) and returns an appropriate class
 without requiring manual conversions or data.table expertise.
 
-- **Scope**: Inner, left, right, full, semi‑, and anti‑joins with
-both equality and inequality conditions, plus cross joins.
+- **Scope**: Inner, left, right, full, semi‑, and anti‑joins with equality and
+inequality conditions, plus cross joins.
 
 - **NA-safe by default**: Missing values are treated sensibly (no matches on
 `NA`) unless overridden via `match.na`.
@@ -419,19 +421,19 @@ are not planned.
 
 ## Notes for `r pkg("data.table")` users
 `r pkg("fjoin")` makes `r pkg("data.table")` joins faster to code by providing 
-a unified interface that greatly outclasses `merge.data.table`. Even in simple
-situations, there is not much reason *not* to use it: its solutions are as fast 
+a unified interface that far outclasses `merge.data.table`. Even in simple
+joins, there is little reason *not* to use it: its solutions are as fast 
 or faster than `merge`, and slightly faster and more efficient than native
 `r pkg("data.table")` in some circumstances (see below).
 
 However, `r pkg("fjoin")` is not a substitute for the full versatility of
 `r pkg("data.table")` joins. It does not support:
 
-- compute-on-join, i.e. specifying computations on the joined columns inside#
-  `j`, rather than simply select them (including `r pkg("data.table")`'s
+- compute-on-join, i.e. specifying computations on the joined columns inside
+  `j`, rather than simply selecting them (including `r pkg("data.table")`'s
   unique and memory-efficient `by=.EACHI` mechanism for "`j`-as-you-go" computations).
-  However, using `do = FALSE` can give you a coding headstart in such cases:
-  copy the console output and edit the `j`-expression(s).
+  However, using `do = FALSE` can provide a coding headstart in such cases by
+  letting you copy the console output and edit the `j`-expression(s).
 - joins by reference of the direct form `DT[i, on = <on> , v := i.v]` (although
   the assignment pattern `DT[, v := fjoin_left(DT, i, on = <on>, select = "v")$v]`
   can be used)
@@ -459,13 +461,14 @@ DT2[DT1, on=.(t_start <= t, t_end >= t)]
 ```
 
 The reason `r pkg("fjoin")` prefers `data.frame()` coupled with `setDT()` to the
-more usual interactive idiom `list()` in `j` is to avoid an unnecessary deep copy of the joined columns. Likewise, `r pkg("fjoin")` avoids deep copies on the way in and out by "shallow-casting" inputs and outputs to and from `data.table`s as necessary. 
+more usual `list()` in `j` is to avoid an unnecessary deep copy of the joined
+columns. Likewise, `r pkg("fjoin")` avoids deep copies on the way in and out by
+"shallow-casting" inputs and outputs to and from `data.table`s as necessary.
 Shallow conversion is not a safe general way of operating with foreign objects
-in `r pkg("data.table")`, but it works for joins, because the input vectors only 
+in `r pkg("data.table")`, but it works for joins, because the input vectors only
 need to be read, and the output vectors are guaranteed to be unshared.
 
-One consequence of this is that `r pkg("fjoin")` is faster than `r pkg("data.table")` itself with standard idioms. Consider the following
-(exaggerated) example, where the `i` expression is a `data.frame` and we select columns in `j` with `list()` (aliased `.()`) in the usual interactive way:
+One consequence of this is that `r pkg("fjoin")` is faster than `r pkg("data.table")` itself with standard interactive idioms. Consider the following exaggerated example, where the `i` expression is a `data.frame` and we select columns in `j` with `list()` (aliased `.()`) in the usual way:
 
 ```{r message=FALSE}
 n <- 1e6L; ncolDT <- 2L; ncolDF <- 10L
@@ -480,7 +483,7 @@ bench::mark(
 ) |> summary() |> subset(select = c("expression", "n_itr", "median",  "mem_alloc"))
 ```
 
-`r pkg("fjoin")` is faster than idiomatic `r pkg("data.table")` here because it dodges a call to `as.data.table.data.frame` on the way in, and a call to `as.data.table.list` on the way out, both of which (currently) deep-copy. The `bench::mark` memory measurements [exclude C-level allocations](https://rdatatable-community.github.io/The-Raft/posts/2025-07-14-memory_R-jangorecki/), but the difference between them reflects these R-level copies. This behaviour will eventually change in `r pkg("data.table")`, at which point `r pkg("fjoin")` will revert to the more familiar `j = list()` idiom. 
+`r pkg("fjoin")` is faster here because it dodges a call to `as.data.table.data.frame` on the way in, and a call to `as.data.table.list` on the way out, both of which (currently) deep-copy. The `bench::mark` memory measurements [exclude C-level allocations](https://rdatatable-community.github.io/The-Raft/posts/2025-07-14-memory_R-jangorecki/), but the difference between them reflects these R-level copies. This behaviour will eventually change in `r pkg("data.table")`, at which point `r pkg("fjoin")` will revert to the more familiar `j = list()` idiom. 
 
 ## Notes for `r pkg("sf")` users
 
