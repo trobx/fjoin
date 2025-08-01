@@ -53,14 +53,14 @@ remotes::install_github("trobx/fjoin")
 
 ## Features
 
-- **General use**: Works with any data-frame–like inputs (e.g. data.frame,
-data.table, tibble, sf, sf‑tibble, or list) and returns an appropriate class
-without requiring manual conversions or data.table expertise.
+- **General use**: Works with any data-frame–like inputs (e.g. `data.frame`,
+`data.table`, tibble, `sf`, `sf`‑tibble, or `list`) and returns an appropriate
+class without requiring manual conversions or `r pkg("data.table")` expertise.
 
 - **Scope**: Inner, left, right, full, semi‑, and anti‑joins with equality and
 inequality conditions, plus cross joins.
 
-- **NA-safe by default**: Missing values are treated sensibly (no matches on
+- **NA-safe joins by default**: Missing values are treated sensibly (no matches on
 `NA`) unless overridden via `match.na`.
 
 - **On-the-fly column selection**: The `select` argument lets you choose and order
@@ -80,8 +80,8 @@ semi‑ and anti‑joins.
 code instead of (or as well as) executing, or run “mock” joins without data that
 output template code.
 
-- **High performance**: Uses a “cookbook” of `r pkg("data.table")` join recipes
-and efficiently casts inputs and outputs for speed and memory-efficiency.
+- **High performance**: Uses an advanced internal “cookbook” of `r pkg("data.table")`
+join recipes and efficiently casts inputs and outputs for speed and memory-efficiency.
 
 - **Lightweight dependency**: Depends only on `r pkg("data.table")`, a mature,
 dependency‑free package with long-term stability.
@@ -96,15 +96,18 @@ dependency‑free package with long-term stability.
 | `fjoin_left_anti` (alias `fjoin_anti`), `fjoin_right_anti()`    | `dtjoin_anti()`                     |
 | `fjoin_cross()`                                            | `dtjoin_cross()`                     |
 
-The `fjoin_*` wrappers translate the `dtjoin*` functions into a familiar `x`/`y`
-style for mainstream use. The `dtjoin*` functions handle object classes and write
-`r pkg("data.table")` code via a generalisation of `DT[i]` syntax.
+The `fjoin*` family of functions is recommended for mainstream use. The
+`dtjoin*` functions handle object classes and write `r pkg("data.table")` code
+via a generalisation of `DT[i]` syntax, which the `fjoin*` wrappers translate 
+into a familiar `x`/`y` style .
 
 ## Examples
 
 ```{r}
 library(fjoin)
 ```
+
+These examples use true joins but they carry over to semi- and anti-joins.
 
 ### Example 1: Basic usage and options
 
@@ -162,7 +165,7 @@ fjoin_full(
 )
 ```
 
-##### (4) Order rows by `y` then `x`
+##### (4) Switch row order from `x`-then-`y` to `y`-then-`x`
 ```{r}
 fjoin_full(
   dfQ,
@@ -187,7 +190,7 @@ fjoin_full(
 )
 ```
 
-### Example 2: M:M inequality join reduced to 1:1 using `mult.x` and `mult.y`
+### Example 2: Using `mult.x` and `mult.y` to reduce a M:M inequality join to 1:1 
 
 `r pkg("data.table")` (`mult`) and `r pkg("dplyr")` (`multiple`) have options for
 reducing the cardinality on one side of the join from many ("all") to one
@@ -243,7 +246,7 @@ fjoin_left(
 )
 ```
 
-### Example 3: `fjoin_*` to `dtjoin*` to `r pkg("data.table")` and outputs
+### Example 3: Flow from `fjoin_*` to `dtjoin*` to `r pkg("data.table")` and outputs
 An illustration showing:
 
 - two calls to `fjoin_left()` (commented out), differing in the `order` argument
@@ -421,10 +424,12 @@ are not planned.
 
 ## Notes for `r pkg("data.table")` users
 `r pkg("fjoin")` makes `r pkg("data.table")` joins faster to code by providing 
-a unified interface that far outclasses `merge.data.table`. Even in simple
+a unified interface that far outclasses `merge.data.table`. It provides one-line 
+join operations that produce elaborate `r pkg("data.table")` code that it would
+take a great deal of mental effort and typing to do manually. Even in simple
 joins, there is little reason *not* to use it: its solutions are as fast 
-or faster than `merge`, and slightly faster and more efficient than native
-`r pkg("data.table")` in some circumstances (see below).
+or faster than `merge`, and even native `r pkg("data.table")` as typically used
+(see below).
 
 However, `r pkg("fjoin")` is not a substitute for the full versatility of
 `r pkg("data.table")` joins. It does not support:
@@ -449,7 +454,7 @@ DT1 <- data.table(t=c(5,25,45))
 DT2 <- data.table(t_start=c(1,21), t_end=c(10,30))
 ```
 
-Range join with fjoin:
+Range join with `r pkg("fjoin")`:
 ```{r}
 dtjoin(DT2, DT1, on=c("t_start <= t", "t_end >= t"), show = TRUE)
 ```

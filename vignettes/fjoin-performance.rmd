@@ -7,28 +7,25 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-This exercise is a comfort check on the performance of *fjoin* against alternatives on simple equality joins with moderately large laptop-size data. The solutions tested are: *fjoin*, *data.table* `merge()` (i.e `merge.data.table`), *dplyr*, and *collapse*. It does not do justice to the much more comprehensive join functionality offered by *fjoin* and *dplyr* as compared with the other two.
+```{r setup, include=FALSE}
+options(width = 100) # 80
 
-*fjoin* emerges as the most robust and fastest-performing solution, faster than `merge()` in some joins. This fact, combined with its versatility out of the box, its convenience features, and sensible defaults, confirms the strength of *fjoin* as a one-stop shop for joins in R.
+pkg <- function(name) {
+  # Inline HTML with inline style attributes as github strips CSS in <style> blocks
+  sprintf('<span style="color:#666666; font-weight:bold;">%s</span>', name)
+}
+```  
+  
+This exercise is a comfort check on the performance of `r pkg("fjoin")`, `r pkg("data.table")` `merge()` (i.e. `merge.data.table`), `r pkg("dplyr")`, and `r pkg("collapse")` on simple equality joins with moderately large laptop-size data. It does not do justice to the much more comprehensive join functionality offered by `r pkg("fjoin")` and `r pkg("dplyr")` as compared with the other two.
+
+`r pkg("fjoin")` emerges as the most robust and fastest-performing solution, faster than `merge()` in some joins. This fact, combined with its versatility out of the box, its convenience features, and sensible defaults, confirms the strength of `r pkg("fjoin")` as a one-stop shop for joins in R.
 
 ### Description
-Details plus version and system information are at the bottom of this note. The setup consists of two tables, one "big" (>4GB, 100M rows) and one "small" (100K rows), joined by equality on a single integer column. We look at the four true joins (inner, left, right, full), swapping the argument positions of the big and small tables. Both tables are randomly ordered in the first set of runs, and keyed in the second. All solutions are tested with like-for-like arguments.
+Details plus version and system information are at the bottom of this note. The setup consists of two `data.table`s, one "big" (>4GB, 100M rows) and one "small" (100K rows), joined by equality on a single integer column. The test covers the four true joins (inner, left, right, full), swapping the argument positions of the big and small tables. Both tables are randomly ordered in the first set of runs, and keyed in the second. All solutions are tested with like-for-like arguments.
 
-The exercise is then repeated for the case where there are missing values in the join column on each side, which must not be treated as matches (but whose rows must be retained in the result where appropriate). This comparison is limited to *fjoin* and *dplyr*, which are the only two where this is possible, although it is standard outside R.
+The exercise is then repeated for the case where there are missing values in the join column on each side, which must not be treated as matches (but whose rows must be retained in the result where appropriate). This comparison is limited to `r pkg("fjoin")` and `r pkg("dplyr")`, which are the only two supporting this option.
 
 ### Results
-
-#### Main observations
-
-- *fjoin* is the fastest solution overall (while *dplyr* is the least fast), and is never appreciably slower than another solution in any of the ~40 joins considered  
-
-- not suprisingly, its performance is similar to `merge.data.table()` (where comparison is possible) since both use equivalent *data.table* code for inner and left joins. However, it is faster for right and full joins when the cost of the join is large, because it avoids recomputing it for the anti-join of the right table.
-
-- these two *data.table* solutions are much more robust to switching the order of the tables than *collapse* and *dplyr*.
-
-- when the data are ordered, the differences among the solutions are small: all solutions are fast.
-
-- disallowing NA matches is very fast (this is the case for *dplyr* also). There is essentially no difference in execution time when missing values are introduced and matches on them are excluded. 
 
 ```{r echo=FALSE}
 data_dir <- file.path("fjoin-performance_data") # relative to "vignettes" folder
@@ -92,7 +89,7 @@ tab <- function(dat) dat[, .(total_secs = round(sum(median_secs), 1)), keyby=.(s
 ```
 
 ##### 1a: No missing values, tables unordered
-Total is sum of median times for inner, left and full joins. Right joins excluded as not comparable among the non-*fjoin* solutions.
+Total is sum of median times for inner, left and full joins. Right joins excluded as not comparable among the non-`r pkg("fjoin")` solutions.
 ```{r echo=FALSE}
 kt(store1[!style %ilike% "right join"])
 ```
@@ -101,7 +98,7 @@ pl(store1)
 ```
 
 ##### 1b: No missing values, both tables keyed
-Total is sum of median times for inner, left and full joins. Right joins excluded as not comparable among the non-*fjoin* solutions.
+Total is sum of median times for inner, left and full joins. Right joins excluded as not comparable among the non-`r pkg("fjoin")` solutions.
 ```{r echo=FALSE}
 kt(store2[!style %ilike% "right join"])
 ```
@@ -126,6 +123,18 @@ kt(store4[!style %ilike% "right join"])
 ```{r echo=FALSE}
 pl(store4)
 ```
+
+#### Main observations
+
+- `r pkg("fjoin")` is the fastest solution overall (while `r pkg("dplyr")` is the least fast), and is never appreciably slower than another solution in any of the ~40 joins considered.
+
+- Not suprisingly, its performance is similar to `merge.data.table()` (where comparison is possible) since both use equivalent `r pkg("data.table")` code for inner and left joins. However, it is faster for right and full joins when the cost of the join is large, because it avoids recomputing it for the anti-join of the right table.
+
+- These two `r pkg("data.table")` solutions are much more robust to switching the order of the tables than `r pkg("collapse")` and `r pkg("dplyr")`.
+
+- When the data are ordered, the differences among the solutions are small: they are all fast.
+
+- Disallowing NA matches is very fast (this is the case for `r pkg("dplyr")` also). Comparison with the non-missing joins is because of differences in the size of the join result when missing values are introduced. 
 
 ### Setup details
 ```{r echo=FALSE}
@@ -154,9 +163,9 @@ All solutions are tested with like-for-like arguments, suspending any difference
 - no tests for `NA`/`NaN` values (`fjoin::fjoin_*(..., match.na = TRUE)`)
 - multiple matches accepted (`collapse::join(..., multiple = TRUE)`)
 
-(*fjoin*'s `match.na = FALSE` default check for missing values actually has negligible cost, and in practice it is not worth suspending even when the data are known to be free of missing values.)
+(`r pkg("fjoin")`'s `match.na = FALSE` default check for missing values actually has negligible cost, and in practice it is not worth suspending even when the data are known to be free of missing values.)
 
-In the scenario with missing values, the *dplyr* solutions are run with the further argument `na.matches = "never"`, while *fjoin* is run on default arguments, which exclude such matches.
+In the scenario with missing values, the `r pkg("dplyr")` solutions are run with the further argument `na.matches = "never"`, while `r pkg("fjoin")` is run on default arguments, which exclude such matches.
 
 ##### Version and system info
 ```{r echo=FALSE}
