@@ -1,15 +1,26 @@
 # Thin wrappers around `dtjoin()`, `dtjoin_semi()`, `dtjoin_anti()`,
-# `dtjoin_cross()` which translate from a `DT[i]`-style to a conventional API.
+# `dtjoin_cross()` that translate from extended `DT[i]` to conventional `x`/`y`.
 #
-# The four true join functions differ only in:
+# The four true join functions differ in:
 # - the values of `nomatch` and `nomatch.DT` passed to `dtjoin()`
 # - the default value of `order` ("right" for `fjoin_right()`, "left" otherwise).
 #
-# Currently these are distinct repetitious functions with documentation
-# populated for `fjoin_inner()` and inherited by the others. Change this to a
-# single wrapper with a mode argument for the four types, and use `do.call()`.
+# The four semi- and anti-join functions differ in:
+# - whether they are "left" or "right" (order of inputs and `on`)
+# - whether they delegate to `dtjoin_semi()` or `dtjoin_anti()`
 #
-# Similar remarks apply to the semi- and anti-join functions.
+# Currently these are distinct functions with documentation populated for
+# `fjoin_inner()` and inherited by the others. Would prefer to avoid repetitive
+# function bodies by using e.g. two unexported intermediate wrappers with public
+# functions like
+# `fjoin_inner <- function(...) .fjoin_true(style = "inner", ...)`
+# `fjoin_left_semi <- function(...) .fjoin_semi_anti(style1 = "left", style2 = "semi", ...)`
+# with single documentation for each group, but leads to R CMD check warnings
+# re. documented args not in being in \usage and dots in \usage not being a
+# documented arg, plus need to repeat param definitions across the two groups.
+# Replacing the dots with named args reintroduces code repetition and means the
+# user has to scroll past four full function signatures in \usage (c.80 lines
+# total) to get to the important information. TODO: research a way out.
 #
 #' Inner join
 #'
@@ -149,7 +160,7 @@
 #'
 #' @examples
 #' # ---------------------------------------------------------------------------
-#' # True joins: basic usage
+#' # True joins (inner/left/right/full): basic usage
 #' # ---------------------------------------------------------------------------
 #'
 #' # data frames
@@ -250,7 +261,7 @@
 #' # "last"). fjoin (`mult.x`, `mult.y`) permits this on either side of the
 #' # join, or on both sides at once.
 #'
-#' # This example (using fjoin_left()) shows an application to temporally
+#' # This example (using `fjoin_left()`) shows an application to temporally
 #' # ordered data frames of "events" and "reactions".
 #'
 #' # data frames
@@ -315,7 +326,8 @@ fjoin_inner <- function(
   check_arg_on(on)
   check_arg_order(order)
   order.x <- order == "left"
-  xylabels <- c(make_label_fjoin(x, substitute(x)), make_label_fjoin(y, substitute(y)))
+  label.x <- make_label_fjoin(x, substitute(x))
+  label.y <- make_label_fjoin(y, substitute(y))
   dtjoin(
     .DT        = if (order.x) y else x,
     .i         = if (order.x) x else y,
@@ -328,7 +340,7 @@ fjoin_inner <- function(
     select.DT  = if (order.x) select.y else select.x,
     select.i   = if (order.x) select.x else select.y,
     i.main     = order.x,
-    .labels    = if (order.x) rev(xylabels) else xylabels,
+    .labels    = if (order.x) c(label.y, label.x) else c(label.x, label.y),
     match.na   = match.na,
     on.first   = on.first,
     preserve   = preserve,
@@ -369,7 +381,8 @@ fjoin_left <- function(
   check_arg_on(on)
   check_arg_order(order)
   order.x <- order == "left"
-  xylabels <- c(make_label_fjoin(x, substitute(x)), make_label_fjoin(y, substitute(y)))
+  label.x <- make_label_fjoin(x, substitute(x))
+  label.y <- make_label_fjoin(y, substitute(y))
   dtjoin(
     .DT        = if (order.x) y else x,
     .i         = if (order.x) x else y,
@@ -382,7 +395,7 @@ fjoin_left <- function(
     select.DT  = if (order.x) select.y else select.x,
     select.i   = if (order.x) select.x else select.y,
     i.main     = order.x,
-    .labels    = if (order.x) rev(xylabels) else xylabels,
+    .labels    = if (order.x) c(label.y, label.x) else c(label.x, label.y),
     match.na   = match.na,
     on.first   = on.first,
     preserve   = preserve,
@@ -423,7 +436,8 @@ fjoin_right <- function(
   check_arg_on(on)
   check_arg_order(order)
   order.x <- order == "left"
-  xylabels <- c(make_label_fjoin(x, substitute(x)), make_label_fjoin(y, substitute(y)))
+  label.x <- make_label_fjoin(x, substitute(x))
+  label.y <- make_label_fjoin(y, substitute(y))
   dtjoin(
     .DT        = if (order.x) y else x,
     .i         = if (order.x) x else y,
@@ -436,7 +450,7 @@ fjoin_right <- function(
     select.DT  = if (order.x) select.y else select.x,
     select.i   = if (order.x) select.x else select.y,
     i.main     = order.x,
-    .labels    = if (order.x) rev(xylabels) else xylabels,
+    .labels    = if (order.x) c(label.y, label.x) else c(label.x, label.y),
     match.na   = match.na,
     on.first   = on.first,
     preserve   = preserve,
@@ -477,7 +491,8 @@ fjoin_full <- function(
   check_arg_on(on)
   check_arg_order(order)
   order.x <- order == "left"
-  xylabels <- c(make_label_fjoin(x, substitute(x)), make_label_fjoin(y, substitute(y)))
+  label.x <- make_label_fjoin(x, substitute(x))
+  label.y <- make_label_fjoin(y, substitute(y))
   dtjoin(
     .DT        = if (order.x) y else x,
     .i         = if (order.x) x else y,
@@ -490,7 +505,7 @@ fjoin_full <- function(
     select.DT  = if (order.x) select.y else select.x,
     select.i   = if (order.x) select.x else select.y,
     i.main     = order.x,
-    .labels    = if (order.x) rev(xylabels) else xylabels,
+    .labels    = if (order.x) c(label.y, label.x) else c(label.x, label.y),
     match.na   = match.na,
     on.first   = on.first,
     preserve   = preserve,
@@ -607,12 +622,13 @@ fjoin_left_semi <- function(
     show      = !do
 ) {
   check_arg_on(on)
-  xylabels <- c(make_label_fjoin(x, substitute(x)), make_label_fjoin(y, substitute(y)))
+  label.x <- make_label_fjoin(x, substitute(x))
+  label.y <- make_label_fjoin(y, substitute(y))
   dtjoin_semi (
     .DT       = x,
     .i        = y,
     on        = on,
-    .labels   = xylabels,
+    .labels   = c(label.x, label.y),
     match.na  = match.na,
     mult      = mult.y,
     mult.DT   = mult.x,
@@ -659,12 +675,13 @@ fjoin_right_semi <- function(
     show      = !do
 ) {
   check_arg_on(on)
-  xylabels <- c(make_label_fjoin(x, substitute(x)), make_label_fjoin(y, substitute(y)))
+  label.x <- make_label_fjoin(x, substitute(x))
+  label.y <- make_label_fjoin(y, substitute(y))
   dtjoin_semi(
     .DT       = y,
     .i        = x,
     on        = flip_on(on),
-    .labels   = rev(xylabels),
+    .labels   = c(label.y, label.x),
     match.na  = match.na,
     mult      = mult.x,
     mult.DT   = mult.y,
@@ -701,12 +718,14 @@ fjoin_left_anti <- function(
     do        = !(is.null(x) && is.null(y)),
     show      = !do
 ) {
-  xylabels <- c(make_label_fjoin(x, substitute(x)), make_label_fjoin(y, substitute(y)))
+  check_arg_on(on)
+  label.x <- make_label_fjoin(x, substitute(x))
+  label.y <- make_label_fjoin(y, substitute(y))
   dtjoin_anti(
     .DT       = x,
     .i        = y,
     on        = on,
-    .labels   = xylabels,
+    .labels   = c(label.x, label.y),
     match.na  = match.na,
     mult      = mult.y,
     mult.DT   = mult.x,
@@ -743,12 +762,14 @@ fjoin_right_anti <- function(
     do        = !(is.null(x) && is.null(y)),
     show      = !do
 ) {
-  xylabels <- c(make_label_fjoin(x, substitute(x)), make_label_fjoin(y, substitute(y)))
+  check_arg_on(on)
+  label.x <- make_label_fjoin(x, substitute(x))
+  label.y <- make_label_fjoin(y, substitute(y))
   dtjoin_anti(
     .DT       = y,
     .i        = x,
     on        = flip_on(on),
-    .labels   = rev(xylabels),
+    .labels   = c(label.y, label.x),
     match.na  = match.na,
     mult      = mult.x,
     mult.DT   = mult.y,
@@ -800,15 +821,14 @@ fjoin_cross <- function(
     do        = !(is.null(x) && is.null(y)),
     show      = !do
 ) {
-
   check_arg_order(order)
   order.x <- order == "left"
-  xylabels <- c(make_label_fjoin(x, substitute(x)), make_label_fjoin(y, substitute(y)))
-
+  label.x <- make_label_fjoin(x, substitute(x))
+  label.y <- make_label_fjoin(y, substitute(y))
   dtjoin_cross(
     .DT        = if (order.x) y else x,
     .i         = if (order.x) x else y,
-    .labels    = if (order.x) rev(xylabels) else xylabels,
+    .labels    = if (order.x) c(label.y, label.x) else c(label.x, label.y),
     i.main     = order.x,
     prefix     = prefix.y,
     select     = select,
