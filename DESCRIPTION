@@ -5,7 +5,7 @@ Version: 0.1.0
 Authors@R: c(
     person(
       "Toby", "Robertson",
-      email = "toby.robertson@outlook.com",
+      email = "trobx@proton.me",
       role = c("aut", "cre")
     )
   )
@@ -14,8 +14,8 @@ Description: Provides fast general data frame joins with novel convenience
   extends 'data.table'.
 License: MIT + file LICENSE
 Encoding: UTF-8
-Imports: 
-    data.table
+Depends: R (>= 3.3.0)
+Imports: data.table
 Suggests: 
     testthat (>= 3.0.0),
     dplyr (>= 1.0.0),
@@ -28,7 +28,7 @@ Suggests:
     ggplot2,
     forcats,
     bench
-URL: https://github.com/trobx/fjoin
+URL: https://trobx.github.io/fjoin
 BugReports: https://github.com/trobx/fjoin/issues
 Config/testthat/edition: 3
 VignetteBuilder: knitr, quarto
