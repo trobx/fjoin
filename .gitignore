@@ -1,27 +1,35 @@
-# RStudio project files
-*.Rproj
+# RStudio project and session files, and local config (but track *.Rproj)
 .Rproj.user
-
-# R session files
 .Rhistory
 .RData
 .Ruserdata
+.Renviron
+.Rprofile
 
 # Package build artifacts
 /doc/
 /Meta/
 
-# Pkgdown cache (but NOT docs/, since deploying website manually)
-pkgdown/
+# Keep these tracked since deploying website manually
+# docs/    # rendered site (output of devtools::build_site())
+# pkgdown/ # source of website assets (e.g. logo)
 
-# Quarto cache and preview outputs (temp files from rendering vignettes locally)
+# Quarto/knitr build artefacts
+_quarto/              # Quarto project cache
+.quarto_cache/        # Quarto chunk cache
+*_cache/              # generic cache dirs
+*.knit.md             # intermediate Markdown files
+*.utf8                # encoding artifacts
+
+# Quarto preview artefacts (temp files from rendering vignettes locally)
 vignettes/.quarto/
 vignettes/*_files/
 vignettes/*.html
 
-# OS-specific files
+# OS and editor noise
 Thumbs.db
-.DS_Store   # optional (for macOS collaborators)
+.DS_Store   # (macOS)
+.vscode/
 
 # Coverage reports and CI configs
 codecov.yml

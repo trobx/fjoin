@@ -1,25 +1,33 @@
+# Exclude anything that shouldn't go in the CRAN/Tarball:
+
 # RStudio project files
 ^.*\.Rproj$
 ^\.Rproj\.user$
 
-# GitHub Actions workflows
+# GitHub Actions
 ^\.github$
 
 # Code coverage config
 ^codecov\.yml$
 
-# Internal build directories
-^doc$
-^Meta$
-
-# pkgdown files
-^_pkgdown\.yml$
-^docs$
-^pkgdown$
-
 # License and README source
 ^LICENSE\.md$
 ^README\.Rmd$
 
-# Quarto cache
+# # Quarto caches and preview artefacts under /vignettes
 ^vignettes/\.quarto$
+^vignettes/\.quarto_cache$
+^vignettes/.*_cache$
+^vignettes/.*\.html$
+
+# Other metadata
+^Meta$
+
+# pkgdown site config and output files (committing /docs manually)
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+
+# Performance article and data (website-only, not a CRAN vignette)
+^vignettes/fjoin-performance\.Rmd$
+^vignettes/fjoin-performance_data/

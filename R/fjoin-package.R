@@ -5,12 +5,11 @@
 #' pipelines. It is lightweight, fast, and has short and clear syntax with
 #' options not found in other frameworks.
 #'
-#' @section Vignettes:
+#' @section Vignette:
 #' Visit the package website \url{https://trobx.github.io/fjoin} or access
 #' locally in R:
 #' \itemize{
 #'   \item Guide to fjoin: \code{vignette("fjoin")}
-#'   \item Performance overview: \code{vignette("fjoin-performance")}
 #' }
 #'
 #' @section API:

@@ -1,4 +1,5 @@
 url: https://trobx.github.io/fjoin
+
 template:
   bootstrap: 5
   bootswatch: flatly
@@ -13,41 +14,46 @@ home:
       - authors
       - dev       # badges
 
+articles:
+  - title: "Performance"
+    contents:
+      - fjoin-performance
+
 reference:
 
-- title: The `fjoin_*` family
-  desc: >
-    Fast data frame joins in a familiar `x`/`y` style
-- subtitle: True joins
-  contents:
-  - fjoin_inner
-  - fjoin_left
-  - fjoin_right
-  - fjoin_full
-- subtitle: Semi-joins
-  contents:
-  - fjoin_left_semi
-  - fjoin_right_semi
-- subtitle: Anti-joins
-  contents:
-  - fjoin_left_anti
-  - fjoin_right_anti
-- subtitle: Cross-joins
-  contents:
-  - fjoin_cross
+  - title: The `fjoin_*` family
+    desc: >
+      Fast data frame joins in a familiar `x`/`y` style
+  - subtitle: True joins
+    contents:
+    - fjoin_inner
+    - fjoin_left
+    - fjoin_right
+    - fjoin_full
+  - subtitle: Semi-joins
+    contents:
+    - fjoin_left_semi
+    - fjoin_right_semi
+  - subtitle: Anti-joins
+    contents:
+    - fjoin_left_anti
+    - fjoin_right_anti
+  - subtitle: Cross-joins
+    contents:
+    - fjoin_cross
 
-- title: The `dtjoin*` family
-  desc: >
-    An extended interface for `DT[i]`-style <span style="color:#666666; font-weight:bold;">data.table</span> joins
-- subtitle: True joins
-  contents:
-  - dtjoin
-- subtitle: Semi-joins
-  contents:
-  - dtjoin_semi
-- subtitle: Anti-joins
-  contents:
-  - dtjoin_anti
-- subtitle: Cross joins
-  contents:
-  - dtjoin_cross
+  - title: The `dtjoin*` family
+    desc: >
+      An extended interface for `DT[i]`-style <span style="color:#666666; font-weight:bold;">data.table</span> joins
+  - subtitle: True joins
+    contents:
+    - dtjoin
+  - subtitle: Semi-joins
+    contents:
+    - dtjoin_semi
+  - subtitle: Anti-joins
+    contents:
+    - dtjoin_anti
+  - subtitle: Cross joins
+    contents:
+    - dtjoin_cross
