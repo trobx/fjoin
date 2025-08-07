@@ -57,7 +57,7 @@
 #' @param on.first Whether to place the join columns first in the join result.
 #'   Default \code{FALSE}.
 #' @param prefix.y A prefix to attach to column names in \code{y} that are the
-#'   same as a column name in \code{x}. Default \code{"R."}.
+#'   same as a column name in \code{x}. Default \code{"y."}.
 #' @param preserve Whether to include \code{y}'s equality join column(s) in
 #'   addition to \code{x}'s (equivalent to \code{keep} in dplyr). Default
 #'   \code{FALSE}. Note that non-equality join columns from \code{x} are always
@@ -92,7 +92,7 @@
 #' }
 #'
 #' \subsection{Using \code{select}, \code{select.x}, and \code{select.y}}{
-#' Used on its own, \code{select} retains the join columns plus the
+#' Used on its own, \code{select} keeps the join columns plus the
 #' specified non-join columns from both inputs if present.
 #'
 #' If \code{select.x} is provided (and similarly for \code{select.y}) then:
@@ -147,7 +147,7 @@
 #' \subsection{Additional notes for \pkg{sf} users}{
 #' Joins (non-spatial) between two \code{sf} objects are supported. If both
 #' active geometries are selected in the result, the result sets \code{x}'s
-#' geometry (\code{y}'s geometry in a right join).
+#' geometry as active (\code{y}'s geometry in a right join).
 #'
 #' All \code{sfc}-class columns in the join result are refreshed (using
 #' \code{sf::st_sfc()} with \code{recompute_bbox = TRUE}), whether or not the
@@ -317,7 +317,7 @@ fjoin_inner <- function(
     select.x  = NULL,
     select.y  = NULL,
     indicate  = FALSE,
-    prefix.y  = "R.",
+    prefix.y  = "y.",
     on.first  = FALSE,
     preserve  = FALSE,
     do        = !(is.null(x) && is.null(y)),
@@ -372,7 +372,7 @@ fjoin_left <- function(
     select.x  = NULL,
     select.y  = NULL,
     indicate  = FALSE,
-    prefix.y  = "R.",
+    prefix.y  = "y.",
     on.first  = FALSE,
     preserve  = FALSE,
     do        = !(is.null(x) && is.null(y)),
@@ -427,7 +427,7 @@ fjoin_right <- function(
     select    = NULL,
     select.x  = NULL,
     select.y  = NULL,
-    prefix.y  = "R.",
+    prefix.y  = "y.",
     on.first  = FALSE,
     preserve  = FALSE,
     do        = !(is.null(x) && is.null(y)),
@@ -483,7 +483,7 @@ fjoin_full <- function(
     select.x  = NULL,
     select.y  = NULL,
     indicate  = FALSE,
-    prefix.y  = "R.",
+    prefix.y  = "y.",
     preserve  = FALSE,
     do        = !(is.null(x) && is.null(y)),
     show      = !do
@@ -814,7 +814,7 @@ fjoin_cross <- function(
     x         = NULL,
     y         = NULL,
     order     = "left",
-    prefix.y  = "R.",
+    prefix.y  = "y.",
     select    = NULL,
     select.x  = NULL,
     select.y  = NULL,

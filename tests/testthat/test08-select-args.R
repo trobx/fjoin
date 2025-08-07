@@ -73,7 +73,7 @@ test_that(desc, {
   compare <-
     fjoin_right(DF_A, DF_B, on=c("id_A == id_B", "t_A > t_B"), preserve=TRUE, indicate=TRUE) |>
     data.table::setDT() |>
-    _[.join==3, .(id_B, t_B, c=R.c)] |>
+    _[.join==3, .(id_B, t_B, c=y.c)] |>
     unique() |>
     data.table::setDF()
   if (PRINT_TEST_OBJECTS) {print(result); print(compare)}
@@ -103,7 +103,7 @@ test_that(desc, {
   compare <-
     fjoin_right(DF_A, DF_B, on=c("id_A == id_B", "t_A > t_B"), preserve=TRUE, indicate=TRUE) |>
     data.table::setDT() |>
-    _[.join==2, .(id_B, t_B, c=R.c)] |>
+    _[.join==2, .(id_B, t_B, c=y.c)] |>
     unique() |>
     data.table::setDF()
   if (PRINT_TEST_OBJECTS) {print(result); print(compare)}
