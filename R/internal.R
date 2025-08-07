@@ -43,20 +43,15 @@ check_arg_prefix <- function(x) {
 check_names <- function(x) {
   if (!(isTRUE(all(make.names(names(x)) == names(x)))))
     stop(sprintf(
-      paste("One or more column names of '%s' is either empty, NA, or not a syntactically valid R name (see `?base::make.names` for a description).",
+      paste("One or more column names in '%s' is either empty, NA, or not a syntactically valid R name (see `?base::make.names` for a description).",
             "A future version of fjoin will support non-valid names."),
       deparse(substitute(x))))
+  if (any(grepl("^fjoin.", names(x))))
+    stop(sprintf(
+      "Column names beginning with \"fjoin.\" are reserved. Found in '%s': %s",
+      deparse(substitute(x)),
+      paste(names(x)[grep("^fjoin", names(x))], collapse = ", ")))
 }
-# check_names_nonempty <- function(x) {
-#   if (any(!nzchar(names(x))))
-#     stop(sprintf("All names of '%s' must be non-empty", deparse(substitute(x))))
-# }
-# backtick_nonvalid_names <- function(x) {
-#   # Backtick syntactically non-valid names
-#   nonvalid <- x != make.names(x)
-#   x[nonvalid] <- sprintf("`%s`", x[nonvalid])
-#   x
-# }
 # ------------------------------------------------------------------------------
 any_inherits <- function (x, cls, mask = NULL) {
   # Whether any cols of x (optionally masked) have given class
@@ -89,8 +84,8 @@ make_mock_tables <- function(on) {
   list(.DT, .i)
 }
 # ------------------------------------------------------------------------------
-clean_up <- function(x, pattern = "^fjoin") {
-  # Drop any columns with name starting with "fjoin"
+clean_up <- function(x, pattern = "^fjoin.") {
+  # Drop any columns with name starting with "fjoin."
   # suppressWarnings() is innocuous and convenient
   suppressWarnings(data.table::set(x, j = which(grepl(pattern, names(x))), value = NULL))
 }
