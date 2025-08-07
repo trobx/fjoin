@@ -103,7 +103,7 @@
 #' }
 #'
 #' \subsection{Using \code{select}, \code{select.DT}, and \code{select.i}}{
-#' Used on its own, \code{select} retains the join columns plus the specified
+#' Used on its own, \code{select} keeps the join columns plus the specified
 #' non-join columns from both inputs if present.
 #'
 #' If \code{select.DT} is provided (and similarly for \code{select.i}) then:
@@ -161,7 +161,7 @@
 #'
 #' \subsection{Additional notes for \pkg{sf} users}{
 #' If \code{.DT} and \code{.i} are both \code{sf} objects whose active geometries
-#' are selected in the result, the result sets \code{.i}'s geometry.
+#' are selected in the result, the result sets \code{.i}'s geometry as active.
 #'
 #' Regardless of whether or not the inputs and output are \code{sf}, all
 #' \code{sfc}-class columns in the join result are refreshed after joining (using
@@ -314,7 +314,7 @@ dtjoin <- function(
   rename_anti.DT <- outer.DT && i.main
 
   # ----------------------------------------------------------------------------
-  # is_joincol_, equi_names_, is_selected_, jvars_, oldnames_anti.DT, newnames_anti.DT
+  # is_joincol_, equi_names_, any_nonequi, is_selected_, jvars_, oldnames_anti.DT, newnames_anti.DT
 
   names.DT      <- unique(names(.DT))
   is_joincol.DT <- rep(FALSE, length(names.DT))
@@ -334,9 +334,13 @@ dtjoin <- function(
     newnames_anti.DT <- rep(NA_character_, length(on))
   }
 
+  any_nonequi <- FALSE # just for allows.cartesian in one case
+
   for (i in seq_along(on)) {
 
     s <- strsplit_predicate(on[i])
+
+    if (!any_nonequi && s[2] != "==") any_nonequi <- TRUE
 
     idx.DT <- match(s[1], names.DT)
     if (is.na(idx.DT)) stop(sprintf("No column named \"%s\" found in `.DT`", s[1]))
@@ -644,14 +648,13 @@ dtjoin <- function(
               argtext_nomatch,
               argtext_mult,
               jtext,
-              if (!has_mult) ", allow.cartesian = TRUE" else "",
+              if (!has_mult && !any_nonequi) ", allow.cartesian = TRUE" else "",
               argtext_verbose)
     if (outer.DT) {
       jointext <- sprintf("setDT(%s)", jointext)
     } else if (as_DT) {
       jointext <- sprintf("setDT(%s)[]", jointext)
     }
-
 
   } else if (mult == "all") {
     # (2) mult.DT but not mult
