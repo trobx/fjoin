@@ -147,7 +147,7 @@
 #' \subsection{Additional notes for \pkg{sf} users}{
 #' Joins (non-spatial) between two \code{sf} objects are supported. If both
 #' active geometries are selected in the result, the result sets \code{x}'s
-#' geometry as active (\code{y}'s geometry in a right join).
+#' or \code{y}'s geometry as active according to the value of \code{order}.
 #'
 #' All \code{sfc}-class columns in the join result are refreshed (using
 #' \code{sf::st_sfc()} with \code{recompute_bbox = TRUE}), whether or not the
