@@ -66,6 +66,8 @@ dtjoin_anti <- function(
     tmp <- make_mock_tables(on)
     .DT <- tmp[[1]]
     .i  <- tmp[[2]]
+    check_names(.DT)
+    check_names(.i)
     asis.DT <- TRUE
     asis.i  <- TRUE
   } else {

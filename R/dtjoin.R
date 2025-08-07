@@ -280,6 +280,8 @@ dtjoin <- function(
     tmp   <- make_mock_tables(on)
     .DT   <- tmp[[1]]
     .i    <- tmp[[2]]
+    check_names(.DT)
+    check_names(.i)
     asis.DT <- TRUE
     asis.i  <- TRUE
   }
@@ -334,7 +336,7 @@ dtjoin <- function(
     newnames_anti.DT <- rep(NA_character_, length(on))
   }
 
-  any_nonequi <- FALSE # just for allows.cartesian in one case
+  any_nonequi <- FALSE # just for allow.cartesian in one case
 
   for (i in seq_along(on)) {
 

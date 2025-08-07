@@ -52,13 +52,20 @@ test_that("dtjoin_cross mock", {
 
 # ------------------------------------------------------------------------------
 # non-valid column names
-test_that("non-valid column name", {
+test_that("non-valid non-join column name", {
   x <- data.table::data.table(id=1, `non valid`=1L)
   y <- data.table::copy(x)
   dtjoin(x, y, on=c("id")) |> expect_error()
   dtjoin_semi(x, y, on=c("id")) |> expect_error()
   dtjoin_anti(x, y, on=c("id")) |> expect_error()
   dtjoin_cross(x, y, on=c("id")) |> expect_error()
+})
+
+test_that("non-valid join column name in mock join", {
+  dtjoin(on=c("non valid")) |> expect_error()
+  dtjoin_semi(on=c("non valid")) |> expect_error()
+  dtjoin_anti(on=c("non valid")) |> expect_error()
+  dtjoin_cross(on=c("non valid")) |> expect_error()
 })
 
 # ------------------------------------------------------------------------------
