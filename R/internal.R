@@ -46,7 +46,7 @@ check_names <- function(x) {
       paste("One or more column names in '%s' is either empty, NA, or not a syntactically valid R name (see `?base::make.names` for a description).",
             "A future version of fjoin will support non-valid names."),
       deparse(substitute(x))))
-  if (any(grepl("^fjoin.", names(x))))
+  if (any(grepl("^fjoin\\.", names(x))))
     stop(sprintf(
       "Column names beginning with \"fjoin.\" are reserved. Found in '%s': %s",
       deparse(substitute(x)),
@@ -84,7 +84,7 @@ make_mock_tables <- function(on) {
   list(.DT, .i)
 }
 # ------------------------------------------------------------------------------
-drop_temp_cols <- function(x, pattern = "^fjoin.") {
+drop_temp_cols <- function(x, pattern = "^fjoin\\.") {
   # Drop any columns (from a data.table input used as-is) with name starting "fjoin."
   # suppressWarnings() is innocuous and convenient here
   suppressWarnings(data.table::set(x, j = grep(pattern, names(x)), value = NULL))
