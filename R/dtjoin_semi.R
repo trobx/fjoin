@@ -283,8 +283,8 @@ dtjoin_semi <- function(
   }
 
   if (do) {
-    if (asis.DT) on.exit(clean_up(.DT), add=TRUE)
-    if (asis.i) on.exit(clean_up(.i), add=TRUE)
+    if (asis.DT) on.exit(drop_temp_cols(.DT), add=TRUE)
+    if (asis.i) on.exit(drop_temp_cols(.i), add=TRUE)
     ans <- (eval(parse(text=jointext), envir=list2env(list(.DT=.DT, .i=.i), parent=getNamespace("data.table"))))
     if (!as_DT) {
       if (as_tbl_df) ans <- tibble::as_tibble(ans)

@@ -1,4 +1,27 @@
 # ------------------------------------------------------------------------------
+# as-is data.table inputs left intact
+test_that("as-is data.table inputs left intact", {
+  addr_A <- data.table::address(DT_A)
+  DT_A_copy <- data.table::copy(DT_A)
+  DT_B_copy <- data.table::copy(DT_B)
+
+  dtjoin(DT_A, DT_B, on="id_A == id_B", nomatch.DT=NA, mult.DT="first", indicate=TRUE, show=TRUE)
+  expect_equal(addr_A, data.table::address(DT_A))
+  expect_true(all.equal(DT_A, DT_A_copy))
+  expect_true(all.equal(DT_B, DT_B_copy))
+
+  dtjoin_anti(DT_A, DT_B, on="id_A == id_B", mult.DT="first", show=TRUE)
+  expect_equal(addr_A, data.table::address(DT_A))
+  expect_true(all.equal(DT_A, DT_A_copy))
+  expect_true(all.equal(DT_B, DT_B_copy))
+
+  dtjoin_cross(DT_A, DT_B)
+  expect_equal(addr_A, data.table::address(DT_A))
+  expect_true(all.equal(DT_A, DT_A_copy))
+  expect_true(all.equal(DT_B, DT_B_copy))
+})
+
+# ------------------------------------------------------------------------------
 # zero-length outputs (esp. with indicate and setDF(list()))
 
 desc <- "empty output"
@@ -51,7 +74,7 @@ test_that("dtjoin_cross mock", {
 })
 
 # ------------------------------------------------------------------------------
-# non-valid column names
+# non-valid/reserved column names
 test_that("non-valid column name", {
   x <- data.table::data.table(id=1, `non valid`=1L)
   y <- data.table::copy(x)

@@ -50,7 +50,7 @@ check_names <- function(x) {
     stop(sprintf(
       "Column names beginning with \"fjoin.\" are reserved. Found in '%s': %s",
       deparse(substitute(x)),
-      paste(names(x)[grep("^fjoin", names(x))], collapse = ", ")))
+      paste(names(x)[grep("^fjoin.", names(x))], collapse = ", ")))
 }
 # ------------------------------------------------------------------------------
 any_inherits <- function (x, cls, mask = NULL) {
@@ -84,10 +84,10 @@ make_mock_tables <- function(on) {
   list(.DT, .i)
 }
 # ------------------------------------------------------------------------------
-clean_up <- function(x, pattern = "^fjoin.") {
-  # Drop any columns with name starting with "fjoin."
-  # suppressWarnings() is innocuous and convenient
-  suppressWarnings(data.table::set(x, j = which(grepl(pattern, names(x))), value = NULL))
+drop_temp_cols <- function(x, pattern = "^fjoin.") {
+  # Drop any columns (from a data.table input used as-is) with name starting "fjoin."
+  # suppressWarnings() is innocuous and convenient here
+  suppressWarnings(data.table::set(x, j = grep(pattern, names(x)), value = NULL))
 }
 # ------------------------------------------------------------------------------
 refresh_sfc_cols <- function(x) {
