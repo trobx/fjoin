@@ -2,7 +2,52 @@ url: https://trobx.github.io/fjoin
 
 template:
   bootstrap: 5
-  bootswatch: flatly
+  bslib:
+    primary: "#447099"          # links and hover muted blue
+    navbar-light-bg: "#f8f9fa"  # navbar background pale grey
+    base_font: {google: "Source Sans Pro"}
+    heading_font: {google: "Source Sans Pro"}
+    code_font: {google: "Fira Code"}
+  includes:
+    in_header: |
+      <style>
+
+      /* navbar lower border (not in Bootstrap by default) */
+      nav.navbar.navbar-expand-lg {
+        border-bottom: 1px solid #e5e5e5 !important;
+      }
+
+      /* Main text near-black */
+      body {
+        color: #222222;
+        #color: #003B4F;
+      }
+
+      /* Headings: slightly softer grey */
+      h1, h2, h3, h4, h5, h6 {
+        color: #333333;
+      }
+
+      /* Inline code should match text color */
+      p code, li code {
+        color: inherit !important;
+        font-family: "Fira Code", monospace; /* keep code font for clarity */
+        font-size: 0.9em; /* optional: make it slightly smaller */
+      }
+
+      /* Make code slightly smaller */
+      pre code, code {
+        font-size: 0.9em; /* adjust as needed (0.85em for even smaller) */
+      }
+
+      /* Style for package names */
+      .pkgname {
+        color: #3F6E6E;       /* grey-teal */
+        font-weight: 500;     /* medium */
+        font-family: inherit; /* match surrounding text */
+      }
+
+      </style>
 
 home:
   readme: README.md
