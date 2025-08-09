@@ -9,9 +9,8 @@ Authors@R: c(
       role = c("aut", "cre")
     )
   )
-Description: Provides fast general data frame joins with novel convenience
-  features and advanced options in a compact and sensible API. Bridges and
-  extends 'data.table'.
+Description: Fast data frame joins with advanced options and convenience
+  features in a concise and sensible API. Bridges and extends 'data.table'.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Depends: R (>= 3.3.0)
