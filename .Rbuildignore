@@ -14,14 +14,15 @@
 ^LICENSE\.md$
 ^README\.Rmd$
 
-# # Quarto caches and preview artefacts under /vignettes
+# Quarto caches and preview artefacts under /vignettes
 ^vignettes/\.quarto$
 ^vignettes/\.quarto_cache$
 ^vignettes/.*_cache$
 ^vignettes/.*\.html$
 
-# Other metadata
+# Local build (e.g. built vignettes) not required
 ^Meta$
+^doc$
 
 # pkgdown site config and output files (committing /docs manually)
 ^_pkgdown\.yml$
@@ -31,3 +32,4 @@
 # Performance article and data (website-only, not a CRAN vignette)
 ^vignettes/fjoin-performance\.Rmd$
 ^vignettes/fjoin-performance_data/
+
