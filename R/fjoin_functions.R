@@ -165,18 +165,20 @@
 #'
 #' # data frames
 #' x <- data.table::fread(data.table = FALSE, input = "
-#' country   pop_m
-#' Australia  27.2
-#' Brazil    212.0
-#' Chad        3.0
+#'   country  pop_m
+#' Australia   27.2
+#'    Brazil  212.0
+#'      Chad    3.0
 #' ")
 #'
 #' y <- data.table::fread(data.table = FALSE, input = "
-#' country forest_pc
-#' Brazil       59.1
-#' Chad          3.2
-#' Denmark      15.8
+#'   country forest_pc
+#'    Brazil      59.1
+#'      Chad       3.2
+#'   Denmark      15.8
 #' ")
+#'
+#' NULL # section break
 #'
 #' fjoin_full(x, y, on = "country", indicate = TRUE)
 #' fjoin_left(x, y, on = "country", indicate = TRUE)
@@ -189,20 +191,21 @@
 #'
 #' # data frames
 #' dfQ <- data.table::fread(data.table = FALSE, quote ="'", input = "
-#' id quantity notes                  other_cols
-#'  2        5 ''                     ...
-#'  1        6 ''                     ...
-#'  3        7 ''                     ...
-#' NA        8 'oranges (not listed)' ...
+#' id quantity                   notes other_cols
+#'  2        5                      ''        ...
+#'  1        6                      ''        ...
+#'  3        7                      ''        ...
+#' NA        8  'oranges (not listed)'        ...
 #' ")
 #'
 #' dfP <- data.table::fread(data.table = FALSE, input = "
-#' id item     price other_cols
-#' NA apples      10 ...
-#'  3 bananas     20 ...
-#'  2 cherries    30 ...
-#'  1 dates       40 ...
-#' ")
+#' id     item price other_cols
+#' NA   apples    10        ...
+#'  3  bananas    20        ...
+#'  2 cherries    30        ...
+#'  1    dates    40        ...
+#'  ")
+#'
 #' NULL # section break
 #'
 #' # (1) basic syntax
