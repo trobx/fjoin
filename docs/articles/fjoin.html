@@ -568,8 +568,8 @@ Join: setDF(with(list(fjoin.temp = setDT(setDT(.i[, fjoin.i.rn := .I][.DT[, fjoi
 <pre><code># A tibble: 2 × 3
   expression   median mem_alloc
   &lt;bch:expr&gt; &lt;bch:tm&gt; &lt;bch:byt&gt;
-1 data.table   2.71ms     967KB
-2 fjoin        3.91ms     564KB</code></pre>
+1 data.table    2.3ms     967KB
+2 fjoin        3.57ms     564KB</code></pre>
 </div>
 </div>
 <p><span class="pkgname">fjoin</span> is faster here because it dodges a call to <code>as.data.table.data.frame</code> on the way in, and a call to <code>as.data.table.list</code> on the way out, both of which (currently) deep-copy. The <code><a href="https://bench.r-lib.org/reference/mark.html" class="external-link">bench::mark</a></code> memory measurements <a href="https://rdatatable-community.github.io/The-Raft/posts/2025-07-14-memory_R-jangorecki/" class="external-link">exclude C-level allocations</a>, but the difference between them reflects these R-level copies. This behaviour will eventually change in <span class="pkgname">data.table</span>, at which point <span class="pkgname">fjoin</span> will revert to the more familiar <code>j = list()</code> idiom.</p>
@@ -583,13 +583,13 @@ Join: setDF(with(list(fjoin.temp = setDT(setDT(.i[, fjoin.i.rn := .I][.DT[, fjoi
 <li>an example</li>
 </ul></section><section class="section level2"><h2 id="internals">“Internals”<a class="anchor" aria-label="anchor" href="#internals"></a>
 </h2>
-<p>Apart from a check and heuristic for handling <code>match.na = FALSE</code>, the only thing that is not reflected in the <span class="pkgname">data.table</span> code that <span class="pkgname">fjoin</span> produces are the input and output handling steps:</p>
+<p><span class="pkgname">fjoin</span> inspects the data and applies a heuristic in determining how to handle <code>match.na = FALSE</code>. Otherwise, the only thing that is not reflected in the <span class="pkgname">data.table</span> code that <span class="pkgname">fjoin</span> produces are the input and output handling steps:</p>
 <ul>
 <li>shallow-casting non-<code>data.table</code> objects as <code>data.table</code>s</li>
 <li>adding tibble and/or <code>sf</code> class to outputs (and refreshing <code>sfc</code> columns)</li>
 <li>on exit, dropping temporary columns (pointers) from <code>data.table</code> inputs used as-is.</li>
 </ul>
-<p>These ensure that <span class="pkgname">fjoin</span> handles object classes with maximum efficiency (no data copying) while leaving inputs intact. But in other respects, the package is a dispenser of <span class="pkgname">data.table</span> code whose contribution is in a well thought-out API and the quality of its embedded solutions and options. <span class="pkgname">fjoin</span> pays a lot of attention to doing this well and is also very thoroughly tested.</p>
+<p>These ensure that <span class="pkgname">fjoin</span> handles object classes with maximum efficiency (no data copying) while leaving inputs intact. But in other respects, the package is a dispenser of <span class="pkgname">data.table</span> code; its contribution is in extending and enhancing <span class="pkgname">data.table</span>’s core join API and translating it to a more mainstream left/right style, and in the quality of its embedded <span class="pkgname">data.table</span> solutions. <span class="pkgname">fjoin</span> pays a lot of attention to doing this well and is also very thoroughly tested.</p>
 </section><script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
