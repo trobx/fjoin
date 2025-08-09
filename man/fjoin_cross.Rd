@@ -8,7 +8,7 @@ fjoin_cross(
   x = NULL,
   y = NULL,
   order = "left",
-  prefix.y = "R.",
+  prefix.y = "y.",
   select = NULL,
   select.x = NULL,
   select.y = NULL,
@@ -27,7 +27,7 @@ Default is \code{"left"} for left, inner, full, and cross joins,
 \code{"right"} for right joins.}
 
 \item{prefix.y}{A prefix to attach to column names in \code{y} that are the
-same as a column name in \code{x}. Default \code{"R."}.}
+same as a column name in \code{x}. Default \code{"y."}.}
 
 \item{select, select.x, select.y}{Character vectors of columns to be selected
 from either input if present (\code{select}) or specifically from one or

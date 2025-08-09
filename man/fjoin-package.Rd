@@ -6,26 +6,23 @@
 \alias{fjoin-package}
 \title{fjoin}
 \description{
-\pkg{fjoin} is a general-purpose data frame join package that runs on
-\pkg{data.table} and works seamlessly in general workflows and tidyverse
-pipelines. It is lightweight, fast, and has short and clear syntax with
-options not found in other frameworks.
+\pkg{fjoin} is a data frame join package that runs on \pkg{data.table},
+providing fast equi and non-equi joins of all styles. It plugs seamlessly
+into tidyverse pipelines and general workflows, and has features not found in
+other frameworks, including NA-safety by default, on-the-fly column
+selection, flexible row-order preservation, multiple-match handling on both
+sides, and an indicator column for row origin.
 }
-\section{Vignettes}{
-
-Visit the package website \url{https://trobx.github.io/fjoin} or access
-locally in R:
-\itemize{
-  \item Guide to fjoin: \code{vignette("fjoin")}
-  \item Performance overview: \code{vignette("fjoin-performance")}
-}
+\section{Vignette}{
+ Visit the package website
+  \url{https://trobx.github.io/fjoin} or access locally in R with \code{vignette("fjoin")}.
 }
 
 \section{API}{
 
 \tabular{ll}{
 \strong{fjoin_* functions} \tab \strong{dtjoin* functions} \cr
-\emph{\code{x}/\code{y} style} \tab \emph{Extended \code{DT[i]}-like interface} \cr
+\emph{\code{x}/\code{y} style} \tab \emph{Extended \code{DT[i]} style} \cr
 \code{\link{fjoin_inner}()}, \code{\link{fjoin_left}()}, \code{\link{fjoin_right}()}, \code{\link{fjoin_full}()} \tab \code{\link{dtjoin}()} \cr
 \code{\link{fjoin_left_semi}()} (alias \code{\link{fjoin_semi}()}), \code{\link{fjoin_right_semi}()} \tab \code{\link{dtjoin_semi}()} \cr
 \code{\link{fjoin_left_anti}()} (alias \code{\link{fjoin_anti}()}), \code{\link{fjoin_right_anti}()} \tab \code{\link{dtjoin_anti}()} \cr
@@ -36,13 +33,13 @@ locally in R:
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://github.com/trobx/fjoin}
+  \item \url{https://trobx.github.io/fjoin}
   \item Report bugs at \url{https://github.com/trobx/fjoin/issues}
 }
 
 }
 \author{
-\strong{Maintainer}: Toby Robertson \email{toby.robertson@outlook.com}
+\strong{Maintainer}: Toby Robertson \email{trobx@proton.me}
 
 }
 \keyword{internal}

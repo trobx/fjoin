@@ -16,7 +16,7 @@ fjoin_left(
   select.x = NULL,
   select.y = NULL,
   indicate = FALSE,
-  prefix.y = "R.",
+  prefix.y = "y.",
   on.first = FALSE,
   preserve = FALSE,
   do = !(is.null(x) && is.null(y)),
@@ -60,7 +60,7 @@ result, with values \code{1L} if from \code{x} only, \code{2L} if from
 in Stata). Default \code{FALSE}.}
 
 \item{prefix.y}{A prefix to attach to column names in \code{y} that are the
-same as a column name in \code{x}. Default \code{"R."}.}
+same as a column name in \code{x}. Default \code{"y."}.}
 
 \item{on.first}{Whether to place the join columns first in the join result.
 Default \code{FALSE}.}
@@ -105,7 +105,7 @@ The output class follows these rules:
 }
 
 \subsection{Using \code{select}, \code{select.x}, and \code{select.y}}{
-Used on its own, \code{select} retains the join columns plus the
+Used on its own, \code{select} keeps the join columns plus the
 specified non-join columns from both inputs if present.
 
 If \code{select.x} is provided (and similarly for \code{select.y}) then:
@@ -160,7 +160,7 @@ of columns when casting inputs or outputs to different classes.)
 \subsection{Additional notes for \pkg{sf} users}{
 Joins (non-spatial) between two \code{sf} objects are supported. If both
 active geometries are selected in the result, the result sets \code{x}'s
-geometry (\code{y}'s geometry in a right join).
+or \code{y}'s geometry as active according to the value of \code{order}.
 
 All \code{sfc}-class columns in the join result are refreshed (using
 \code{sf::st_sfc()} with \code{recompute_bbox = TRUE}), whether or not the
@@ -169,23 +169,25 @@ output is \code{sf}.
 }
 \examples{
 # ---------------------------------------------------------------------------
-# True joins: basic usage
+# True joins (inner/left/right/full): basic usage
 # ---------------------------------------------------------------------------
 
 # data frames
 x <- data.table::fread(data.table = FALSE, input = "
-country   pop_m
-Australia  27.2
-Brazil    212.0
-Chad        3.0
+  country  pop_m
+Australia   27.2
+   Brazil  212.0
+     Chad    3.0
 ")
 
 y <- data.table::fread(data.table = FALSE, input = "
-country forest_pc
-Brazil       59.1
-Chad          3.2
-Denmark      15.8
+  country forest_pc
+   Brazil      59.1
+     Chad       3.2
+  Denmark      15.8
 ")
+
+NULL # section break
 
 fjoin_full(x, y, on = "country", indicate = TRUE)
 fjoin_left(x, y, on = "country", indicate = TRUE)
@@ -198,20 +200,21 @@ fjoin_inner(x, y, on = "country", indicate = TRUE)
 
 # data frames
 dfQ <- data.table::fread(data.table = FALSE, quote ="'", input = "
-id quantity notes                  other_cols
- 2        5 ''                     ...
- 1        6 ''                     ...
- 3        7 ''                     ...
-NA        8 'oranges (not listed)' ...
+id quantity                   notes other_cols
+ 2        5                      ''        ...
+ 1        6                      ''        ...
+ 3        7                      ''        ...
+NA        8  'oranges (not listed)'        ...
 ")
 
 dfP <- data.table::fread(data.table = FALSE, input = "
-id item     price other_cols
-NA apples      10 ...
- 3 bananas     20 ...
- 2 cherries    30 ...
- 1 dates       40 ...
-")
+id     item price other_cols
+NA   apples    10        ...
+ 3  bananas    20        ...
+ 2 cherries    30        ...
+ 1    dates    40        ...
+ ")
+
 NULL # section break
 
 # (1) basic syntax
@@ -270,7 +273,7 @@ fjoin_full(
 # "last"). fjoin (`mult.x`, `mult.y`) permits this on either side of the
 # join, or on both sides at once.
 
-# This example (using fjoin_left()) shows an application to temporally
+# This example (using `fjoin_left()`) shows an application to temporally
 # ordered data frames of "events" and "reactions".
 
 # data frames

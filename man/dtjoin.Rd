@@ -151,7 +151,7 @@ The output class follows these rules:
 }
 
 \subsection{Using \code{select}, \code{select.DT}, and \code{select.i}}{
-Used on its own, \code{select} retains the join columns plus the specified
+Used on its own, \code{select} keeps the join columns plus the specified
 non-join columns from both inputs if present.
 
 If \code{select.DT} is provided (and similarly for \code{select.i}) then:
@@ -209,7 +209,7 @@ of columns when casting inputs or outputs to different classes.)
 
 \subsection{Additional notes for \pkg{sf} users}{
 If \code{.DT} and \code{.i} are both \code{sf} objects whose active geometries
-are selected in the result, the result sets \code{.i}'s geometry.
+are selected in the result, the result sets \code{.i}'s geometry as active.
 
 Regardless of whether or not the inputs and output are \code{sf}, all
 \code{sfc}-class columns in the join result are refreshed after joining (using
