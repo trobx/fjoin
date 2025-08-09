@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Performance check of fjoin against merge.data.table, dplyr, and collapse • fjoin</title>
+<title>Performance check of fjoin against merge.data.table, dplyr, collapse • fjoin</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
 <link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
 <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
@@ -13,15 +13,55 @@
 <link rel="manifest" href="../site.webmanifest">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/Source_Sans_Pro-0.4.10/font.css" rel="stylesheet">
+<link href="../deps/Fira_Code-0.4.10/font.css" rel="stylesheet">
+<link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Performance check of fjoin against merge.data.table, dplyr, and collapse">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Performance check of fjoin against merge.data.table, dplyr, collapse">
+<style>
+
+/* navbar lower border (not in Bootstrap by default) */
+nav.navbar.navbar-expand-lg {
+  border-bottom: 1px solid #e5e5e5 !important;
+}
+
+/* Main text near-black */
+body {
+  color: #222222;
+  #color: #003B4F;
+}
+
+/* Headings: slightly softer grey */
+h1, h2, h3, h4, h5, h6 {
+  color: #333333;
+}
+
+/* Inline code should match text color */
+p code, li code {
+  color: inherit !important;
+  font-family: "Fira Code", monospace; /* keep code font for clarity */
+  font-size: 0.9em; /* optional: make it slightly smaller */
+}
+
+/* Make code slightly smaller */
+pre code, code {
+  font-size: 0.9em; /* adjust as needed (0.85em for even smaller) */
+}
+
+/* Style for package names */
+.pkgname {
+  color: #3F6E6E;       /* grey-teal */
+  font-weight: 500;     /* medium */
+  font-family: inherit; /* match surrounding text */
+}
+
+</style>
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <nav class="navbar navbar-expand-lg fixed-top bg-primary" data-bs-theme="dark" aria-label="Site navigation"><div class="container">
+    <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
 
     <a class="navbar-brand me-2" href="../index.html">fjoin</a>
 
@@ -36,12 +76,7 @@
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="../articles/fjoin.html">Get started</a></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="active nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/fjoin-performance.html">Performance check of fjoin against merge.data.table, dplyr, and collapse</a></li>
-  </ul>
-</li>
+<li class="active nav-item"><a class="nav-link" href="../articles/index.html">Articles</a></li>
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><form class="form-inline" role="search">
@@ -60,77 +95,59 @@
 <script src="fjoin-performance_files/kePrint-0.0.1/kePrint.js"></script><link href="fjoin-performance_files/lightable-0.0.1/lightable.css" rel="stylesheet">
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.png" class="logo" alt=""><h1>Performance check of fjoin against merge.data.table, dplyr, and collapse</h1>
+      <img src="../logo.png" class="logo" alt=""><h1>Performance check of fjoin against merge.data.table, dplyr, collapse</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/trobx/fjoin/blob/HEAD/vignettes/fjoin-performance.rmd" class="external-link"><code>vignettes/fjoin-performance.rmd</code></a></small>
-      <div class="d-none name"><code>fjoin-performance.rmd</code></div>
+      <small class="dont-index">Source: <a href="https://github.com/trobx/fjoin/blob/HEAD/vignettes/fjoin-performance.Rmd" class="external-link"><code>vignettes/fjoin-performance.Rmd</code></a></small>
+      <div class="d-none name"><code>fjoin-performance.Rmd</code></div>
     </div>
 
     
     
-<p>This exercise is a comfort check on the performance of <em>fjoin</em>
-against alternatives on simple equality joins with moderately large
-laptop-size data. The solutions tested are: <em>fjoin</em>,
-<em>data.table</em> <code><a href="https://rdrr.io/r/base/merge.html" class="external-link">merge()</a></code> (i.e
-<code>merge.data.table</code>), <em>dplyr</em>, and <em>collapse</em>.
-It does not do justice to the much more comprehensive join functionality
-offered by <em>fjoin</em> and <em>dplyr</em> as compared with the other
-two.</p>
-<p><em>fjoin</em> emerges as the most robust and fastest-performing
-solution, faster than <code><a href="https://rdrr.io/r/base/merge.html" class="external-link">merge()</a></code> in some joins. This fact,
-combined with its versatility out of the box, its convenience features,
-and sensible defaults, confirms the strength of <em>fjoin</em> as a
-one-stop shop for joins in R.</p>
+<style>
+/* Force wrapping for output blocks after code */
+div.sourceCode + pre, pre {
+  white-space: pre-wrap !important;
+  word-break: break-word !important;
+}
+</style>
+<!-- This article is for the website only and is not part of the package --><!-- 
+Leave as .Rmd not .qmd because of issues with the use of external data with
+quarto vignettes and articles. See e.g. 
+https://github.com/r-lib/pkgdown/issues/2846
+https://github.com/r-lib/pkgdown/issues/2877
+https://github.com/permaverse/flipr/issues/26
+--><p>This exercise checks the performance of <span style="color:#666666; font-weight:bold;">fjoin</span> against <span style="color:#666666; font-weight:bold;">data.table</span>
+<code><a href="https://rdrr.io/r/base/merge.html" class="external-link">merge()</a></code> (i.e. <code>merge.data.table</code>), <span style="color:#666666; font-weight:bold;">dplyr</span>, and <span style="color:#666666; font-weight:bold;">collapse</span> on simple
+equality joins with moderately large laptop-size data. It does not do
+justice to the much more comprehensive join functionality offered by
+<span style="color:#666666; font-weight:bold;">fjoin</span> and <span style="color:#666666; font-weight:bold;">dplyr</span> compared with the
+other two.</p>
 <div class="section level3">
 <h3 id="description">Description<a class="anchor" aria-label="anchor" href="#description"></a>
 </h3>
-<p>Details plus version and system information are at the bottom of this
-note. The setup consists of two tables, one “big” (&gt;4GB, 100M rows)
-and one “small” (100K rows), joined by equality on a single integer
-column. We look at the four true joins (inner, left, right, full),
-swapping the argument positions of the big and small tables. Both tables
-are randomly ordered in the first set of runs, and keyed in the second.
-All solutions are tested with like-for-like arguments.</p>
+<p>The setup consists of two <code>data.table</code>s, one “big”
+(&gt;4GB, 100M rows) and one “small” (100K rows), joined by equality on
+a single integer column. The test covers the four true joins (inner,
+left, right, full), swapping the argument positions of the big and small
+tables. Both tables are randomly ordered in the first set of runs, and
+keyed in the second. All solutions are tested with like-for-like
+arguments.</p>
 <p>The exercise is then repeated for the case where there are missing
 values in the join column on each side, which must not be treated as
 matches (but whose rows must be retained in the result where
-appropriate). This comparison is limited to <em>fjoin</em> and
-<em>dplyr</em>, which are the only two where this is possible, although
-it is standard outside R.</p>
+appropriate). This comparison is limited to <span style="color:#666666; font-weight:bold;">fjoin</span> and <span style="color:#666666; font-weight:bold;">dplyr</span>, which are the
+only two supporting this option.</p>
+<p>Details plus version and system information are at the bottom of this
+note.</p>
 </div>
 <div class="section level3">
 <h3 id="results">Results<a class="anchor" aria-label="anchor" href="#results"></a>
 </h3>
-<div class="section level4">
-<h4 id="main-observations">Main observations<a class="anchor" aria-label="anchor" href="#main-observations"></a>
-</h4>
-<ul>
-<li><p><em>fjoin</em> is the fastest solution overall (while
-<em>dplyr</em> is the least fast), and is never appreciably slower than
-another solution in any of the ~40 joins considered</p></li>
-<li><p>not suprisingly, its performance is similar to
-<code>merge.data.table()</code> (where comparison is possible) since
-both use equivalent <em>data.table</em> code for inner and left joins.
-However, it is faster for right and full joins when the cost of the join
-is large, because it avoids recomputing it for the anti-join of the
-right table.</p></li>
-<li><p>these two <em>data.table</em> solutions are much more robust to
-switching the order of the tables than <em>collapse</em> and
-<em>dplyr</em>.</p></li>
-<li><p>when the data are ordered, the differences among the solutions
-are small: all solutions are fast.</p></li>
-<li><p>disallowing NA matches is very fast (this is the case for
-<em>dplyr</em> also). There is essentially no difference in execution
-time when missing values are introduced and matches on them are
-excluded.</p></li>
-</ul>
 <div class="section level5">
 <h5 id="a-no-missing-values-tables-unordered">1a: No missing values, tables unordered<a class="anchor" aria-label="anchor" href="#a-no-missing-values-tables-unordered"></a>
 </h5>
-Total is sum of median times for inner, left and full joins. Right joins
-excluded as not comparable among the non-<em>fjoin</em> solutions.
-<table class="table table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<img src="fjoin-performance_files/figure-html/unnamed-chunk-4-1.png" width="700"><table class="table table" style="width: auto !important; margin-left: auto; margin-right: auto;">
 <thead><tr>
 <th style="text-align:left;">
 solution
@@ -173,15 +190,18 @@ collapse
 </td>
 </tr>
 </tbody>
+<tfoot><tr>
+<td style="padding: 0; border:0;" colspan="100%">
+<sup></sup> NB: Total is sum of median times for inner, left, and full
+joins. Right joins excluded as not comparable.
+</td>
+</tr></tfoot>
 </table>
-<p><img src="fjoin-performance_files/figure-html/unnamed-chunk-5-1.png" width="700"></p>
 </div>
 <div class="section level5">
 <h5 id="b-no-missing-values-both-tables-keyed">1b: No missing values, both tables keyed<a class="anchor" aria-label="anchor" href="#b-no-missing-values-both-tables-keyed"></a>
 </h5>
-Total is sum of median times for inner, left and full joins. Right joins
-excluded as not comparable among the non-<em>fjoin</em> solutions.
-<table class="table table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<img src="fjoin-performance_files/figure-html/unnamed-chunk-5-1.png" width="700"><table class="table table" style="width: auto !important; margin-left: auto; margin-right: auto;">
 <thead><tr>
 <th style="text-align:left;">
 solution
@@ -224,15 +244,18 @@ collapse
 </td>
 </tr>
 </tbody>
+<tfoot><tr>
+<td style="padding: 0; border:0;" colspan="100%">
+<sup></sup> NB: Total is sum of median times for inner, left, and full
+joins. Right joins excluded as not comparable.
+</td>
+</tr></tfoot>
 </table>
-<p><img src="fjoin-performance_files/figure-html/unnamed-chunk-7-1.png" width="700"></p>
 </div>
 <div class="section level5">
 <h5 id="a-missing-values-matches-disallowed-tables-unordered">2a: Missing values (matches disallowed), tables unordered<a class="anchor" aria-label="anchor" href="#a-missing-values-matches-disallowed-tables-unordered"></a>
 </h5>
-Total is sum of median times for inner, left and full joins. Right joins
-excluded for comparability with the previous scenario.
-<table class="table table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<img src="fjoin-performance_files/figure-html/unnamed-chunk-6-1.png" width="700"><table class="table table" style="width: auto !important; margin-left: auto; margin-right: auto;">
 <thead><tr>
 <th style="text-align:left;">
 solution
@@ -275,15 +298,19 @@ NA
 </td>
 </tr>
 </tbody>
+<tfoot><tr>
+<td style="padding: 0; border:0;" colspan="100%">
+<sup></sup> NB: Total is sum of median times for inner, left, and full
+joins. Right joins excluded for comparability with the previous
+scenario.
+</td>
+</tr></tfoot>
 </table>
-<p><img src="fjoin-performance_files/figure-html/unnamed-chunk-9-1.png" width="700"></p>
 </div>
 <div class="section level5">
 <h5 id="b-missing-values-matches-disallowed-both-tables-keyed">2b: Missing values (matches disallowed), both tables keyed<a class="anchor" aria-label="anchor" href="#b-missing-values-matches-disallowed-both-tables-keyed"></a>
 </h5>
-Total is sum of median times for inner, left and full joins. Right joins
-excluded for comparability with the previous scenario.
-<table class="table table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<img src="fjoin-performance_files/figure-html/unnamed-chunk-7-1.png" width="700"><table class="table table" style="width: auto !important; margin-left: auto; margin-right: auto;">
 <thead><tr>
 <th style="text-align:left;">
 solution
@@ -326,9 +353,37 @@ NA
 </td>
 </tr>
 </tbody>
+<tfoot><tr>
+<td style="padding: 0; border:0;" colspan="100%">
+<sup></sup> NB: Total is sum of median times for inner, left, and full
+joins. Right joins excluded for comparability with the previous
+scenario.
+</td>
+</tr></tfoot>
 </table>
-<p><img src="fjoin-performance_files/figure-html/unnamed-chunk-11-1.png" width="700"></p>
 </div>
+<div class="section level4">
+<h4 id="main-observations">Main observations<a class="anchor" aria-label="anchor" href="#main-observations"></a>
+</h4>
+<ul>
+<li><p><span style="color:#666666; font-weight:bold;">fjoin</span> is
+the fastest solution overall (while <span style="color:#666666; font-weight:bold;">dplyr</span> is the least
+fast), and is never appreciably slower than another solution in any of
+the ~40 joins considered.</p></li>
+<li><p>Not suprisingly, its performance is similar to
+<code>merge.data.table()</code> (where comparison is possible) since
+both use equivalent and straightforward <span style="color:#666666; font-weight:bold;">data.table</span> code for
+inner and left joins. However, it is faster for right and full joins
+when the cost of the join is large, because it avoids recomputing it to
+obtain the anti-join of the right table.</p></li>
+<li><p>These two <span style="color:#666666; font-weight:bold;">data.table</span> solutions are
+much more robust to switching the order of the tables than <span style="color:#666666; font-weight:bold;">collapse</span> and <span style="color:#666666; font-weight:bold;">dplyr</span>.</p></li>
+<li><p>When the data are ordered, the differences among the solutions
+are small: they are all fast.</p></li>
+<li><p>Disallowing NA matches is very fast (this is the case for <span style="color:#666666; font-weight:bold;">dplyr</span> also). Comparison
+with the non-missing joins is because of differences in the size of the
+join result when missing values are introduced.</p></li>
+</ul>
 </div>
 </div>
 <div class="section level3">
@@ -348,9 +403,9 @@ other columns numeric.
 </ul>
 </li>
 <li>The cardinality is M:1 from <code>big</code> to <code>small</code>.
-Both tables have 100000 distinct values of <code>id</code>. In
+Both tables have 100K distinct values of <code>id</code>. In
 <code>small</code> these are unique while in <code>big</code> each
-<code>id</code> is present 1000 times.</li>
+<code>id</code> is present 1K times.</li>
 <li>In each table 90% of the distinct <code>id</code>s (and hence of the
 rows) have a match in the other table.</li>
 <li>Initially both tables are randomly ordered and there are no missing
@@ -373,27 +428,22 @@ differences in their defaults:</p>
 <li>multiple matches accepted
 (<code>collapse::join(..., multiple = TRUE)</code>)</li>
 </ul>
-<p>(<em>fjoin</em>’s <code>match.na = FALSE</code> default check for
-missing values actually has negligible cost, and in practice it is not
-worth suspending even when the data are known to be free of missing
-values.)</p>
-<p>In the scenario with missing values, the <em>dplyr</em> solutions are
-run with the further argument <code>na.matches = "never"</code>, while
-<em>fjoin</em> is run on default arguments, which exclude such
-matches.</p>
+<p>In the scenario with missing values, the <span style="color:#666666; font-weight:bold;">dplyr</span> solutions are run
+with the further argument <code>na.matches = "never"</code>, while <span style="color:#666666; font-weight:bold;">fjoin</span> is run on default
+arguments, which exclude such matches.</p>
 </div>
 <div class="section level5">
 <h5 id="version-and-system-info">Version and system info<a class="anchor" aria-label="anchor" href="#version-and-system-info"></a>
 </h5>
 <pre><code><span><span class="co">## data.table 1.17.0</span></span>
 <span><span class="co">## dplyr 1.1.4</span></span>
-<span><span class="co">## collapse 2.0.19</span></span></code></pre>
-<pre><code><span><span class="co">## R version 4.4.2 (2024-10-31 ucrt)</span></span></code></pre>
-<pre><code><span><span class="co">## Windows</span></span></code></pre>
-<pre><code><span><span class="co">## Intel(R) Core(TM) i7-10750H CPU @ 2.60GHz</span></span></code></pre>
-<pre><code><span><span class="co">## Cores: 6</span></span></code></pre>
-<pre><code><span><span class="co">## Threads: 12</span></span></code></pre>
-<pre><code><span><span class="co">## RAM (GB): 31.8</span></span></code></pre>
+<span><span class="co">## collapse 2.0.19</span></span>
+<span><span class="co">## R version 4.4.2 (2024-10-31 ucrt)</span></span>
+<span><span class="co">## Windows</span></span>
+<span><span class="co">## Intel(R) Core(TM) i7-10750H CPU @ 2.60GHz</span></span>
+<span><span class="co">## Cores: 6</span></span>
+<span><span class="co">## Threads: 12</span></span>
+<span><span class="co">## RAM (GB): 31.8</span></span></code></pre>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
