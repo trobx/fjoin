@@ -7,12 +7,17 @@
 .Rprofile
 
 # Package build artifacts
+/*.tar.gz
 /doc/
 /Meta/
 
+# pkgdown junk but not e.g. logo
+pkgdown/*
+!pkgdown/assets/
+!pkgdown/favicon/
+
 # Keep these tracked since deploying website manually
 # docs/    # rendered site (output of devtools::build_site())
-# pkgdown/ # source of website assets (e.g. logo)
 
 # Quarto/knitr build artefacts
 _quarto/              # Quarto project cache
