@@ -63,8 +63,8 @@ dtjoin_cross <- function(
   check_dot_names(dot_args)
 
   mock <- is.null(.DT) && is.null(.i)
-  do   <- !mock && do
-  show <- show || !do
+  if (mock) do <- FALSE
+  if (!do) show <- TRUE
 
   if (show) {
     .labels <-
