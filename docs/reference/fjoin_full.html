@@ -89,7 +89,7 @@ pre code, code {
 <span>  select.x <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  select.y <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  indicate <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  prefix.y <span class="op">=</span> <span class="st">"y."</span>,</span>
+<span>  prefix.y <span class="op">=</span> <span class="st">"R."</span>,</span>
 <span>  preserve <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  do <span class="op">=</span> <span class="op">!</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">&amp;&amp;</span> <span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  show <span class="op">=</span> <span class="op">!</span><span class="va">do</span></span>
@@ -137,8 +137,7 @@ Default <code>FALSE</code>.</p></dd>
 <dt id="arg-order">order<a class="anchor" aria-label="anchor" href="#arg-order"></a></dt>
 <dd><p>Whether the row order of the result should reflect <code>x</code> then
 <code>y</code> (<code>"left"</code>) or <code>y</code> then <code>x</code> (<code>"right"</code>).
-Default is <code>"left"</code> for left, inner, full, and cross joins,
-<code>"right"</code> for right joins.</p></dd>
+Default <code>"left"</code>.</p></dd>
 
 
 <dt id="arg-select-select-x-select-y">select, select.x, select.y<a class="anchor" aria-label="anchor" href="#arg-select-select-x-select-y"></a></dt>
@@ -158,7 +157,7 @@ in Stata). Default <code>FALSE</code>.</p></dd>
 
 <dt id="arg-prefix-y">prefix.y<a class="anchor" aria-label="anchor" href="#arg-prefix-y"></a></dt>
 <dd><p>A prefix to attach to column names in <code>y</code> that are the
-same as a column name in <code>x</code>. Default <code>"y."</code>.</p></dd>
+same as a column name in <code>x</code>. Default <code>"R."</code>.</p></dd>
 
 
 <dt id="arg-preserve">preserve<a class="anchor" aria-label="anchor" href="#arg-preserve"></a></dt>

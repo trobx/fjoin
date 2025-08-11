@@ -17,7 +17,7 @@ fjoin_full(
   select.x = NULL,
   select.y = NULL,
   indicate = FALSE,
-  prefix.y = "y.",
+  prefix.y = "R.",
   preserve = FALSE,
   do = !(is.null(x) && is.null(y)),
   show = !do
@@ -48,8 +48,7 @@ Default \code{FALSE}.}
 
 \item{order}{Whether the row order of the result should reflect \code{x} then
 \code{y} (\code{"left"}) or \code{y} then \code{x} (\code{"right"}).
-Default is \code{"left"} for left, inner, full, and cross joins,
-\code{"right"} for right joins.}
+Default \code{"left"}.}
 
 \item{select, select.x, select.y}{Character vectors of columns to be selected
 from either input if present (\code{select}) or specifically from one or
@@ -63,7 +62,7 @@ result, with values \code{1L} if from \code{x} only, \code{2L} if from
 in Stata). Default \code{FALSE}.}
 
 \item{prefix.y}{A prefix to attach to column names in \code{y} that are the
-same as a column name in \code{x}. Default \code{"y."}.}
+same as a column name in \code{x}. Default \code{"R."}.}
 
 \item{preserve}{Whether to include \code{y}'s equality join column(s) in
 addition to \code{x}'s (equivalent to \code{keep} in dplyr). Default

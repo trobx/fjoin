@@ -12,11 +12,11 @@ fjoin_right(
   mult.x = "all",
   mult.y = "all",
   indicate = FALSE,
-  order = "right",
+  order = "left",
   select = NULL,
   select.x = NULL,
   select.y = NULL,
-  prefix.y = "y.",
+  prefix.y = "R.",
   on.first = FALSE,
   preserve = FALSE,
   do = !(is.null(x) && is.null(y)),
@@ -50,8 +50,7 @@ in Stata). Default \code{FALSE}.}
 
 \item{order}{Whether the row order of the result should reflect \code{x} then
 \code{y} (\code{"left"}) or \code{y} then \code{x} (\code{"right"}).
-Default is \code{"left"} for left, inner, full, and cross joins,
-\code{"right"} for right joins.}
+Default \code{"left"}.}
 
 \item{select, select.x, select.y}{Character vectors of columns to be selected
 from either input if present (\code{select}) or specifically from one or
@@ -60,7 +59,7 @@ all columns. Use \code{""} (or \code{NA}) to select no columns. Join
 columns are always selected. See Details.}
 
 \item{prefix.y}{A prefix to attach to column names in \code{y} that are the
-same as a column name in \code{x}. Default \code{"y."}.}
+same as a column name in \code{x}. Default \code{"R."}.}
 
 \item{on.first}{Whether to place the join columns first in the join result.
 Default \code{FALSE}.}
