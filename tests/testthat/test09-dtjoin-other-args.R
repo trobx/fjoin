@@ -1,30 +1,30 @@
 # ------------------------------------------------------------------------------
-# names with i.main=TRUE including outer.DT case (rename_anti.DT-TRUE
+# names with i.home=TRUE including outer.DT case (rename_anti.DT-TRUE
 # These tests based on names only; tests of fjoin functions cover column values
 
-test_that("dtjoin names with i.main", {
-  result <- dtjoin(DF_B, DF_A, on="id_B==id_A", i.main=TRUE)
+test_that("dtjoin names with i.home", {
+  result <- dtjoin(DF_B, DF_A, on="id_B==id_A", i.home=TRUE)
   expect_named(result, c("id_A","t_A","c","v_A","t_B","x.c","v_B"))
 })
 
-test_that("dtjoin names with i.main, outer.DT", {
-  result <- dtjoin(DF_B, DF_A, on="id_B==id_A", nomatch.DT=NA, i.main=TRUE)
+test_that("dtjoin names with i.home, outer.DT", {
+  result <- dtjoin(DF_B, DF_A, on="id_B==id_A", nomatch.DT=NA, i.home=TRUE)
   expect_named(result, c("id_A","t_A","c","v_A","t_B","x.c","v_B"))
 })
 
-# rename_anti.DT (outer.DT, i.main), same name, preserve
-test_that("dtjoin names with i.main, outer.DT, preserve", {
+# rename_anti.DT (outer.DT, i.home), same name, preserve
+test_that("dtjoin names with i.home, outer.DT, preserve", {
   data.table::setnames(DF_A,"id_A","id")
   data.table::setnames(DF_B,"id_B","id")
-  result <- dtjoin(DF_B, DF_A, on="id", nomatch.DT=NA, i.main=TRUE, preserve=TRUE)
+  result <- dtjoin(DF_B, DF_A, on="id", nomatch.DT=NA, i.home=TRUE, preserve=TRUE)
   expect_named(result, c("id","t_A","c","v_A","x.id","t_B","x.c","v_B"))
   data.table::setnames(DF_A,"id","id_A")
   data.table::setnames(DF_B,"id","id_B")
 })
 
 # ditto, different names
-test_that("dtjoin names with i.main", {
-  result <- dtjoin(DF_B, DF_A, on="id_B==id_A", nomatch.DT=NA, i.main=TRUE, preserve=TRUE)
+test_that("dtjoin names with i.home", {
+  result <- dtjoin(DF_B, DF_A, on="id_B==id_A", nomatch.DT=NA, i.home=TRUE, preserve=TRUE)
   expect_named(result, c("id_A","t_A","c","v_A","id_B","t_B","x.c","v_B"))
 })
 
@@ -41,35 +41,35 @@ test_that("dtjoin mult.DT but no mult, names with same name join col, outer.DT",
   data.table::setnames(DF_B,"id","id_B")
 })
 
-# special case mult.DT but no mult, with i.main
-test_that("dtjoin mult.DT but no mult, names with i.main, outer.DT, preserve", {
-  result <- dtjoin(DF_B, DF_A, on="id_B==id_A", mult.DT="first", nomatch.DT=NA, i.main=TRUE, preserve=TRUE)
+# special case mult.DT but no mult, with i.home
+test_that("dtjoin mult.DT but no mult, names with i.home, outer.DT, preserve", {
+  result <- dtjoin(DF_B, DF_A, on="id_B==id_A", mult.DT="first", nomatch.DT=NA, i.home=TRUE, preserve=TRUE)
   expect_named(result, c("id_A","t_A","c","v_A","id_B","t_B","x.c","v_B"))
 })
 
-# special case mult.DT but no mult, with i.main, same name
-test_that("dtjoin mult.DT but no mult, names with i.main, outer.DT", {
+# special case mult.DT but no mult, with i.home, same name
+test_that("dtjoin mult.DT but no mult, names with i.home, outer.DT", {
   data.table::setnames(DF_A,"id_A","id")
   data.table::setnames(DF_B,"id_B","id")
-  result <- dtjoin(DF_B, DF_A, on="id", mult.DT="first", nomatch.DT=NA, i.main=TRUE)
+  result <- dtjoin(DF_B, DF_A, on="id", mult.DT="first", nomatch.DT=NA, i.home=TRUE)
   expect_named(result, c("id","t_A","c","v_A","t_B","x.c","v_B"))
   data.table::setnames(DF_A,"id","id_A")
   data.table::setnames(DF_B,"id","id_B")
 })
 
-# special case mult.DT but no mult, with i.main, same name, preserve
-test_that("dtjoin mult.DT but no mult, names with i.main, outer.DT, preserve", {
+# special case mult.DT but no mult, with i.home, same name, preserve
+test_that("dtjoin mult.DT but no mult, names with i.home, outer.DT, preserve", {
   data.table::setnames(DF_A,"id_A","id")
   data.table::setnames(DF_B,"id_B","id")
-  result <- dtjoin(DF_B, DF_A, on="id", mult.DT="first", nomatch.DT=NA, i.main=TRUE, preserve=TRUE)
+  result <- dtjoin(DF_B, DF_A, on="id", mult.DT="first", nomatch.DT=NA, i.home=TRUE, preserve=TRUE)
   expect_named(result, c("id","t_A","c","v_A","x.id","t_B","x.c","v_B"))
   data.table::setnames(DF_A,"id","id_A")
   data.table::setnames(DF_B,"id","id_B")
 })
 
-# special case mult.DT but no mult, with i.main, different names
-test_that("dtjoin mult.DT but no mult, names with i.main", {
-  result <- dtjoin(DF_B, DF_A, on="id_B==id_A", mult.DT="first", nomatch.DT=NA, i.main=TRUE)
+# special case mult.DT but no mult, with i.home, different names
+test_that("dtjoin mult.DT but no mult, names with i.home", {
+  result <- dtjoin(DF_B, DF_A, on="id_B==id_A", mult.DT="first", nomatch.DT=NA, i.home=TRUE)
   expect_named(result, c("id_A","t_A","c","v_A","t_B","x.c","v_B"))
 })
 
@@ -81,8 +81,8 @@ test_that("dtjoin names with on.first", {
   expect_named(result, c("v_B","id_B","t_B","c","id_A","t_A","i.c"))
 })
 
-test_that("dtjoin names with on.first and i.main", {
-  result <- dtjoin(DF_B, DF_A, on="v_B==v_A", on.first=TRUE, i.main=TRUE)
+test_that("dtjoin names with on.first and i.home", {
+  result <- dtjoin(DF_B, DF_A, on="v_B==v_A", on.first=TRUE, i.home=TRUE)
   expect_named(result, c("v_A","id_A","t_A","c","id_B","t_B","x.c"))
 })
 

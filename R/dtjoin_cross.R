@@ -39,9 +39,9 @@ dtjoin_cross <- function(
     select     = NULL,
     select.DT  = NULL,
     select.i   = NULL,
-    i.first    = i.main,
-    i.main     = FALSE,
-    prefix     = if (i.main) "x." else "i.",
+    i.first    = i.home,
+    i.home     = FALSE,
+    prefix     = if (i.home) "x." else "i.",
     do         = !(is.null(.DT) && is.null(.i)),
     show       = !do,
     ...
@@ -57,7 +57,7 @@ dtjoin_cross <- function(
   check_arg_TF(do)
   check_arg_TF(show)
   check_arg_TF(i.first)
-  check_arg_TF(i.main)
+  check_arg_TF(i.home)
 
   dot_args <- list(...)
   check_dot_names(dot_args)
@@ -130,7 +130,7 @@ dtjoin_cross <- function(
         sf_col <- attr(orig.i, "sf_column")
         if (is_selected.i[match(sf_col, names.i)]) {
           as_sf <- TRUE
-          if (!i.main && sf_col %in% names.DT) sf_col <- sprintf("%s%s", prefix, sf_col)
+          if (!i.home && sf_col %in% names.DT) sf_col <- sprintf("%s%s", prefix, sf_col)
           as_tbl_df <- inherits(orig.i, "tbl_df") && as_tibble_ok
         }
       }
@@ -138,7 +138,7 @@ dtjoin_cross <- function(
         sf_col <- attr(orig.DT, "sf_column")
         if (is_selected.DT[match(sf_col, names.DT)]) {
           as_sf <- TRUE
-          if (i.main && sf_col %in% names.i) sf_col <- sprintf("%s%s", prefix, sf_col)
+          if (i.home && sf_col %in% names.i) sf_col <- sprintf("%s%s", prefix, sf_col)
           as_tbl_df <- inherits(orig.DT, "tbl_df") && as_tibble_ok
         }
       }
@@ -150,7 +150,7 @@ dtjoin_cross <- function(
   jvars.DT <- character(length(selected_names.DT))
   jvars.i  <- character(length(selected_names.i))
 
-  if (!i.main) {
+  if (!i.home) {
     # (c,c) -> (c,PREF.c=i.c)
     jvars.DT <- if (sfc_present) sprintf("%s = %s",selected_names.DT,selected_names.DT) else selected_names.DT
     jvars.i  <- ifelse(selected_names.i %in% names.DT,

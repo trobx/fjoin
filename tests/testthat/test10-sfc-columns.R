@@ -175,10 +175,10 @@ test_that(desc, {
   expect_identical(SF3_B$geom, result$i.geom)
 })
 
-desc <- "dtjoin with sf_column from .i, colliding name, i.main"
+desc <- "dtjoin with sf_column from .i, colliding name, i.home"
 if (PRINT_TEST_NAME) cat("\nTest:", desc, "\n")
 test_that(desc, {
-  result <- dtjoin(SF3_A, SF3_B, on="id", i.main=TRUE)
+  result <- dtjoin(SF3_A, SF3_B, on="id", i.home=TRUE)
   if (PRINT_TEST_OBJECTS) print(result)
   expect_identical(attr(result, "sf_column"), "geom")
   expect_identical(SF3_B$geom, result$geom)
@@ -193,10 +193,10 @@ test_that(desc, {
   identical(SF3_A[SF3_A$id %in% SF3_B$id,]$geom, result$geom)
 })
 
-desc <- "dtjoin with sf_column from .DT, colliding name, i.main"
+desc <- "dtjoin with sf_column from .DT, colliding name, i.home"
 if (PRINT_TEST_NAME) cat("\nTest:", desc, "\n")
 test_that(desc, {
-  result <- dtjoin(SF3_A, SF3_B, on="id", nomatch=NULL, select.i="", i.main=TRUE)
+  result <- dtjoin(SF3_A, SF3_B, on="id", nomatch=NULL, select.i="", i.home=TRUE)
   if (PRINT_TEST_OBJECTS) print(result)
   expect_identical(attr(result, "sf_column"), "x.geom")
   expect_identical(SF3_A[SF3_A$id %in% SF3_B$id,]$geom, result$x.geom)
@@ -211,10 +211,10 @@ test_that(desc, {
   expect_identical(SF3_B$geom, data.table::setDT(result)[, first(.SD), .SDcols="i.geom", keyby=i.id]$i.geom)
 })
 
-desc <- "dtjoin_cross with sf_column from .i, colliding name, i.main"
+desc <- "dtjoin_cross with sf_column from .i, colliding name, i.home"
 if (PRINT_TEST_NAME) cat("\nTest:", desc, "\n")
 test_that(desc, {
-  result <- dtjoin_cross(SF3_A, SF3_B, i.main=TRUE)
+  result <- dtjoin_cross(SF3_A, SF3_B, i.home=TRUE)
   if (PRINT_TEST_OBJECTS) print(result)
   expect_identical(attr(result, "sf_column"), "geom")
   expect_identical(SF3_B$geom, data.table::setDT(result)[, first(.SD), .SDcols="geom", keyby=id]$geom)
@@ -229,10 +229,10 @@ test_that(desc, {
   expect_identical(SF3_A$geom, data.table::setDT(result)[, first(.SD), .SDcols="geom", keyby=id]$geom)
 })
 
-desc <- "dtjoin_cross with sf_column from .DT, colliding name, i.main"
+desc <- "dtjoin_cross with sf_column from .DT, colliding name, i.home"
 if (PRINT_TEST_NAME) cat("\nTest:", desc, "\n")
 test_that(desc, {
-  result <- dtjoin_cross(SF3_A, SF3_B, select.i="", i.main=TRUE)
+  result <- dtjoin_cross(SF3_A, SF3_B, select.i="", i.home=TRUE)
   if (PRINT_TEST_OBJECTS) print(result)
   expect_identical(attr(result, "sf_column"), "x.geom")
   expect_identical(SF3_A$geom, data.table::setDT(result)[, first(.SD), .SDcols="x.geom", keyby=x.id]$x.geom)

@@ -57,16 +57,16 @@
 #'   columns are always selected. See Details.
 #' @param on.first Whether to place the join columns from both inputs first in
 #'   the join result. Default \code{FALSE}.
-#' @param i.main Whether to treat \code{.i} as the "home" table and \code{.DT}
+#' @param i.home Whether to treat \code{.i} as the "home" table and \code{.DT}
 #'   as the "foreign" table for column prefixing and \code{indicate}. Default
 #'   \code{FALSE}, i.e. \code{.DT} is the "home" table, as in \code{[.data.table}.
 #' @param i.first Whether to place \code{.i}'s columns before \code{.DT}'s in
-#'   the join result. The default is to use the value of \code{i.main}, i.e.
+#'   the join result. The default is to use the value of \code{i.home}, i.e.
 #'   bring \code{.i}'s columns to the front if \code{.i} is the "home" table.
 #' @param prefix A prefix to attach to column names in the "foreign" table that
 #'   are the same as a column name in the "home" table. The default is
-#'   \code{"i."} if the "foreign" table is \code{.i} (\code{i.main} is
-#'   \code{FALSE}) and \code{"x."} if it is \code{.DT} (\code{i.main} is
+#'   \code{"i."} if the "foreign" table is \code{.i} (\code{i.home} is
+#'   \code{FALSE}) and \code{"x."} if it is \code{.DT} (\code{i.home} is
 #'   \code{TRUE}).
 #' @param preserve (rarely used) Whether to include the "foreign" table's
 #'   equality join column(s) in addition to the "home" table's (equivalent to
@@ -191,7 +191,7 @@
 #'   df_x,
 #'   on = "id_y == id_x",
 #'   mult = "first",
-#'   i.main = TRUE,
+#'   i.home = TRUE,
 #'   prefix = "R.",
 #'   show = TRUE
 #' )
@@ -227,9 +227,9 @@ dtjoin <- function(
   select.DT  = NULL,
   select.i   = NULL,
   on.first   = FALSE,
-  i.main     = FALSE,
-  i.first    = i.main,
-  prefix     = if (i.main) "x." else "i.",
+  i.home     = FALSE,
+  i.first    = i.home,
+  prefix     = if (i.home) "x." else "i.",
   preserve   = FALSE,
   # execution options
   do         = !(is.null(.DT) && is.null(.i)),
@@ -255,7 +255,7 @@ dtjoin <- function(
   check_arg_TF(indicate)
   check_arg_TF(on.first)
   check_arg_TF(i.first)
-  check_arg_TF(i.main)
+  check_arg_TF(i.home)
   check_arg_TF(preserve)
   check_arg_TF(verbose)
 
@@ -313,7 +313,7 @@ dtjoin <- function(
   has_mult.DT    <- mult.DT != "all"
   outer.i        <- !(is.null(nomatch) || nomatch %in% 0L)
   outer.DT       <- !(is.null(nomatch.DT) || nomatch.DT %in% 0L)
-  rename_anti.DT <- outer.DT && i.main
+  rename_anti.DT <- outer.DT && i.home
 
   # ----------------------------------------------------------------------------
   # is_joincol_, equi_names_, any_nonequi, is_selected_, jvars_, oldnames_anti.DT, newnames_anti.DT
@@ -376,7 +376,7 @@ dtjoin <- function(
 
     if (!(has_mult.DT && !has_mult)) {
       # typical case
-      if (!i.main) {
+      if (!i.home) {
         # .DT home table
         if (s[2] == "==" && !preserve) {
           # (id, id)   -> (id, NULL)  (id garbles to id=i.id)
@@ -407,7 +407,7 @@ dtjoin <- function(
       }
     } else {
       # special case mult.DT but no mult: join is onto .i on row num (not the on arg)
-      if (!i.main) {
+      if (!i.home) {
         # .DT home table
         if (s[2] == "==" && !preserve) {
           # (id, id)   -> (id=i.id, NULL) (manually garble)
@@ -460,7 +460,7 @@ dtjoin <- function(
   jvars.DT[is_selected.DT] <- names.DT[is_selected.DT]
   jvars.i[is_selected.i]   <- names.i[is_selected.i]
 
-  if (!i.main) {
+  if (!i.home) {
     # (c,c) -> (c,PREF.c=i.c)
     jvars.i <- ifelse(is_selected.i & jvars.i %in% names.DT, sprintf("%s%s = i.%s",prefix,jvars.i,jvars.i), jvars.i)
   } else {
@@ -529,7 +529,7 @@ dtjoin <- function(
         sf_col <- attr(orig.i, "sf_column")
         if (include.i[match(sf_col, names.i)]) {
           as_sf <- TRUE
-          if (!i.main && sf_col %in% names.DT) sf_col <- sprintf("%s%s", prefix, sf_col)
+          if (!i.home && sf_col %in% names.DT) sf_col <- sprintf("%s%s", prefix, sf_col)
           as_tbl_df <- inherits(orig.i, "tbl_df") && as_tibble_ok
         }
       }
@@ -537,7 +537,7 @@ dtjoin <- function(
         sf_col <- attr(orig.DT, "sf_column")
         if (include.DT[match(sf_col, names.DT)]) {
           as_sf <- TRUE
-          if (i.main && sf_col %in% names.i) sf_col <- sprintf("%s%s", prefix, sf_col)
+          if (i.home && sf_col %in% names.i) sf_col <- sprintf("%s%s", prefix, sf_col)
           as_tbl_df <- inherits(orig.DT, "tbl_df") && as_tibble_ok
         }
       }
@@ -607,7 +607,7 @@ dtjoin <- function(
       jvars <- c(list(".join = rep(3L, .N)"), jvars)
     } else {
       add_dummy_col.DT <- TRUE
-      jvars <- c(list(sprintf(".join = fifelse(is.na(fjoin.ind), %s, 3L)", if (!i.main) "2L" else "1L")), jvars)
+      jvars <- c(list(sprintf(".join = fifelse(is.na(fjoin.ind), %s, 3L)", if (!i.home) "2L" else "1L")), jvars)
     }
   }
 
@@ -780,7 +780,7 @@ dtjoin <- function(
     if (rename_anti.DT) .DTantitext <-
         sprintf("setnames(%s, %s, %s)", .DTantitext, deparse(oldnames_anti.DT), deparse(newnames_anti.DT))
     if (indicate) .DTantitext <-
-        sprintf("%s[, .join := %s]", .DTantitext, if (!i.main) "1L" else "2L")
+        sprintf("%s[, .join := %s]", .DTantitext, if (!i.home) "1L" else "2L")
     jointext <- sprintf("with(list(fjoin.temp = %s), rbind(fjoin.temp, %s, fill = TRUE))[, fjoin.DT.rn := NULL]", jointext, .DTantitext)
     jointext <- if (as_DT) sprintf("%s[]", jointext) else sprintf("setDF(%s)[]", jointext)
   }

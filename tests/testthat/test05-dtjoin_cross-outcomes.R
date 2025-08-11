@@ -25,11 +25,11 @@ test_that(desc, {
   expect_identical(class(result), class(compare))
 })
 
-desc <- "dtjoin_cross (select, i.main)"
+desc <- "dtjoin_cross (select, i.home)"
 if (PRINT_TEST_NAME) cat("\nTest: ", desc, "\n")
 test_that(desc, {
   result <-
-    dtjoin_cross(DF_A,DF_B,select=c("c"),i.main=TRUE,show=SHOW)
+    dtjoin_cross(DF_A,DF_B,select=c("c"),i.home=TRUE,show=SHOW)
   compare <-
     dplyr::cross_join(DF_B,DF_A) |> dplyr::select(c.x, c.y)
   if (PRINT_TEST_OBJECTS) {print(result); print(compare)}
