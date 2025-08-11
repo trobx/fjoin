@@ -112,35 +112,35 @@ test_that("dtjoin names with non-equi", {
 
 test_that("fjoin_inner with indicate", {
   result <- fjoin_inner(DF_A, DF_B, on="id_A==id_B", indicate=TRUE)
-  expect_equal(result$.join, ifelse(is.na(result$c),2,ifelse(is.na(result$y.c),1,3)))
+  expect_equal(result$.join, ifelse(is.na(result$c),2,ifelse(is.na(result$R.c),1,3)))
 })
 
 test_that("fjoin_left with indicate", {
   result <- fjoin_left(DF_A, DF_B, on="id_A==id_B", indicate=TRUE)
-  expect_equal(result$.join, ifelse(is.na(result$c),2,ifelse(is.na(result$y.c),1,3)))
+  expect_equal(result$.join, ifelse(is.na(result$c),2,ifelse(is.na(result$R.c),1,3)))
 })
 
 test_that("fjoin_left ordered by y with indicate", {
   result <- fjoin_left(DF_A, DF_B, on="id_A==id_B", order="right", indicate=TRUE)
-  expect_equal(result$.join, ifelse(is.na(result$c),2,ifelse(is.na(result$y.c),1,3)))
+  expect_equal(result$.join, ifelse(is.na(result$c),2,ifelse(is.na(result$R.c),1,3)))
 })
 
 test_that("fjoin_right with indicate", {
   result <- fjoin_right(DF_A, DF_B, on="id_A==id_B", indicate=TRUE)
-  expect_equal(result$.join, ifelse(is.na(result$c),2,ifelse(is.na(result$y.c),1,3)))
+  expect_equal(result$.join, ifelse(is.na(result$c),2,ifelse(is.na(result$R.c),1,3)))
 })
 
 test_that("fjoin_right ordered by x with indicate", {
   result <- fjoin_right(DF_A, DF_B, on="id_A==id_B", order="left", indicate=TRUE)
-  expect_equal(result$.join, ifelse(is.na(result$c),2,ifelse(is.na(result$y.c),1,3)))
+  expect_equal(result$.join, ifelse(is.na(result$c),2,ifelse(is.na(result$R.c),1,3)))
 })
 
 test_that("fjoin_full  with indicate", {
   result <- fjoin_full(DF_A, DF_B, on="id_A==id_B", indicate=TRUE)
-  expect_equal(result$.join, ifelse(is.na(result$c),2,ifelse(is.na(result$y.c),1,3)))
+  expect_equal(result$.join, ifelse(is.na(result$c),2,ifelse(is.na(result$R.c),1,3)))
 })
 
 test_that("fjoin_full ordered by y with indicate", {
   result <- fjoin_full(DF_A, DF_B, on="id_A==id_B", order="right", indicate=TRUE)
-  expect_equal(result$.join, ifelse(is.na(result$c),2,ifelse(is.na(result$y.c),1,3)))
+  expect_equal(result$.join, ifelse(is.na(result$c),2,ifelse(is.na(result$R.c),1,3)))
 })
