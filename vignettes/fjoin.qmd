@@ -270,6 +270,11 @@ An illustration showing:
 - the resulting calls to `dtjoin()`, plus `show = TRUE`
 - the generated `r pkg("data.table")` code and output.
 
+This shows the use of table-swapping plus `dtjoin()`'s extended arguments
+`nomatch.DT` and `mult.DT` (counterparts to `nomatch` and `mult`), along with
+`i.home`, which determines the "home" table for the purposes of column order,
+prefixing and `indicate`.
+
 ```{r}
 # data frames
 set.seed(1)
@@ -464,8 +469,8 @@ output is `sf` and whether they are the active geometry
 `r pkg("data.table")`, solving frustrations such as garbled join columns in
 inequality joins and the lack of an effective `incomparables` argument, and 
 providing other useful options. Even for simple joins, there is little reason
-*not* to use it, since it is as fast or faster than `merge` and even native `r
-pkg("data.table")` (see below).
+*not* to use it, since it is as fast or faster than `merge` and even native
+`r pkg("data.table")` (see below).
 
 It doesn't provide the full versatility of `r pkg("data.table")` joins, such as:
 
@@ -476,7 +481,8 @@ It doesn't provide the full versatility of `r pkg("data.table")` joins, such as:
 You can nevertheless get a headstart by setting `do = FALSE`, copying the
 console output, and editing the `j`-expression(s). Also, the assignment pattern
 `DT[, v := fjoin_left(DT, i, on = <on>, select = "v")$v]` can be used to add new
-join-based columns, and can usefully be combined with the `".join"` indicator.
+join-based columns by reference, and can usefully be combined with the `".join"`
+indicator.
 
 ```{r}
 library(data.table)
@@ -525,7 +531,7 @@ following (exaggerated) example, where the `i` expression is a `data.frame` and
 we select columns in `j` with `list()` (aliased `.()`):
 
 ```{r message=FALSE}
-n <- 1e3L; ncolDT <- 2L; ncolDF <- 10L
+n <- 1e7L; ncolDT <- 2L; ncolDF <- 10L
 DT <- data.table(id = rep(1:n, each = 5L), matrix(runif(n * ncolDT), ncol = ncolDT))
 DF <- data.frame(id = 1:n, matrix(runif(n * ncolDF), ncol = ncolDF))
 
