@@ -48,8 +48,7 @@
 #'   columns are always selected. See Details.
 #' @param order Whether the row order of the result should reflect \code{x} then
 #'   \code{y} (\code{"left"}) or \code{y} then \code{x} (\code{"right"}).
-#'   Default is \code{"left"} for left, inner, full, and cross joins,
-#'   \code{"right"} for right joins.
+#'   Default \code{"left"}.
 #' @param indicate  Whether to add a column \code{".join"}  at the front of the
 #'   result, with values \code{1L} if from \code{x} only, \code{2L} if from
 #'   \code{y} only, and \code{3L} if joined from both tables (c.f. \code{_merge}
@@ -426,7 +425,7 @@ fjoin_right <- function(
     mult.x    = "all",
     mult.y    = "all",
     indicate  = FALSE,
-    order     = "right",
+    order     = "left",
     select    = NULL,
     select.x  = NULL,
     select.y  = NULL,

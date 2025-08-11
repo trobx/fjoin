@@ -32,8 +32,7 @@ test_that(desc, {
     fjoin_right(DF_A, DF_B, on=c("id_A == id_B", "t_A > t_B"), select="c")
   compare <-
     dplyr::right_join(DF_A, DF_B, by=dplyr::join_by(id_A == id_B, t_A > t_B), relationship = "many-to-many", na_matches = "never") |>
-    dplyr::select(id_A, t_A, t_B, c.x, c.y) |>
-    dplyr::arrange(c.y)
+    dplyr::select(id_A, t_A, t_B, c.x, c.y)
   if (PRINT_TEST_OBJECTS) {print(result); print(compare)}
   expect_true(all.equal(result, compare, check.attributes = FALSE))
 })

@@ -82,14 +82,11 @@ test_that("fjoin_left without NA matches, order right", {
 # ------------------------------------------------------------------------------
 # fjoin_right
 
-# NB dplyr always orders left
-
 test_that("fjoin_right without NA matches", {
   result <-
     fjoin_right(A, B, on="id")
   compare <-
-    dplyr::right_join(A, B, by = "id", relationship = "many-to-many", na_matches = "never") |>
-    _[order(c.y, c.x)]
+    dplyr::right_join(A, B, by = "id", relationship = "many-to-many", na_matches = "never")
   print(result)
   print(compare)
   expect_true(all.equal(result, compare, check.attributes = FALSE))
@@ -99,19 +96,18 @@ test_that("fjoin_right with NA matches", {
   result <-
     fjoin_right(A, B, on="id", match.na = TRUE)
   compare <-
-    dplyr::right_join(A, B, by = "id", relationship = "many-to-many") |>
-    _[order(c.y, c.x)]
+    dplyr::right_join(A, B, by = "id", relationship = "many-to-many")
   print(result)
   print(compare)
   expect_true(all.equal(result, compare, check.attributes = FALSE))
 })
 
-test_that("fjoin_right without NA matches, order left", {
+test_that("fjoin_right without NA matches, order right", {
   result <-
-    fjoin_right(A, B, on="id", order="left")
+    fjoin_right(A, B, on="id", order="right")
   compare <-
     dplyr::right_join(A, B, by = "id", relationship = "many-to-many", na_matches = "never") |>
-    _[order(c.x, c.y)]
+    _[order(c.y, c.x)]
   print(result)
   print(compare)
   expect_true(all.equal(result, compare, check.attributes = FALSE))
