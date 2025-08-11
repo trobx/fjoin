@@ -94,9 +94,9 @@ that is recommended over <code>dtjoin_cross</code> for most users and cases.</p>
 <span>  select <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  select.DT <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  select.i <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  i.first <span class="op">=</span> <span class="va">i.main</span>,</span>
-<span>  i.main <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  prefix <span class="op">=</span> <span class="kw">if</span> <span class="op">(</span><span class="va">i.main</span><span class="op">)</span> <span class="st">"x."</span> <span class="kw">else</span> <span class="st">"i."</span>,</span>
+<span>  i.first <span class="op">=</span> <span class="va">i.home</span>,</span>
+<span>  i.home <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  prefix <span class="op">=</span> <span class="kw">if</span> <span class="op">(</span><span class="va">i.home</span><span class="op">)</span> <span class="st">"x."</span> <span class="kw">else</span> <span class="st">"i."</span>,</span>
 <span>  do <span class="op">=</span> <span class="op">!</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">.DT</span><span class="op">)</span> <span class="op">&amp;&amp;</span> <span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">.i</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  show <span class="op">=</span> <span class="op">!</span><span class="va">do</span>,</span>
 <span>  <span class="va">...</span></span>
@@ -123,11 +123,11 @@ columns are always selected. See Details.</p></dd>
 
 <dt id="arg-i-first">i.first<a class="anchor" aria-label="anchor" href="#arg-i-first"></a></dt>
 <dd><p>Whether to place <code>.i</code>'s columns before <code>.DT</code>'s in
-the join result. The default is to use the value of <code>i.main</code>, i.e.
+the join result. The default is to use the value of <code>i.home</code>, i.e.
 bring <code>.i</code>'s columns to the front if <code>.i</code> is the "home" table.</p></dd>
 
 
-<dt id="arg-i-main">i.main<a class="anchor" aria-label="anchor" href="#arg-i-main"></a></dt>
+<dt id="arg-i-home">i.home<a class="anchor" aria-label="anchor" href="#arg-i-home"></a></dt>
 <dd><p>Whether to treat <code>.i</code> as the "home" table and <code>.DT</code>
 as the "foreign" table for column prefixing and <code>indicate</code>. Default
 <code>FALSE</code>, i.e. <code>.DT</code> is the "home" table, as in <code>[.data.table</code>.</p></dd>
@@ -136,8 +136,8 @@ as the "foreign" table for column prefixing and <code>indicate</code>. Default
 <dt id="arg-prefix">prefix<a class="anchor" aria-label="anchor" href="#arg-prefix"></a></dt>
 <dd><p>A prefix to attach to column names in the "foreign" table that
 are the same as a column name in the "home" table. The default is
-<code>"i."</code> if the "foreign" table is <code>.i</code> (<code>i.main</code> is
-<code>FALSE</code>) and <code>"x."</code> if it is <code>.DT</code> (<code>i.main</code> is
+<code>"i."</code> if the "foreign" table is <code>.i</code> (<code>i.home</code> is
+<code>FALSE</code>) and <code>"x."</code> if it is <code>.DT</code> (<code>i.home</code> is
 <code>TRUE</code>).</p></dd>
 
 

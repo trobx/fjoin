@@ -198,7 +198,7 @@ pre.sourceCode {
 </tr>
 </tbody>
 </table>
-<p>The <code>fjoin_*</code> functions are generally the ones to use. The <code>dtjoin*</code> functions handle object classes and write <span class="pkgname">data.table</span> code via a generalisation of <code>DT[i]</code> syntax, which the <code>fjoin_*</code> wrappers translate into a familiar <code>x</code>/<code>y</code> style.</p>
+<p>The <code>fjoin_*</code> functions are the ones to use. The <code>dtjoin*</code> functions handle object classes and write <span class="pkgname">data.table</span> code via a generalisation of <code>DT[i]</code> syntax, which the <code>fjoin_*</code> wrappers translate into a familiar <code>x</code>/<code>y</code> style.</p>
 </section><section class="section level2"><h2 id="examples">Examples<a class="anchor" aria-label="anchor" href="#examples"></a>
 </h2>
 <div class="cell">
@@ -234,7 +234,7 @@ pre.sourceCode {
 <div class="sourceCode cell-code" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/fjoin_full.html">fjoin_full</a></span><span class="op">(</span><span class="va">dfQ</span>, <span class="va">dfP</span>, on <span class="op">=</span> <span class="st">"id"</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>  id quantity                notes other_cols     item price y.other_cols
+<pre><code>  id quantity                notes other_cols     item price R.other_cols
 1  2        5                             ... cherries    30          ...
 2  1        6                             ...    dates    40          ...
 3  3        7                             ...  bananas    20          ...
@@ -425,7 +425,7 @@ Join: setDF(with(list(fjoin.temp = setDT(.DT[, fjoin.DT.rn := .I][, na.omit(.SD,
 <span>  <span class="va">df_x</span>,</span>
 <span>  on <span class="op">=</span> <span class="st">"id_y == id_x"</span>,</span>
 <span>  mult <span class="op">=</span> <span class="st">"first"</span>,</span>
-<span>  i.main <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  i.home <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  prefix <span class="op">=</span> <span class="st">"R."</span>,</span>
 <span>  show <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -598,8 +598,8 @@ Join: setDF(with(list(fjoin.temp = setDT(setDT(.i[, fjoin.i.rn := .I][.DT[, fjoi
 <pre><code># A tibble: 2 × 3
   expression   median mem_alloc
   &lt;bch:expr&gt; &lt;bch:tm&gt; &lt;bch:byt&gt;
-1 data.table    4.5ms     927KB
-2 fjoin        7.29ms     564KB</code></pre>
+1 data.table   2.55ms     927KB
+2 fjoin        4.37ms     564KB</code></pre>
 </div>
 </div>
 <p>Here <span class="pkgname">fjoin</span> avoids a call to <code>as.data.table.data.frame</code> on the way in, and a call to <code>as.data.table.list</code> on the way out, both of which (currently) always deep-copy. The <code><a href="https://bench.r-lib.org/reference/mark.html" class="external-link">bench::mark</a></code> memory measurements <a href="https://rdatatable-community.github.io/The-Raft/posts/2025-07-14-memory_R-jangorecki/" class="external-link">exclude C-level allocations</a>, but the difference between them reflects these R-level copies. This behaviour will eventually change in <span class="pkgname">data.table</span>, at which point <span class="pkgname">fjoin</span> will revert to the more familiar <code>j = list()</code> idiom.</p>
@@ -612,7 +612,7 @@ Join: setDF(with(list(fjoin.temp = setDT(setDT(.i[, fjoin.i.rn := .I][.DT[, fjoi
 <li>on exit, dropping temporary columns (pointers) from <code>data.table</code> inputs used as-is</li>
 </ul>
 <p>These ensure that <span class="pkgname">fjoin</span> handles object classes with maximum efficiency (no data copying) while leaving inputs intact.</p>
-<p>In other respects, the package is a builder of <span class="pkgname">data.table</span> code using a set of carefully developed solutions under a well thought-out API. <span class="pkgname">fjoin</span> pays a lot of attention to doing this well and is also very thoroughly tested.</p>
+<p>In other respects, the package is a builder of <span class="pkgname">data.table</span> code to a set of carefully developed solutions under a well thought-out API. <span class="pkgname">fjoin</span> pays a lot of attention to doing this well and is also very thoroughly tested.</p>
 </section><script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
