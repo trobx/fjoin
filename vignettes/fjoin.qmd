@@ -9,12 +9,10 @@ vignette: >
 knitr:
   opts_chunk:
     collapse: false      # don't collapse code and output into one block
-    #collapse: true      # collapse code and output into one block
-    #comment: "#>"       # prefix for printed output
-    out.width: "100%"   # figs 100% wdith
+    out.width: "100%"    # figs 100% width
 # execution settings for Quarto:
 execute:
-  echo: true            # show R code in the rendered vignette
+  echo: true            # show R code
   warning: false        # suppress warning messages
   message: false        # suppress package startup/diagnostic messages
   cache: false          # disable chunk caching (always render from scratch)
@@ -40,7 +38,7 @@ pre.sourceCode {
   white-space: pre-wrap !important;
   word-break: break-word !important;
 }
-/* 3. Output chunks: remove syntax highlighting, link styling (underline), and clicking links inside outputs */
+/* 3. Output chunks: remove syntax highlighting, disable link styling (underline) and clicking */
 .cell-output-stdout pre *,
 .cell-output-display pre *,
 .cell-output pre * {
@@ -132,9 +130,7 @@ library(fjoin)
 ```
 
 ## Example 1: Basic usage and options
-
 This example uses `fjoin_full()`, which nests other cases.
-
 ```{r}
 # data frames
 dfQ <- data.table::fread("
@@ -155,20 +151,18 @@ NA   apples    10        ...
 ```
 
 ### (1) Basic syntax
-
-Note the usefulness of the `match.na = FALSE` default here.
+Default `match.na = FALSE` avoids apples-and-oranges matches on missing values.
 ```{r}
 fjoin_full(dfQ, dfP, on = "id")
 ```
 
 ### (2) Efficient selective joins in one line
-
 ```{r}
 fjoin_full(dfQ, dfP, on = "id", select = c("item", "price", "quantity"))
 ```
 
-This `r pkg("dplyr")` equivalent is as follows (where the first two lines avoid inflating the join
-with irrelevant columns):
+Equivalent to the following in `r pkg("dplyr")` (where the first two lines avoid
+inflating the join with irrelevant columns):
 ```{r eval = FALSE}
 x <- dfQ |> select(id, quantity)
 y <- dfP |> select(id, item, price)
@@ -201,6 +195,7 @@ fjoin_full(
 ```
 
 ### (5) Display code instead of executing
+For `r pkg("data.table")` users. 
 ```{r}
 fjoin_full(
   dfQ,
@@ -219,7 +214,7 @@ fjoin_full(
 cardinality on one side of the join from many ("all") to one ("first" or "last").
 `r pkg("fjoin")` (`mult.x`, `mult.y`) will do this on either side of the join,
 or on both sides. This example (using `fjoin_left()`) shows an application to 
-temporally ordered data frames of "events" and "reactions".
+temporally ordered data frames of generic "events" and "reactions".
 
 ```{r}
 # data frames
@@ -421,11 +416,11 @@ straightforward in native `r pkg("data.table")` have been developed with close
 attention to performance.
 
 # Notes for tidyverse users
-`r pkg("fjoin")` is a plug-and-play alternative to `dplyr::*_join()` with 
-short-and-sweet syntax, faster large data performance, and options that
-`dplyr::*_join()` doesn't support (though the reverse is also true --- see
-below). Joins are infrequent operations, and the package name is short, so you
-may not feel the need to attach it:
+`r pkg("fjoin")` is a drop-in alternative to `dplyr::*_join()` with 
+faster large data performance and useful options that `dplyr::*_join()` doesn't
+support (though the reverse is also true --- see below). Joins are infrequent
+operations, and the package name is short, so you may not feel the need to
+attach it:
 
 ```{r message=FALSE}
 library(dplyr)
@@ -442,43 +437,65 @@ dfQ |>
 ```
 
 `r pkg("fjoin")` is silent and permissive about cardinality: it currently has
-no equivalent of `dplyr::*_join()`'s `relationship` argument. Nor does it yet
+no equivalent of `dplyr::*_join()`'s `relationship` validation. Nor does it yet
 support rolling joins, which `r pkg("dplyr")` achieves elegantly via helper
 functions in `join_by`. These features will be added. Nested/list‑column joins
 (supported by `dplyr::*_join()`) are not planned.
 
-It's worth mentioning that `r pkg("dtplyr")`'s `r pkg("data.table")`-backed
-implementation of joins silently ignores `r pkg("dplyr")`'s additional join
-arguments such as `na.matches` and `multiple` (as well as `relationship`). It
-also supports only equality joins. This makes it very much poorer in features
-than `r pkg("fjoin")`. Use of `r pkg("dtplyr")` also requires object conversions.
+The `r pkg("data.table")`-backed implementation of joins in `r pkg("dtplyr")`'s
+is apparently no longer maintained and should be avoided. It only supports
+equality joins, malfunctions with same-named columns on each side, and
+silently ignores `r pkg("dplyr")`'s additional join arguments such as 
+`na.matches` and `multiple` (as well as `relationship`). Use of
+`r pkg("dtplyr")` also requires object conversions.
+
+# Notes for `r pkg("sf")` users
+
+TODO:
+
+- attribute joins between `sf` objects are permitted (not in `r pkg("dplyr")`)
+- `sfc`-class output columns always detected and refreshed regardless of whether
+output is `sf` and whether they are the active geometry
+- an example
 
 # Notes for `r pkg("data.table")` users
 
-`r pkg("fjoin")` automates join operations that would be hard to write in
-`r pkg("data.table")`, and moreover does so in a transparent way, by writing
-that code for you. It also solves frustrations such as the lack of an
-effective `incomparables` argument and garbled join columns in inequality joins,
-while providing other useful options. Even in simple joins, there is little
-reason *not* to use it, since it is as fast or faster than `merge` and even
-native `r pkg("data.table")` (see below).
+`r pkg("fjoin")` automates joins that are challenging or laborious to write in
+`r pkg("data.table")`, solving frustrations such as garbled join columns in
+inequality joins and the lack of an effective `incomparables` argument, and 
+providing other useful options. Even for simple joins, there is little reason
+*not* to use it, since it is as fast or faster than `merge` and even native `r
+pkg("data.table")` (see below).
 
 It doesn't provide the full versatility of `r pkg("data.table")` joins, such as:
 
 - computing on joined columns inside `j`, rather than simply selecting them
 - joins by reference of the direct form `DT[i, on = <on> , v := i.v]`
-- for now, rolling and overlap joins.
+- for now, rolling and overlap joins
 
-However, using `do = FALSE` can provide a coding headstart by letting you copy
-the console output and edit the `j`-expression(s). The assignment pattern
-`DT[, v := fjoin_left(DT, i, on = <on>, select = "v")$v]` can easily be used.
-You can roll-your-own rolling and overlap joins (which will be added).
+You can nevertheless get a headstart by setting `do = FALSE`, copying the
+console output, and editing the `j`-expression(s). Also, the assignment pattern
+`DT[, v := fjoin_left(DT, i, on = <on>, select = "v")$v]` can be used to add new
+join-based columns, and can usefully be combined with the `".join"` indicator.
+
+```{r}
+library(data.table)
+dtQ <- as.data.table(dfQ)
+dtP <- as.data.table(dfP)
+
+dtP[, revenue := price * fjoin_left(
+  dtP,
+  dtQ,
+  on = "id",
+  select = c("quantity"),
+  indicate = TRUE
+  )[.join == 1L, quantity := 0]$quantity][]
+```
 
 The package actually began life as a tool to solve `r pkg("data.table")`'s
 garbling of join columns in non-equi joins. It still does that:
 
 ```{r}
-library(data.table)
 DT1 <- data.table(t=c(5,25,45))
 DT2 <- data.table(t_start=c(1,21), t_end=c(10,30))
 ```
@@ -493,18 +510,18 @@ Compare the default output from `r pkg("data.table")`:
 DT2[DT1, on=.(t_start <= t, t_end >= t)]
 ```
 
-You may have noticed that `r pkg("fjoin")` prefers `data.frame()` coupled with
-`setDT()` to the more usual `list()` in `j`. This is to sidestep an unnecessary
-deep copy of the joined columns. Likewise, `r pkg("fjoin")` avoids deep copies 
-on the way in and out by "shallow-casting" inputs and outputs to and from 
-`data.table`s as necessary. Shallow conversion is not a safe general way of
-operating with foreign objects in `r pkg("data.table")`, but it works for joins,
-because the input vectors only need to be read, and the output vectors are
-guaranteed to be unshared.
+`r pkg("fjoin")` uses `data.frame()` coupled with `setDT()` instead of the more
+usual `list()` in `j`. This is to sidestep an unnecessary deep copy of the
+joined columns. Likewise, `r pkg("fjoin")` avoids deep copies on the way in and
+out by "shallow-casting" inputs and outputs to and from `data.table`s as
+necessary. Shallow conversion is not a safe general way of operating with
+foreign objects in `r pkg("data.table")`, but it works for joins, because the
+input vectors only need to be read, and the output vectors are guaranteed to be
+unshared.
 
 One consequence of this is that `r pkg("fjoin")` is more efficient than
 `r pkg("data.table")` itself with standard interactive idioms. Consider the 
-following *exaggerated* example, where the `i` expression is a `data.frame` and
+following (exaggerated) example, where the `i` expression is a `data.frame` and
 we select columns in `j` with `list()` (aliased `.()`):
 
 ```{r message=FALSE}
@@ -520,41 +537,30 @@ bench::mark(
 ) |> summary() |> subset(select = c("expression", "n_itr", "median",  "mem_alloc"))
 ```
 
-`r pkg("fjoin")` is faster here because it dodges a call to
-`as.data.table.data.frame` on the way in, and a call to `as.data.table.list` on
-the way out, both of which (currently) deep-copy. The `bench::mark` memory
-measurements
-[exclude C-level allocations](https://rdatatable-community.github.io/The-Raft/posts/2025-07-14-memory_R-jangorecki/),
-but the difference between them reflects these R-level copies. This behaviour
+Here `r pkg("fjoin")` avoids a call to `as.data.table.data.frame` on the way in, 
+and a call to `as.data.table.list` on the way out, both of which (currently)
+always deep-copy. The `bench::mark` memory measurements
+[exclude C-level allocations](https://rdatatable-community.github.io/The-Raft/posts/2025-07-14-memory_R-jangorecki/), but the difference between them reflects these R-level copies. This behaviour
 will eventually change in `r pkg("data.table")`, at which point `r pkg("fjoin")`
 will revert to the more familiar `j = list()` idiom.
 
-
-# Notes for `r pkg("sf")` users
-
-TODO:
-
-- attribute joins between `sf` objects are permitted (not in `r pkg("dplyr")`)
-- `sfc`-class output columns always detected and refreshed regardless of whether
-output is `sf` and whether they are the active geometry
-- an example
-
 # "Internals"
 
-`r pkg("fjoin")` inspects the data and applies a heuristic in determining how to
-handle `match.na = FALSE`. Otherwise, the only thing that is not reflected in
-the `r pkg("data.table")` code that `r pkg("fjoin")` produces are the input and
-output handling steps:
+With `match.na = FALSE` (the default), `r pkg("fjoin")` inspects the data and,
+if the join permits, chooses which table to omit `NA`-containing rows from using
+a heuristic. The only thing that is not reflected in the `r pkg("data.table")`
+code that `r pkg("fjoin")` produces are the input and output handling steps:
 
 - shallow-casting non-`data.table` objects as `data.table`s
-- adding tibble and/or `sf` class to outputs (and refreshing `sfc` columns)
+- adding tibble and/or `sf` class to outputs (and refreshing `sfc` columns
+regardless of output class)
 - on exit, dropping temporary columns (pointers) from `data.table` inputs used
-as-is.
+as-is
 
 These ensure that `r pkg("fjoin")` handles object classes with maximum
-efficiency (no data copying) while leaving inputs intact. But in other respects,
-the package is a dispenser of `r pkg("data.table")` code; its contribution is in
-extending and enhancing `r pkg("data.table")`'s core join API and translating it
-to a more mainstream left/right style, and in the quality of its embedded 
-`r pkg("data.table")` solutions. `r pkg("fjoin")` pays a lot of attention to
-doing this well and is also very thoroughly tested.
+efficiency (no data copying) while leaving inputs intact.
+
+In other respects, the package is a builder of `r pkg("data.table")` code using
+a set of carefully developed solutions under a well thought-out API.
+`r pkg("fjoin")` pays a lot of attention to doing this well and is also very
+thoroughly tested.
