@@ -118,7 +118,7 @@ dependency‑free package with long-term stability.
 | `fjoin_left_anti` (alias `fjoin_anti`), `fjoin_right_anti()`    | `dtjoin_anti()`                     |
 | `fjoin_cross()`                                            | `dtjoin_cross()`                     |
 
-The `fjoin_*` functions are generally the ones to use. The `dtjoin*` functions
+The `fjoin_*` functions are the ones to use. The `dtjoin*` functions
 handle object classes and write `r pkg("data.table")` code via a generalisation
 of `DT[i]` syntax, which the `fjoin_*` wrappers translate into a familiar `x`/`y`
 style.
@@ -282,7 +282,7 @@ dtjoin(
   df_x,
   on = "id_y == id_x",
   mult = "first",
-  i.main = TRUE,
+  i.home = TRUE,
   prefix = "R.",
   show = TRUE
 )
@@ -560,7 +560,7 @@ as-is
 These ensure that `r pkg("fjoin")` handles object classes with maximum
 efficiency (no data copying) while leaving inputs intact.
 
-In other respects, the package is a builder of `r pkg("data.table")` code using
-a set of carefully developed solutions under a well thought-out API.
+In other respects, the package is a builder of `r pkg("data.table")` code to a
+set of carefully developed solutions under a well thought-out API.
 `r pkg("fjoin")` pays a lot of attention to doing this well and is also very
 thoroughly tested.

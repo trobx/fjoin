@@ -19,9 +19,9 @@ dtjoin(
   select.DT = NULL,
   select.i = NULL,
   on.first = FALSE,
-  i.main = FALSE,
-  i.first = i.main,
-  prefix = if (i.main) "x." else "i.",
+  i.home = FALSE,
+  i.first = i.home,
+  prefix = if (i.home) "x." else "i.",
   preserve = FALSE,
   do = !(is.null(.DT) && is.null(.i)),
   show = !do,
@@ -74,18 +74,18 @@ columns are always selected. See Details.}
 \item{on.first}{Whether to place the join columns from both inputs first in
 the join result. Default \code{FALSE}.}
 
-\item{i.main}{Whether to treat \code{.i} as the "home" table and \code{.DT}
+\item{i.home}{Whether to treat \code{.i} as the "home" table and \code{.DT}
 as the "foreign" table for column prefixing and \code{indicate}. Default
 \code{FALSE}, i.e. \code{.DT} is the "home" table, as in \code{[.data.table}.}
 
 \item{i.first}{Whether to place \code{.i}'s columns before \code{.DT}'s in
-the join result. The default is to use the value of \code{i.main}, i.e.
+the join result. The default is to use the value of \code{i.home}, i.e.
 bring \code{.i}'s columns to the front if \code{.i} is the "home" table.}
 
 \item{prefix}{A prefix to attach to column names in the "foreign" table that
 are the same as a column name in the "home" table. The default is
-\code{"i."} if the "foreign" table is \code{.i} (\code{i.main} is
-\code{FALSE}) and \code{"x."} if it is \code{.DT} (\code{i.main} is
+\code{"i."} if the "foreign" table is \code{.i} (\code{i.home} is
+\code{FALSE}) and \code{"x."} if it is \code{.DT} (\code{i.home} is
 \code{TRUE}).}
 
 \item{preserve}{(rarely used) Whether to include the "foreign" table's
@@ -235,7 +235,7 @@ dtjoin(
   df_x,
   on = "id_y == id_x",
   mult = "first",
-  i.main = TRUE,
+  i.home = TRUE,
   prefix = "R.",
   show = TRUE
 )

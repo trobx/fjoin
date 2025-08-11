@@ -11,9 +11,9 @@ dtjoin_cross(
   select = NULL,
   select.DT = NULL,
   select.i = NULL,
-  i.first = i.main,
-  i.main = FALSE,
-  prefix = if (i.main) "x." else "i.",
+  i.first = i.home,
+  i.home = FALSE,
+  prefix = if (i.home) "x." else "i.",
   do = !(is.null(.DT) && is.null(.i)),
   show = !do,
   ...
@@ -31,17 +31,17 @@ selects all columns. Use \code{NA} or \code{""} to select no columns. Join
 columns are always selected. See Details.}
 
 \item{i.first}{Whether to place \code{.i}'s columns before \code{.DT}'s in
-the join result. The default is to use the value of \code{i.main}, i.e.
+the join result. The default is to use the value of \code{i.home}, i.e.
 bring \code{.i}'s columns to the front if \code{.i} is the "home" table.}
 
-\item{i.main}{Whether to treat \code{.i} as the "home" table and \code{.DT}
+\item{i.home}{Whether to treat \code{.i} as the "home" table and \code{.DT}
 as the "foreign" table for column prefixing and \code{indicate}. Default
 \code{FALSE}, i.e. \code{.DT} is the "home" table, as in \code{[.data.table}.}
 
 \item{prefix}{A prefix to attach to column names in the "foreign" table that
 are the same as a column name in the "home" table. The default is
-\code{"i."} if the "foreign" table is \code{.i} (\code{i.main} is
-\code{FALSE}) and \code{"x."} if it is \code{.DT} (\code{i.main} is
+\code{"i."} if the "foreign" table is \code{.i} (\code{i.home} is
+\code{FALSE}) and \code{"x."} if it is \code{.DT} (\code{i.home} is
 \code{TRUE}).}
 
 \item{do}{Whether to execute the join. Default is \code{TRUE} unless
