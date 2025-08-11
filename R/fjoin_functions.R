@@ -3,13 +3,12 @@
 #
 # The four true join functions differ in:
 # - the values of `nomatch` and `nomatch.DT` passed to `dtjoin()`
-# - the default value of `order` ("right" for `fjoin_right()`, "left" otherwise).
 #
 # The four semi- and anti-join functions differ in:
 # - whether they are "left" or "right" (order of inputs and `on`)
 # - whether they delegate to `dtjoin_semi()` or `dtjoin_anti()`
 #
-# Currently these are distinct functions with documentation populated for
+# These are distinct functions with documentation populated for
 # `fjoin_inner()` and inherited by the others. Would prefer to avoid repetitive
 # function bodies by using e.g. two unexported intermediate wrappers with public
 # functions like
@@ -20,7 +19,7 @@
 # documented arg, plus need to repeat param definitions across the two groups.
 # Replacing the dots with named args reintroduces code repetition and means the
 # user has to scroll past four full function signatures in \usage (c.80 lines
-# total) to get to the important information. TODO: research a way out.
+# total) to get to the important information.
 #
 #' Inner join
 #'
@@ -33,8 +32,7 @@
 #' @param on A character vector of join predicates, e.g. \code{c("id", "col_x ==
 #'   col_y", "date > date", "cost <= budget")}.
 #' @param match.na Whether to allow equality matches between \code{NA}s or
-#'   \code{NaN}s. The default is \code{FALSE}, as in most real-world
-#'   applications (but unlike other join frameworks in R).
+#'   \code{NaN}s. Default \code{FALSE}.
 #' @param mult.x When a row of \code{x} has multiple matching rows in \code{y},
 #'   which to accept: \code{"all"} (the default), \code{"first"}, or
 #'   \code{"last"}.
@@ -816,10 +814,10 @@ fjoin_cross <- function(
     x         = NULL,
     y         = NULL,
     order     = "left",
-    prefix.y  = "R.",
     select    = NULL,
     select.x  = NULL,
     select.y  = NULL,
+    prefix.y  = "R.",
     do        = !(is.null(x) && is.null(y)),
     show      = !do
 ) {

@@ -12,21 +12,22 @@ output: github_document
 <!-- badges: end -->
 
 ```{r setup, include=FALSE}
+options(width = 100) # console output width 100 characters (default 80) 
 pkg <- function(name) {
-  # Inline HTML with inline style attributes as github strips CSS in <style> blocks
-  sprintf('<span style="color:#666666; font-weight:bold;">%s</span>', name)
+  # style "pkgname" is defined in _pkgdown.yml
+  # NB will apply on pkgdown site front page but not on GH front page as GH strips style blocks
+  sprintf('<span class="pkgname">%s</span>', name)
 }
-```
-
+```  
 # fjoin <img src="man/figures/logo.png" align="right" height="138" alt="" />
-Data frame joins backed by `r pkg("data.table")`
+Fast and flexible data frame joins leveraging `r pkg("data.table")`
 
 ## Installation
-
-Latest version from GitHub :
+Latest version from GitHub:
 ```r
+# install.packages("remotes")
 remotes::install_github("trobx/fjoin")
 ```
-## More information
 
+## More information
 See [Get started](https://trobx.github.io/fjoin/articles/fjoin.html).

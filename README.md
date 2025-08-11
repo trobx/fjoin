@@ -12,14 +12,15 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 
 # fjoin <img src="man/figures/logo.png" align="right" height="138" alt="" />
 
-Data frame joins backed by
-<span style="color:#666666; font-weight:bold;">data.table</span>
+Fast and flexible data frame joins leveraging
+<span class="pkgname">data.table</span>
 
 ## Installation
 
-Latest version from GitHub :
+Latest version from GitHub:
 
 ``` r
+# install.packages("remotes")
 remotes::install_github("trobx/fjoin")
 ```
 

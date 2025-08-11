@@ -139,7 +139,7 @@ pre.sourceCode {
 </style>
 <section class="section level2"><h2 id="description">Description<a class="anchor" aria-label="anchor" href="#description"></a>
 </h2>
-<p><span class="pkgname">fjoin</span> is a data frame join package that runs on <span class="pkgname">data.table</span>, providing fast equi and non-equi joins of all styles. It plugs seamlessly into tidyverse pipelines and general workflows, and has features not found in other frameworks, including NA-safety by default, on-the-fly column selection, flexible row-order preservation, multiple-match handling on both sides, and an indicator column for row origin.</p>
+<p><span class="pkgname">fjoin</span> performs fast equi and non-equi joins on any data frames by combining <span class="pkgname">data.table</span> with efficient, automatic class conversions. It slots into tidyverse pipelines and general workflows in a single line, and has features not found in other frameworks, including NA-safe matching by default, on-the-fly column selection, flexible row-order preservation, multiple-match handling on both sides, and an indicator column for row origin.</p>
 </section><section class="section level2"><h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
 <p>Latest version from GitHub :</p>
@@ -148,7 +148,7 @@ pre.sourceCode {
 </section><section class="section level2"><h2 id="features">Features<a class="anchor" aria-label="anchor" href="#features"></a>
 </h2>
 <ul>
-<li><p><strong>General use</strong>: Works with any data frame-like inputs (e.g. <code>data.frame</code>, <code>data.table</code>, tibble, <code>sf</code>, <code>sf</code>‑tibble, or <code>list</code>) and returns an appropriate class without requiring manual conversions or <span class="pkgname">data.table</span> expertise.</p></li>
+<li><p><strong>Universal use</strong>: Accepts any mix of data frame-like objects and returns a plain <code>data.frame</code>, <code>data.table</code>, tibble, <code>sf</code>, or <code>sf</code>‑tibble according to context.</p></li>
 <li><p><strong>Scope</strong>: Inner, left, right, full, semi‑, and anti‑joins with equality and inequality conditions, plus cross joins.</p></li>
 <li><p><strong>NA-safe joins by default</strong>: Missing values are treated sensibly (no matches on <code>NA</code>) unless overridden via <code>match.na</code>.</p></li>
 <li><p><strong>On-the-fly column selection</strong>: Choose and order columns with <code>select</code> for efficient one-liners.</p></li>
@@ -198,7 +198,7 @@ pre.sourceCode {
 </tr>
 </tbody>
 </table>
-<p>The <code>fjoin_*</code> functions are the ones to use. The <code>dtjoin*</code> functions handle object classes and write <span class="pkgname">data.table</span> code via a generalisation of <code>DT[i]</code> syntax, which the <code>fjoin_*</code> wrappers translate into a familiar <code>x</code>/<code>y</code> style.</p>
+<p>The <code>fjoin_*</code> functions are intended as the ones to use for almost all users and cases. The <code>dtjoin*</code> functions handle object classes and write <span class="pkgname">data.table</span> code via a generalisation of <code>DT[i]</code> join syntax, which the <code>fjoin_*</code> wrappers translate into a familiar <code>x</code>/<code>y</code> style.</p>
 </section><section class="section level2"><h2 id="examples">Examples<a class="anchor" aria-label="anchor" href="#examples"></a>
 </h2>
 <div class="cell">
@@ -259,10 +259,10 @@ pre.sourceCode {
 <p>Equivalent to the following in <span class="pkgname">dplyr</span> (where the first two lines avoid inflating the join with irrelevant columns):</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="va">dfQ</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">id</span>, <span class="va">quantity</span><span class="op">)</span></span>
-<span><span class="va">y</span> <span class="op">&lt;-</span> <span class="va">dfP</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">id</span>, <span class="va">item</span>, <span class="va">price</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">full_join</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">y</span>, <span class="fu"><a href="https://dplyr.tidyverse.org/reference/join_by.html" class="external-link">join_by</a></span><span class="op">(</span><span class="va">id</span><span class="op">)</span>, na.matches <span class="op">=</span> <span class="st">"never"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">id</span>, <span class="va">item</span>, <span class="va">price</span>, <span class="va">quantity</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="va">dfQ</span> <span class="op">|&gt;</span> <span class="fu">select</span><span class="op">(</span><span class="va">id</span>, <span class="va">quantity</span><span class="op">)</span></span>
+<span><span class="va">y</span> <span class="op">&lt;-</span> <span class="va">dfP</span> <span class="op">|&gt;</span> <span class="fu">select</span><span class="op">(</span><span class="va">id</span>, <span class="va">item</span>, <span class="va">price</span><span class="op">)</span></span>
+<span><span class="fu">full_join</span><span class="op">(</span><span class="va">x</span>, <span class="va">y</span>, <span class="fu">join_by</span><span class="op">(</span><span class="va">id</span><span class="op">)</span>, na.matches <span class="op">=</span> <span class="st">"never"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">select</span><span class="op">(</span><span class="va">id</span>, <span class="va">item</span>, <span class="va">price</span>, <span class="va">quantity</span><span class="op">)</span></span></code></pre></div>
 </div>
 </section><section class="level3"><h4 id="indicator-column-for-row-origin">(3) Indicator column for row origin<a class="anchor" aria-label="anchor" href="#indicator-column-for-row-origin"></a>
 </h4>
@@ -478,7 +478,7 @@ Join: setDF(with(list(fjoin.temp = setDT(setDT(.i[, fjoin.i.rn := .I][.DT[, fjoi
 <p>The example above is based on a no-frills equality join to allow comparison with <code>merge.data.table</code> and <code><a href="https://sebkrantz.github.io/collapse/reference/join.html" class="external-link">collapse::join()</a></code>, which have limited feature sets; see the <a href="https://trobx.github.io/fjoin/articles/fjoin-performance.html">Performance</a> article for more detail. In the inner and left joins, <span class="pkgname">fjoin</span> and <code>merge.data.table</code> reflect a simple operation in <span class="pkgname">data.table</span>, and directly inherit its excellent performance. But <span class="pkgname">fjoin</span> performs a bit better than <code>merge.data.table</code> on the right and full joins. This is typical: <span class="pkgname">fjoin</span>’s solutions for join types and additional options that are not straightforward in native <span class="pkgname">data.table</span> have been developed with close attention to performance.</p>
 </section><section class="section level2"><h2 id="notes-for-tidyverse-users">Notes for tidyverse users<a class="anchor" aria-label="anchor" href="#notes-for-tidyverse-users"></a>
 </h2>
-<p><span class="pkgname">fjoin</span> is a drop-in alternative to <code>dplyr::*_join()</code> with faster large data performance and useful options that <code>dplyr::*_join()</code> doesn’t support (though the reverse is also true — see below). Joins are infrequent operations, and the package name is short, so you may not feel the need to attach it:</p>
+<p><span class="pkgname">fjoin</span> is a drop-in alternative to <code>dplyr::*_join()</code> with faster large data performance and useful options that <code>dplyr::*_join()</code> lacks (though the reverse is also true — see below). Joins are infrequent operations, and the package name is short, so you may not feel the need to attach it:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
@@ -503,8 +503,8 @@ Join: setDF(with(list(fjoin.temp = setDT(setDT(.i[, fjoin.i.rn := .I][.DT[, fjoi
 5     1    NA &lt;NA&gt;        NA        8      NA</code></pre>
 </div>
 </div>
-<p><span class="pkgname">fjoin</span> is silent and permissive about cardinality: it currently has no equivalent of <code>dplyr::*_join()</code>’s <code>relationship</code> validation. Nor does it yet support rolling joins, which <span class="pkgname">dplyr</span> achieves elegantly via helper functions in <code>join_by</code>. These features will be added. Nested/list‑column joins (supported by <code>dplyr::*_join()</code>) are not planned.</p>
-<p>The <span class="pkgname">data.table</span>-backed implementation of joins in <span class="pkgname">dtplyr</span>’s is apparently no longer maintained and should be avoided. It only supports equality joins, malfunctions with same-named columns on each side, and silently ignores <span class="pkgname">dplyr</span>’s additional join arguments such as <code>na.matches</code> and <code>multiple</code> (as well as <code>relationship</code>). Use of <span class="pkgname">dtplyr</span> also requires object conversions.</p>
+<p>Please note, however, that <span class="pkgname">fjoin</span> is silent and permissive about cardinality: it currently has no equivalent of <code>dplyr::*_join()</code>’s <code>relationship</code> validation. Nor does it yet support rolling joins, which <code>r pkg("dplyr")</code> achieves elegantly via helper functions in <code>join_by</code>. These features will be added. Nested/list‑column joins (supported by <code>dplyr::*_join()</code>) are not planned.</p>
+<p>The <span class="pkgname">data.table</span>-backed implementation of joins in <span class="pkgname">dtplyr</span> is apparently no longer maintained and should be avoided. It only supports equality joins, malfunctions with same-named columns on each side, and silently ignores <span class="pkgname">dplyr</span>’s additional join arguments such as <code>na.matches</code> and <code>multiple</code> (as well as <code>relationship</code>). Use of <span class="pkgname">dtplyr</span> also requires object conversions.</p>
 </section><section class="section level2"><h2 id="notes-for-sf-users">Notes for <span class="pkgname">sf</span> users<a class="anchor" aria-label="anchor" href="#notes-for-sf-users"></a>
 </h2>
 <p>TODO:</p>
@@ -516,27 +516,28 @@ Join: setDF(with(list(fjoin.temp = setDT(setDT(.i[, fjoin.i.rn := .I][.DT[, fjoi
 </ul></section><section class="section level2"><h2 id="notes-for-data-table-users">Notes for <span class="pkgname">data.table</span> users<a class="anchor" aria-label="anchor" href="#notes-for-data-table-users"></a>
 </h2>
 <p><span class="pkgname">fjoin</span> automates joins that are challenging or laborious to write in <span class="pkgname">data.table</span>, solving frustrations such as garbled join columns in inequality joins and the lack of an effective <code>incomparables</code> argument, and providing other useful options. Even for simple joins, there is little reason <em>not</em> to use it, since it is as fast or faster than <code>merge</code> and even native <span class="pkgname">data.table</span> (see below).</p>
-<p>It doesn’t provide the full versatility of <span class="pkgname">data.table</span> joins, such as:</p>
+<p>However, it doesn’t provide the full versatility of <span class="pkgname">data.table</span> joins, such as:</p>
 <ul>
 <li>computing on joined columns inside <code>j</code>, rather than simply selecting them</li>
-<li>joins by reference of the direct form <code>DT[i, on = &lt;on&gt; , v := i.v]</code>
+<li>joins by reference of the “direct” form <code>DT[i, on = &lt;on&gt; , v := i.v]</code>
 </li>
 <li>for now, rolling and overlap joins</li>
 </ul>
-<p>You can nevertheless get a headstart by setting <code>do = FALSE</code>, copying the console output, and editing the <code>j</code>-expression(s). Also, the assignment pattern <code>DT[, v := fjoin_left(DT, i, on = &lt;on&gt;, select = "v")$v]</code> can be used to add new join-based columns by reference, and can usefully be combined with the <code>".join"</code> indicator.</p>
+<p>You nevertheless have the option of setting <code>do = FALSE</code>, copying the console output, and editing the <code>j</code>-expression(s). And another way of adding new joined columns by reference is by assignment <code>DT[, v := fjoin_left(DT, i, on = &lt;on&gt;, select = "v")$v]</code>, which can often usefully be combined with the <code>".join"</code> indicator:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></span>
 <span><span class="va">dtQ</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/as.data.table.html" class="external-link">as.data.table</a></span><span class="op">(</span><span class="va">dfQ</span><span class="op">)</span></span>
 <span><span class="va">dtP</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/as.data.table.html" class="external-link">as.data.table</a></span><span class="op">(</span><span class="va">dfP</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">dtP</span><span class="op">[</span>, <span class="va">revenue</span> <span class="op">:=</span> <span class="va">price</span> <span class="op">*</span> <span class="fu"><a href="../reference/fjoin_left.html">fjoin_left</a></span><span class="op">(</span></span>
-<span>  <span class="va">dtP</span>,</span>
-<span>  <span class="va">dtQ</span>,</span>
-<span>  on <span class="op">=</span> <span class="st">"id"</span>,</span>
-<span>  select <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"quantity"</span><span class="op">)</span>,</span>
-<span>  indicate <span class="op">=</span> <span class="cn">TRUE</span></span>
-<span>  <span class="op">)</span><span class="op">[</span><span class="va">.join</span> <span class="op">==</span> <span class="fl">1L</span>, <span class="va">quantity</span> <span class="op">:=</span> <span class="fl">0</span><span class="op">]</span><span class="op">$</span><span class="va">quantity</span><span class="op">]</span><span class="op">[</span><span class="op">]</span></span></code></pre></div>
+<span><span class="va">dtP</span><span class="op">[</span>, <span class="va">revenue</span> <span class="op">:=</span> </span>
+<span>      <span class="va">price</span> <span class="op">*</span> <span class="fu"><a href="../reference/fjoin_left.html">fjoin_left</a></span><span class="op">(</span></span>
+<span>        <span class="va">dtP</span>,</span>
+<span>        <span class="va">dtQ</span>,</span>
+<span>        on <span class="op">=</span> <span class="st">"id"</span>,</span>
+<span>        select <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"quantity"</span><span class="op">)</span>,</span>
+<span>        indicate <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>      <span class="op">)</span><span class="op">[</span><span class="va">.join</span> <span class="op">==</span> <span class="fl">1L</span>, <span class="va">quantity</span> <span class="op">:=</span> <span class="fl">0</span><span class="op">]</span><span class="op">$</span><span class="va">quantity</span><span class="op">]</span><span class="op">[</span><span class="op">]</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>      id     item price other_cols revenue
    &lt;int&gt;   &lt;char&gt; &lt;int&gt;     &lt;char&gt;   &lt;int&gt;
@@ -599,8 +600,8 @@ Join: setDF(with(list(fjoin.temp = setDT(setDT(.i[, fjoin.i.rn := .I][.DT[, fjoi
 <pre><code># A tibble: 2 × 3
   expression   median mem_alloc
   &lt;bch:expr&gt; &lt;bch:tm&gt; &lt;bch:byt&gt;
-1 data.table    3.11s    7.39GB
-2 fjoin         1.66s    3.58GB</code></pre>
+1 data.table     3.6s    7.39GB
+2 fjoin          1.9s    3.58GB</code></pre>
 </div>
 </div>
 <p>Here <span class="pkgname">fjoin</span> avoids a call to <code>as.data.table.data.frame</code> on the way in, and a call to <code>as.data.table.list</code> on the way out, both of which (currently) always deep-copy. The <code><a href="https://bench.r-lib.org/reference/mark.html" class="external-link">bench::mark</a></code> memory measurements <a href="https://rdatatable-community.github.io/The-Raft/posts/2025-07-14-memory_R-jangorecki/" class="external-link">exclude C-level allocations</a>, but the difference between them reflects these R-level copies. This behaviour will eventually change in <span class="pkgname">data.table</span>, at which point <span class="pkgname">fjoin</span> will revert to the more familiar <code>j = list()</code> idiom.</p>
@@ -613,7 +614,7 @@ Join: setDF(with(list(fjoin.temp = setDT(setDT(.i[, fjoin.i.rn := .I][.DT[, fjoi
 <li>on exit, dropping temporary columns (pointers) from <code>data.table</code> inputs used as-is</li>
 </ul>
 <p>These ensure that <span class="pkgname">fjoin</span> handles object classes with maximum efficiency (no data copying) while leaving inputs intact.</p>
-<p>In other respects, the package is a builder of <span class="pkgname">data.table</span> code to a set of carefully developed solutions under a well thought-out API. <span class="pkgname">fjoin</span> pays a lot of attention to doing this well and is also very thoroughly tested.</p>
+<p>In other respects, the package is a builder of <span class="pkgname">data.table</span> code to a set of carefully developed solutions. <span class="pkgname">fjoin</span> pays a lot of attention to doing this well and is also very thoroughly tested.</p>
 </section><script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {

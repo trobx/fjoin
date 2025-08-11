@@ -32,8 +32,7 @@ tibble, \code{sf}, \code{list}, etc.) or else both omitted
 col_y", "date > date", "cost <= budget")}.}
 
 \item{match.na}{Whether to allow equality matches between \code{NA}s or
-\code{NaN}s. The default is \code{FALSE}, as in most real-world
-applications (but unlike other join frameworks in R).}
+\code{NaN}s. Default \code{FALSE}.}
 
 \item{mult.x}{When a row of \code{x} has multiple matching rows in \code{y},
 which to accept: \code{"all"} (the default), \code{"first"}, or

@@ -68,7 +68,7 @@ reference:
 
   - title: The `fjoin_*` family
     desc: >
-      Fast data frame joins in a familiar `x`/`y` style
+      Data frame joins in a familiar `x`/`y` style
   - subtitle: True joins
     contents:
     - fjoin_inner
@@ -87,9 +87,9 @@ reference:
     contents:
     - fjoin_cross
 
-  - title: The `dtjoin*` family
+  - title: The `dtjoin_*` family
     desc: >
-      An extended interface for `DT[i]`-style <span style="color:#666666; font-weight:bold;">data.table</span> joins
+      An extended `DT[i]`-style interface for data frame joins
   - subtitle: True joins
     contents:
     - dtjoin

@@ -10,7 +10,7 @@
 # Code coverage config
 ^codecov\.yml$
 
-# License and README source
+# License and README source (but not README.md)
 ^LICENSE\.md$
 ^README\.Rmd$
 

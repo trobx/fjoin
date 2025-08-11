@@ -5,8 +5,21 @@ output:
   html_document:
 knitr:
   opts_chunk:
-    out.width: "100%"   # make figures full-width
+    out.width: "100%" # make figures full-width
 ---
+
+<!--
+NOTES:
+
+This article is for the website only and is not part of the package
+(no vignette header, added to .Rbuildignore)
+
+It is left as .Rmd not .qmd because of issues with the use of external data with
+quarto vignettes and articles. See e.g. 
+https://github.com/r-lib/pkgdown/issues/2846
+https://github.com/r-lib/pkgdown/issues/2877
+https://github.com/permaverse/flipr/issues/26
+-->
 
 <style>
 /* Force wrapping for output blocks after code */
@@ -20,18 +33,10 @@ div.sourceCode + pre, pre {
 options(width = 100) # console output width 100 characters (default 80) 
 pkg <- function(name) {
   # Inline HTML with inline style attributes as github strips CSS in <style> blocks
-  sprintf('<span style="color:#666666; font-weight:bold;">%s</span>', name)
+  # style "pkgname" is defined in _pkgdown.yml 
+  sprintf('<span class="pkgname">%s</span>', name)
 }
 ```  
-  
-<!-- This article is for the website only and is not part of the package -->
-<!-- 
-Leave as .Rmd not .qmd because of issues with the use of external data with
-quarto vignettes and articles. See e.g. 
-https://github.com/r-lib/pkgdown/issues/2846
-https://github.com/r-lib/pkgdown/issues/2877
-https://github.com/permaverse/flipr/issues/26
--->
 
 This exercise checks the performance of `r pkg("fjoin")` against `r pkg("data.table")` `merge()` (i.e. `merge.data.table`), `r pkg("dplyr")`, and `r pkg("collapse")` on simple equality joins with moderately large laptop-size data. It does not do justice to the much more comprehensive join functionality offered by `r pkg("fjoin")` and `r pkg("dplyr")` compared with the other two.
 
@@ -70,15 +75,15 @@ pal <- c(
   "#1B9E77"
 )
 
+factor_in_order <- function(x, ...) factor(x, levels = unique(x), ...)
+
 pl <- function(x) {
   library(ggplot2)
   ggplot(x, aes(x = soln, y = ifelse(is.na(median_secs), 0, median_secs), fill = soln)) +
     geom_bar(stat = "identity", position = "dodge") +
     geom_text(aes(label = sprintf("%.1f", median_secs)), vjust = -0.3, size = 3) +
-    facet_grid(forcats::fct_inorder(style) ~ forcats::fct_inorder(xyargs), switch = "y") +
+    facet_grid(factor_in_order(style) ~ factor_in_order(xyargs), switch = "y") +
     scale_fill_manual(values = pal) +
-    #facet_wrap(~ interaction(forcats::fct_inorder(position), forcats::fct_inorder(style)), scales = "free_x", ncol = 2) +
-    #facet_wrap(~ interaction(forcats::fct_inorder(style), forcats::fct_inorder(position)), scales = "free_x", ncol = 4) +
     scale_y_continuous(limits = c(0, k)) +
     #theme_minimal() +
     theme(
@@ -136,13 +141,13 @@ kt(store4[!style %ilike% "right join"]) |>
 
 - `r pkg("fjoin")` is the fastest solution overall (while `r pkg("dplyr")` is the least fast), and is never appreciably slower than another solution in any of the ~40 joins considered.
 
-- Not suprisingly, its performance is similar to `merge.data.table()` (where comparison is possible) since both use equivalent and straightforward `r pkg("data.table")` code for inner and left joins. However, it is faster for right and full joins when the cost of the join is large, because it avoids recomputing it to obtain the anti-join of the right table.
+- Its performance on inner and left joins is identical to `merge.data.table()` (where comparison is possible) since both use equivalent and straightforward `r pkg("data.table")` code. However, it is faster for right and full joins when the cost of the join is large, because it avoids recomputing it to obtain the anti-join of the right table.
 
 - These two `r pkg("data.table")` solutions are much more robust to switching the order of the tables than `r pkg("collapse")` and `r pkg("dplyr")`.
 
-- When the data are ordered, the differences among the solutions are small: they are all fast.
+- When the data are ordered, the differences among the solutions are negligible: they are all fast.
 
-- Disallowing NA matches is very fast (this is the case for `r pkg("dplyr")` also). Comparison with the non-missing joins is because of differences in the size of the join result when missing values are introduced. 
+- Disallowing `NA` matches is fast (this is the case for `r pkg("dplyr")` also). (Timings are also affected by the smaller size of the join result when missing values are introduced and excluded.) 
 
 ### Setup details
 ```{r echo=FALSE}

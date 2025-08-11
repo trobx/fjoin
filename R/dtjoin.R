@@ -29,9 +29,7 @@
 #' @param on A character vector of join predicates, e.g. \code{c("id", "col_DT
 #'   == col_i", "date < date")}.
 #' @param match.na If \code{TRUE}, allow equality matches between \code{NA}s or
-#'   \code{NaN}s. The default is \code{FALSE}, i.e. such matches are not
-#'   allowed, as in most real-world applications (but unlike other join
-#'   frameworks in R).
+#'   \code{NaN}s. Default \code{FALSE}.
 #' @param mult (as in \code{[.data.table}) When a row of \code{.i} has multiple
 #'   matching rows in \code{.DT}, which to accept. One of \code{"all"} (the
 #'   default), \code{"first"}, or \code{"last"}.

@@ -1,5 +1,5 @@
 # Quarto/Rmd preview artifacts
-*.html            # preview HTMLs next to your .qmd/.Rmd
+*.html            # preview HTMLs
 *_files/          # asset folders (images, CSS, JS)
 .quarto/          # Quarto project/cache dir
 .quarto_cache/    # chunk cache

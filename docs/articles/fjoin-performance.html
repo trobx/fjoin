@@ -117,12 +117,11 @@ quarto vignettes and articles. See e.g.
 https://github.com/r-lib/pkgdown/issues/2846
 https://github.com/r-lib/pkgdown/issues/2877
 https://github.com/permaverse/flipr/issues/26
---><p>This exercise checks the performance of <span style="color:#666666; font-weight:bold;">fjoin</span> against <span style="color:#666666; font-weight:bold;">data.table</span>
-<code><a href="https://rdrr.io/r/base/merge.html" class="external-link">merge()</a></code> (i.e. <code>merge.data.table</code>), <span style="color:#666666; font-weight:bold;">dplyr</span>, and <span style="color:#666666; font-weight:bold;">collapse</span> on simple
-equality joins with moderately large laptop-size data. It does not do
-justice to the much more comprehensive join functionality offered by
-<span style="color:#666666; font-weight:bold;">fjoin</span> and <span style="color:#666666; font-weight:bold;">dplyr</span> compared with the
-other two.</p>
+--><p>This exercise checks the performance of <span class="pkgname">fjoin</span> against <span class="pkgname">data.table</span> <code><a href="https://rdrr.io/r/base/merge.html" class="external-link">merge()</a></code>
+(i.e. <code>merge.data.table</code>), <span class="pkgname">dplyr</span>, and <span class="pkgname">collapse</span>
+on simple equality joins with moderately large laptop-size data. It does
+not do justice to the much more comprehensive join functionality offered
+by <span class="pkgname">fjoin</span> and <span class="pkgname">dplyr</span> compared with the other two.</p>
 <div class="section level3">
 <h3 id="description">Description<a class="anchor" aria-label="anchor" href="#description"></a>
 </h3>
@@ -136,8 +135,8 @@ arguments.</p>
 <p>The exercise is then repeated for the case where there are missing
 values in the join column on each side, which must not be treated as
 matches (but whose rows must be retained in the result where
-appropriate). This comparison is limited to <span style="color:#666666; font-weight:bold;">fjoin</span> and <span style="color:#666666; font-weight:bold;">dplyr</span>, which are the
-only two supporting this option.</p>
+appropriate). This comparison is limited to <span class="pkgname">fjoin</span> and <span class="pkgname">dplyr</span>,
+which are the only two supporting this option.</p>
 <p>Details plus version and system information are at the bottom of this
 note.</p>
 </div>
@@ -366,23 +365,23 @@ scenario.
 <h4 id="main-observations">Main observations<a class="anchor" aria-label="anchor" href="#main-observations"></a>
 </h4>
 <ul>
-<li><p><span style="color:#666666; font-weight:bold;">fjoin</span> is
-the fastest solution overall (while <span style="color:#666666; font-weight:bold;">dplyr</span> is the least
-fast), and is never appreciably slower than another solution in any of
-the ~40 joins considered.</p></li>
-<li><p>Not suprisingly, its performance is similar to
+<li><p><span class="pkgname">fjoin</span> is the fastest solution
+overall (while <span class="pkgname">dplyr</span> is the least fast),
+and is never appreciably slower than another solution in any of the ~40
+joins considered.</p></li>
+<li><p>Its performance on inner and left joins is identical to
 <code>merge.data.table()</code> (where comparison is possible) since
-both use equivalent and straightforward <span style="color:#666666; font-weight:bold;">data.table</span> code for
-inner and left joins. However, it is faster for right and full joins
-when the cost of the join is large, because it avoids recomputing it to
-obtain the anti-join of the right table.</p></li>
-<li><p>These two <span style="color:#666666; font-weight:bold;">data.table</span> solutions are
-much more robust to switching the order of the tables than <span style="color:#666666; font-weight:bold;">collapse</span> and <span style="color:#666666; font-weight:bold;">dplyr</span>.</p></li>
+both use equivalent and straightforward <span class="pkgname">data.table</span> code. However, it is faster for right
+and full joins when the cost of the join is large, because it avoids
+recomputing it to obtain the anti-join of the right table.</p></li>
+<li><p>These two <span class="pkgname">data.table</span> solutions are
+much more robust to switching the order of the tables than <span class="pkgname">collapse</span> and <span class="pkgname">dplyr</span>.</p></li>
 <li><p>When the data are ordered, the differences among the solutions
-are small: they are all fast.</p></li>
-<li><p>Disallowing NA matches is very fast (this is the case for <span style="color:#666666; font-weight:bold;">dplyr</span> also). Comparison
-with the non-missing joins is because of differences in the size of the
-join result when missing values are introduced.</p></li>
+are negligible: they are all fast.</p></li>
+<li><p>Disallowing <code>NA</code> matches is fast (this is the case for
+<span class="pkgname">dplyr</span> also). (Timings are also affected by
+the smaller size of the join result when missing values are introduced
+and excluded.)</p></li>
 </ul>
 </div>
 </div>
@@ -428,9 +427,9 @@ differences in their defaults:</p>
 <li>multiple matches accepted
 (<code>collapse::join(..., multiple = TRUE)</code>)</li>
 </ul>
-<p>In the scenario with missing values, the <span style="color:#666666; font-weight:bold;">dplyr</span> solutions are run
-with the further argument <code>na.matches = "never"</code>, while <span style="color:#666666; font-weight:bold;">fjoin</span> is run on default
-arguments, which exclude such matches.</p>
+<p>In the scenario with missing values, the <span class="pkgname">dplyr</span> solutions are run with the further argument
+<code>na.matches = "never"</code>, while <span class="pkgname">fjoin</span> is run on default arguments, which exclude
+such matches.</p>
 </div>
 <div class="section level5">
 <h5 id="version-and-system-info">Version and system info<a class="anchor" aria-label="anchor" href="#version-and-system-info"></a>

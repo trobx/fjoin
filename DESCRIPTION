@@ -1,6 +1,6 @@
 Package: fjoin
 Type: Package
-Title: Data Frame Joins Backed by 'data.table'
+Title: Data Frame Joins Leveraging 'data.table'
 Version: 0.1.0
 Authors@R: c(
     person(
@@ -9,26 +9,29 @@ Authors@R: c(
       role = c("aut", "cre")
     )
   )
-Description: Fast data frame joins with advanced options and convenience
-  features in a concise and sensible API. Bridges and extends 'data.table'.
+Description: Joins any data frames by combining automatic, no-copy
+  class-handling with use of 'data.table'. Slots into tidyverse pipelines and
+  general workflows in a single line, and provides NA-safe matching by default,
+  on-the-fly column selection, flexible row-order preservation, multiple-match
+  handling on both sides, and an indicator column for row origin. Supports
+  inner, left, right, full, semi-, and anti-joins with equality and
+  inequality conditions, plus cross joins.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Depends: R (>= 3.3.0)
 Imports: data.table
 Suggests: 
-    testthat (>= 3.0.0),
-    dplyr (>= 1.0.0),
     tibble,
     sf,
+    testthat (>= 3.0.0),
+    dplyr (>= 1.1.0),
     knitr,
-    quarto,
     rmarkdown,
-    kableExtra,
-    ggplot2,
-    forcats,
-    bench
+    quarto,
+    bench,
+    ggplot2
 URL: https://trobx.github.io/fjoin
 BugReports: https://github.com/trobx/fjoin/issues
 Config/testthat/edition: 3
 VignetteBuilder: knitr, quarto
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3

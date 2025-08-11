@@ -6,16 +6,16 @@
 \alias{fjoin-package}
 \title{fjoin}
 \description{
-\pkg{fjoin} is a data frame join package that runs on \pkg{data.table},
-providing fast equi and non-equi joins of all styles. It plugs seamlessly
-into tidyverse pipelines and general workflows, and has features not found in
-other frameworks, including NA-safety by default, on-the-fly column
-selection, flexible row-order preservation, multiple-match handling on both
-sides, and an indicator column for row origin.
+\pkg{fjoin} performs fast equi and non-equi joins on any data frames by
+combining \pkg{data.table} with efficient, automatic class conversions. It
+slots into tidyverse pipelines and general workflows in a single line, and has
+features not found in other frameworks, including NA-safe matching by default,
+on-the-fly column selection, flexible row-order preservation, multiple-match
+handling on both sides, and an indicator column for row origin.
 }
 \section{Vignette}{
- Visit the package website
-  \url{https://trobx.github.io/fjoin} or access locally in R with \code{vignette("fjoin")}.
+ View the \href{https://https://trobx.github.io/fjoin/articles/fjoin.html}{Get started}
+  guide on the package website or access locally in R with \code{vignette("fjoin")}.
 }
 
 \section{API}{
