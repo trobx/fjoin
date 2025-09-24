@@ -76,7 +76,7 @@ provide a more conventional interface that is recommended over
 \details{
 Details are as for \code{\link{dtjoin}} except for arguments controlling
 the order and prefixing of output columns, which do not apply. Output class
-is determined by \code{.DT}.
+(and \code{key} if applicable) are determined by \code{.DT}.
 }
 \examples{
 # TODO

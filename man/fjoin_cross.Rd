@@ -8,10 +8,10 @@ fjoin_cross(
   x = NULL,
   y = NULL,
   order = "left",
-  prefix.y = "R.",
   select = NULL,
   select.x = NULL,
   select.y = NULL,
+  prefix.y = "R.",
   do = !(is.null(x) && is.null(y)),
   show = !do
 )
@@ -25,14 +25,14 @@ tibble, \code{sf}, \code{list}, etc.) or else both omitted
 \code{y} (\code{"left"}) or \code{y} then \code{x} (\code{"right"}).
 Default \code{"left"}.}
 
-\item{prefix.y}{A prefix to attach to column names in \code{y} that are the
-same as a column name in \code{x}. Default \code{"R."}.}
-
 \item{select, select.x, select.y}{Character vectors of columns to be selected
 from either input if present (\code{select}) or specifically from one or
 other of them (e.g. \code{select.x}). \code{NULL} (the default) selects
 all columns. Use \code{""} (or \code{NA}) to select no columns. Join
 columns are always selected. See Details.}
+
+\item{prefix.y}{A prefix to attach to column names in \code{y} that are the
+same as a column name in \code{x}. Default \code{"R."}.}
 
 \item{do}{Whether to execute the join. If \code{FALSE}, \code{show} is set to
 \code{TRUE} and the \pkg{data.table} code for the join is printed to the

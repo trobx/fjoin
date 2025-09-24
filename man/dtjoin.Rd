@@ -114,17 +114,17 @@ Write (and optionally run) \pkg{data.table} code for a join
 using a generalisation of \code{DT[i]} syntax with extended arguments and
 enhanced behaviour. Accepts any \code{data.frame}-like inputs (not only
 \code{data.table}s), permits left, right, inner, and full joins, prevents
-unwanted matches on \code{NA} and \code{NaN} by default, does not garble
-join columns in non-equality joins, allows \code{mult} on both sides of the
-join, creates an optional join indicator column, allows specifying which
-columns to select from each input, and provides convenience options to
-control column order and prefixing.
+unwanted matches on \code{NA} and \code{NaN} by default, does not garble join
+columns in non-equality joins, allows \code{mult} on both sides of the join,
+creates an optional join indicator column, allows specifying which columns to
+select from each input, and provides convenience options to control column
+order and prefixing.
 
-If run, the join returns a \code{data.frame}, \code{data.table},
-tibble, \code{sf}, or \code{sf}-tibble according to context.
-The generated \code{data.table} code can be printed to the console instead of
-(or as well as) being executed. This feature extends to \emph{mock joins},
-where no inputs are provided, and template code is produced.
+If run, the join returns a \code{data.frame}, \code{data.table}, tibble,
+\code{sf}, or \code{sf}-tibble according to context. The generated
+\pkg{data.table} code can be printed to the console instead of (or as well
+as) being executed. This feature extends to \emph{mock joins}, where no
+inputs are provided, and template code is produced.
 
 \code{dtjoin} is the workhorse function for \code{\link{fjoin_inner}},
 \code{\link{fjoin_left}}, \code{\link{fjoin_right}}, and
@@ -203,6 +203,15 @@ and/or \code{sf} if applicable. Note that \pkg{fjoin} departs from the usual
 \code{j = list()} idiom in order to avoid a deep copy of the output made by
 \code{as.data.table.list}. (Likewise, internally it takes only shallow copies
 of columns when casting inputs or outputs to different classes.)
+}
+
+\subsection{\pkg{data.table} \code{key}s}{
+If \code{.i} is a \code{key}ed \code{data.table} and the output is also a
+\code{data.table}, it inherits \code{.i}'s \code{key} provided
+\code{nomatch.DT} is \code{NULL} (i.e. the non-matching rows of \code{.DT}
+are not included in the result). This differs from a \pkg{data.table}
+\code{DT[i]} join, in which the output inherits the \code{key} of \code{DT}
+provided it remains sorted on those columns.
 }
 
 \subsection{Additional notes for \pkg{sf} users}{
