@@ -111,7 +111,7 @@ test_that(desc, {
 
 # ______________________________________________________________________________
 
-desc <- "fjoin_full with select.DT. select.i"
+desc <- "fjoin_full with select.x and select.y"
 if (PRINT_TEST_NAME) cat("\nTest: ", desc, "\n")
 test_that(desc, {
   result <-
@@ -123,3 +123,14 @@ test_that(desc, {
   expect_true(all.equal(result, compare, check.attributes = FALSE))
 })
 
+desc <- "fjoin_cross with select.x and select.y"
+if (PRINT_TEST_NAME) cat("\nTest: ", desc, "\n")
+test_that(desc, {
+  result <-
+    fjoin_cross(DF_A, DF_B, select.x="c", select.y="v_B")
+  compare <-
+    dplyr::cross_join(DF_A, DF_B) |>
+    dplyr::select(c.x, v_B)
+  if (PRINT_TEST_OBJECTS) {print(result); print(compare)}
+  expect_true(all.equal(result, compare, check.attributes = FALSE))
+})

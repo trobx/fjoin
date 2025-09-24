@@ -3,10 +3,10 @@
 
 # ------------------------------------------------------------------------------
 make_A <- function() {
-  data.table::data.table(id=as.integer(c(1,2,2,3,NA,NA)))[, c := paste0("I'm row A", .I)]
+  data.table::data.table(id=as.integer(c(1,2,2,3,NA,NA)))[, c := paste0("row A", .I)]
 }
 make_B <- function() {
-  data.table::data.table(id=as.integer(c(NA,NA,4,4,3,3,2)))[, c := paste0("I'm row B", .I)]
+  data.table::data.table(id=as.integer(c(NA,NA,4,4,3,3,2)))[, c := paste0("row B", .I)]
 }
 A <- make_A()
 B <- make_B()

@@ -1,5 +1,6 @@
 # ------------------------------------------------------------------------------
-check_dot_names <- function(dots, valid_names = c(".labels")){
+valid_dots_names <- c(".labels")
+check_dots_names <- function(dots, valid_names = valid_dots_names){
   invalid_names <- setdiff(names(dots), valid_names)
   if(length(invalid_names))
     stop("Invalid argument name(s): ", paste(invalid_names, collapse=", "))
@@ -28,11 +29,6 @@ check_arg_nomatch <- function(x) {
   if (!(is.null(x) || x %in% c(NA, 0L)))
     stop(sprintf("Argument '%s' must be NA, NULL, or 0L", deparse(substitute(x))))
 }
-check_input_class <- function(x) {
-  # Check x is either a non-object list or data.frame (data.table etc.)
-  if (!(is.list(x) && (is.data.frame(x) || !is.object(x))))
-    stop(sprintf("Argument '%s' must be a data.frame-like object or list", deparse(substitute(x))))
-}
 check_arg_prefix <- function(x) {
   if (!(length(x) == 1 && isTRUE(make.names(x) == x)))
     stop(sprintf(
@@ -43,14 +39,37 @@ check_arg_prefix <- function(x) {
 check_names <- function(x) {
   if (!(isTRUE(all(make.names(names(x)) == names(x)))))
     stop(sprintf(
-      paste("One or more column names in '%s' is either empty, NA, or not a syntactically valid R name (see `?base::make.names` for a description).",
-            "A future version of fjoin will support non-valid names."),
+      paste("One or more column names in '%s' is either empty, NA, or not a",
+            "syntactically valid R name (see `?base::make.names` for a description).",
+            "A future version of fjoin should support non-valid names."),
       deparse(substitute(x))))
   if (any(grepl("^fjoin\\.", names(x))))
     stop(sprintf(
       "Column names beginning with \"fjoin.\" are reserved. Found in '%s': %s",
       deparse(substitute(x)),
       paste(names(x)[grep("^fjoin.", names(x))], collapse = ", ")))
+}
+check_input_class <- function(x) {
+  # Check x is either a non-object list or data.frame (data.table etc.)
+  if (!(is.list(x) && (is.data.frame(x) || !is.object(x))))
+    stop(sprintf("Argument '%s' must be a data.frame-like object or list", deparse(substitute(x))))
+}
+# ------------------------------------------------------------------------------
+shallow_DT <- function(x, use_setDT = TRUE) {
+  # Shallow-copy columns of a data.frame-like object (or list of vectors) into a new DT
+  # use_setDT = FALSE (no overallocation) is for pure read-only with no assignments
+  if(!is.list(x)) stop("'x' must be 'list'-type")
+  if (is.object(x)) {
+    if (use_setDT) {
+      data.table::setDT(unclass(x))
+    } else {
+      # assumes regular object list
+      data.table::setattr(unclass(x), "class", c("data.table", "data.frame"))
+    }
+  } else {
+    # unclass doesn't (shallow) copy non-object, and use setDT for common length check
+    data.table::setDT(as.list(x))
+  }
 }
 # ------------------------------------------------------------------------------
 any_inherits <- function (x, cls, mask = NULL) {
@@ -61,27 +80,6 @@ any_inherits <- function (x, cls, mask = NULL) {
     for (i in seq_along(x)) if (mask[i] && inherits(x[[i]], cls)) return(TRUE)
   }
   FALSE
-}
-# ------------------------------------------------------------------------------
-shallow_DT <- function(x, use_setDT = TRUE) {
-  # Shallow-copy columns of a data.frame-like object (or list of vectors) into a new DT
-  # use_setDT = FALSE (no overallocation) is for pure read-only with no assignments
-  # if a non-object list, can't use unclass (as returns the original object), and always use setDT to trigger common length check
-  if (identical(class(x), "list")) {
-    data.table::setDT(lapply(x, function(v) v))
-  } else {
-    if (use_setDT) data.table::setDT(unclass(x)) else data.table::setattr(unclass(x), "class", c("data.table", "data.frame"))
-  }
-}
-# ------------------------------------------------------------------------------
-make_mock_tables <- function(on) {
-  # Create mock data.tables from an 'on' text expression
-  tmp <- lapply(on, function(x) strsplit_predicate(x))
-  names_DT <- c(vapply(tmp, function(x) x[1], character(1)), "col_DT", "col_c")
-  names_i  <- c(vapply(tmp, function(x) x[3], character(1)), "col_i", "col_c")
-  .DT <- stats::setNames(data.table::as.data.table(matrix(NA_integer_, nrow=1L, ncol=length(names_DT))), names_DT)
-  .i  <- stats::setNames(data.table::as.data.table(matrix(NA_integer_, nrow=1L, ncol=length(names_i))), names_i)
-  list(.DT, .i)
 }
 # ------------------------------------------------------------------------------
 drop_temp_cols <- function(x, pattern = "^fjoin\\.") {
@@ -124,6 +122,15 @@ na_omit_text <- function(x, na_cols=NULL, sd_cols=NULL) {
   }
 }
 # ------------------------------------------------------------------------------
+make_mock_tables <- function(df) {
+  # Create mock data.tables from a dataframe of join predicates
+  names_DT <- c(df$joincol.DT, "col_DT", "col_c")
+  names_i  <- c(df$joincol.i, "col_i", "col_c")
+  .DT <- data.table::setnames(data.table::as.data.table(matrix(NA_integer_, nrow=1L, ncol=length(names_DT))), names_DT)
+  .i  <- data.table::setnames(data.table::as.data.table(matrix(NA_integer_, nrow=1L, ncol=length(names_i))), names_i)
+  list(.DT, .i)
+}
+# ------------------------------------------------------------------------------
 make_label_fjoin <- function(t, sub_t) {
   # for calling in fjoin_*(): table label for printing, e.g. "x = A", "x (unnamed)"
   paste0(deparse(substitute(t)), if (!is.null(t) & is.name(sub_t)) sprintf(" = %s", deparse(sub_t)) else " (unnamed)")
@@ -133,62 +140,83 @@ make_label_dtjoin <- function(t, sub_t) {
   if (!is.null(t) & is.name(sub_t)) deparse(sub_t) else "(unnamed)"
 }
 # ------------------------------------------------------------------------------
+fast_na.omit <- function(x) {
+  # Also flattens x to a vector if a matrix or data.frame
+  x[!is.na(x)]
+}
+# ------------------------------------------------------------------------------
 fast_trimws <- function(x) {
   gsub("^\\s+|\\s+$", "", x)
 }
 # ------------------------------------------------------------------------------
-clean_on <- function(x) {
-  # Standardise the spacing of a vector of 'on' expressions e.g. c("id1==id2", " date1<  date2") -> c("id2 == id1", "date2 > date1")
-  pos <- regexpr("(==|<=|>=|<|>)", x)
-  ifelse(pos == -1,
-         fast_trimws(x),
-         paste(
-           fast_trimws(substr(x, 1L, pos - 1L)),
-           fast_trimws(substr(x, pos, pos + attr(pos, "match.length") - 1L)),
-           fast_trimws(substr(x, pos + attr(pos, "match.length"), nchar(x)))
-         )
-  )
+substr_until <- function(x, until, fixed = TRUE) {
+  m <- regexpr(until, x, fixed=fixed)
+  data.table::fifelse(m == -1L, x, substr(x, 1L, m - 1L))
 }
 # ------------------------------------------------------------------------------
+subset_while_in <- function(x, y) {
+  # Left subset of x that is in y
+  if (!length(x)) return(NULL)
+  i <- match(FALSE, x %in% y)
+  if (is.na(i)) return(x)
+  if (i==1L) return(NULL)
+  return(x[1:(i-1)])
+}
+# ------------------------------------------------------------------------------
+flips <- c(
+  ">"  = "<",
+  "<"  = ">",
+  ">=" = "<=",
+  "<=" = ">=",
+  "==" = "=="
+)
 flip_on <- function(x) {
-  # Flip a vector of 'on' expressions e.g. c("id1==id2", "date1<date2") -> c("id2==id1", "date2>date1")
-  flips <- c(
-    ">"  = "<",
-    "<"  = ">",
-    ">=" = "<=",
-    "<=" = ">=",
-    "==" = "=="
-  )
+  # Flip join predicates
+  # e.g. c("id1==id2", "date1<date2") -> c("id2==id1", "date2>date1")
   pos <- regexpr("(==|<=|>=|<|>)", x)
   ifelse(pos == -1,
-         fast_trimws(x),
+         x,
          paste(
-           fast_trimws(substring(x, pos + attr(pos, "match.length"))),
+           substring(x, pos + attr(pos, "match.length")),
            flips[substring(x, pos, pos + attr(pos, "match.length") - 1)],
-           fast_trimws(substring(x, 1, pos-1))
+           substring(x, 1, pos-1))
          )
-  )
 }
-#flip_on(c("a==b"," c   >=`hello world ` ","  e "))
-# ------------------------------------------------------------------------------
-strsplit_predicate <- function(x) {
-  # Check and split a join predicate phrase e.g. "id1 > id2" -> c("id1", ">", "id2")
-  pos <- regexpr("==|>=|<=|>|<", x)
-  if (pos == -1) {
-    x <- fast_trimws(x)
-    c(x,"==",x)
+on_vec_to_df <- function(x) {
+  # Predicates from character vector to 3-column data frame
+  lhs <- op <- rhs <- rep(NA_character_, length(x))
+  m <- regexpr("==|>=|<=|>|<", x)
+  no_op <- m == -1
+  if (any(no_op)) {
+    x_no_op <- fast_trimws(x[no_op])
+    lhs[no_op]  <- x_no_op
+    op[no_op]   <- "=="
+    rhs[no_op]  <- x_no_op
+  }
+  if (any(!no_op)) {
+    x_op <- x[!no_op]
+    mpos <- m[!no_op]
+    mlen <- attr(m, "match.length")[!no_op]
+    lhs[!no_op] <- fast_trimws(substr(x_op, 1L, mpos - 1L))
+    op[!no_op]  <- fast_trimws(substr(x_op, mpos, mpos + mlen - 1L))
+    rhs[!no_op] <- fast_trimws(substr(x_op, mpos + mlen, nchar(x_op)))
+  }
+  data.table::setDF(list(joincol.DT=lhs,op=op,joincol.i=rhs))
+}
+on_df_to_vec <- function(df, flip = FALSE) {
+  # Predicates from data frame to character vector
+  # with standardised whitespace and optionally flipped
+  if (!flip) {
+    ifelse(df$op == "==" & df$joincol.DT == df$joincol.i,
+           df$joincol.DT,
+           paste(df$joincol.DT,df$op,df$joincol.i))
   } else {
-    c(fast_trimws(substr(x, 1L, pos - 1L)),
-      fast_trimws(substr(x, pos, pos + attr(pos, "match.length") - 1L)),
-      fast_trimws(substr(x, pos + attr(pos, "match.length"), nchar(x))))
+    ifelse(df$op == "==" & df$joincol.DT == df$joincol.i,
+           df$joincol.DT,
+           paste(df$joincol.i,flips[df$op],df$joincol.DT))
   }
 }
 # ------------------------------------------------------------------------------
-allows_equi <- function(x) {
-  # Whether operator is equality/weak inequality
-  x %in% c("==", ">=", "<=")
-}
-# ------------------------------------------------------------------------------
 vcat <- function(x) {
-  cat(deparse(substitute(x)),": ",x,"\n", sep="")
+  cat(deparse(substitute(x)),": ",paste(x,collapse=", "),"\n", sep="")
 }

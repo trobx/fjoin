@@ -141,6 +141,16 @@
 #' of columns when casting inputs or outputs to different classes.)
 #' }
 #'
+#' \subsection{\pkg{data.table} \code{key}s}{
+#' When the output is a \code{data.table}, it inherits a \code{key} as follows:
+#' \itemize{
+#'   \item \code{fjoin_inner} or \code{fjoin_left} with \code{order = "left"}
+#'   (default): \code{x}'s \code{key} if present
+#'   \item \code{fjoin_inner} or \code{fjoin_right} with \code{order = "right"}:
+#'   \code{y}'s \code{key} if present
+#' }
+#' }
+#'
 #' \subsection{Additional notes for \pkg{sf} users}{
 #' Joins (non-spatial) between two \code{sf} objects are supported. If both
 #' active geometries are selected in the result, the result sets \code{x}'s

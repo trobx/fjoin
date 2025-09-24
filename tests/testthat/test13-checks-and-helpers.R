@@ -122,24 +122,18 @@ test_that("na_omit_text", {
 })
 
 # ------------------------------------------------------------------------------
-# strsplit_predicate and flip_on
-
-strsplit_predicate("id1>=id2")
-flip_on("id1>=id2")
-
-strsplit_predicate("    id1   >=id2")
-flip_on("    id1   >=id2")
-
-#strsplit_predicate("id1>=id2")
-#strsplit_predicate("id1 >= id2")
-#strsplit_predicate("    id1 >= id2  ")
-#strsplit_predicate("id")
-#strsplit_predicate("id1 >= ")
-
+# subset_while_in
+test_that("subset_while_in", {
+  y <- letters[1:5]
+  expect_null(subset_while_in(character(0),y))
+  expect_null(subset_while_in(letters[6:10],y))
+  expect_identical(subset_while_in(c("a","b","z"),y), c("a","b"))
+  expect_identical(subset_while_in(letters[1:3],y), letters[1:3])
+})
 # ------------------------------------------------------------------------------
 # vcat debug helper
 test_that("vcat", {
-  func <- function(x) vcat(x)
-  expect_output(func("foo"), "x: foo")
+  x <- c("foo","bar")
+  expect_output(vcat(x), "x: foo, bar")
 })
 

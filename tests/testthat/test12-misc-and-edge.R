@@ -23,7 +23,6 @@ test_that("as-is data.table inputs left intact", {
 
 # ------------------------------------------------------------------------------
 # zero-length outputs (esp. with indicate and setDF(list()))
-
 desc <- "empty output"
 if (PRINT_TEST_NAME) cat("\nTest:", desc, "\n")
 test_that(desc, {
@@ -36,15 +35,15 @@ test_that(desc, {
   expect_true(nrow(result)==0)
 })
 
-desc <- "setDF(list()) with indicate"
+desc <- "empty output with setDF(list()) and indicate"
 if (PRINT_TEST_NAME) cat("\nTest:", desc, "\n")
 test_that(desc, {
   sf1 <- sf::st_sf(id=1:2, geom=sf::st_sfc(sf::st_point(c(1,1)),sf::st_point(c(2,2))))
-  sf2 <- sf::st_sf(id=1:2, geom=sf::st_sfc(sf::st_point(c(3,3)),sf::st_point(c(4,4))))
+  sf2 <- sf::st_sf(id=3:4, geom=sf::st_sfc(sf::st_point(c(3,3)),sf::st_point(c(4,4))))
   result <-
     fjoin_inner(sf1, sf2, on="id", indicate=TRUE)
   if (PRINT_TEST_OBJECTS) print(result)
-  expect_identical(result$.join, c(3L,3L))
+  expect_true(nrow(result)==0)
 })
 
 # ------------------------------------------------------------------------------
@@ -110,30 +109,41 @@ test_that("reserved join column name in mock join", {
 # non-existent join columns
 test_that("dtjoin non-existent join column .DT", {
   dtjoin(DF_A, DF_B, on=c("id_A == id_B", "foo == col1")) |>
-    expect_error("No column named \"foo\" found in `.DT`")
+    expect_error("Join column\\(s\\) not found in `.DT`: foo")
 })
 
 test_that("dtjoin non-existent join column .i", {
   dtjoin(DF_A, DF_B, on=c("id_A == id_B", "t_A == foo")) |>
-    expect_error("No column named \"foo\" found in `.i`")
+    expect_error("Join column\\(s\\) not found in `.i`: foo")
 })
 
 test_that("dtjoin_semi non-existent join column .DT", {
   dtjoin_semi(DF_A, DF_B, on=c("id_A == id_B", "foo == t_B")) |>
-    expect_error("No column named \"foo\" found in `.DT`")
+    expect_error("Join column\\(s\\) not found in `.DT`: foo")
 })
 
 test_that("dtjoin_semi non-existent join column .i", {
   dtjoin_semi(DF_A, DF_B, on=c("id_A == id_B", "t_A == foo")) |>
-    expect_error("No column named \"foo\" found in `.i`")
+    expect_error("Join column\\(s\\) not found in `.i`: foo")
 })
 
 test_that("dtjoin_anti non-existent join column .DT", {
   dtjoin_anti(DF_A, DF_B, on=c("id_A == id_B", "foo == t_B")) |>
-    expect_error("No column named \"foo\" found in `.DT`")
+    expect_error("Join column\\(s\\) not found in `.DT`: foo")
 })
 
 test_that("dtjoin_anti non-existent join column .i", {
   dtjoin_anti(DF_A, DF_B, on=c("id_A == id_B", "t_A == foo")) |>
-    expect_error("No column named \"foo\" found in `.i`")
+    expect_error("Join column\\(s\\) not found in `.i`: foo")
+})
+
+# ------------------------------------------------------------------------------
+# na.match=FALSE but no equality predicates
+test_that("na.match=FALSE with no equality predicates", {
+  out <- capture.output(dtjoin(DF_A, DF_B, on=c("t_A > t_B"), do=FALSE))
+  expect_false(any(grepl("na\\.omit", out)))
+  out <- capture.output(dtjoin_semi(DF_A, DF_B, on=c("t_A > t_B"), do=FALSE))
+  expect_false(any(grepl("na\\.omit", out)))
+  out <- capture.output(dtjoin_anti(DF_A, DF_B, on=c("t_A > t_B"), do=FALSE))
+  expect_false(any(grepl("na\\.omit", out)))
 })

@@ -48,6 +48,8 @@ dtjoin_cross <- function(
 
 ) {
 
+  # input-----------------------------------------------------------------------
+
   check_names(.DT)
   check_names(.i)
   check_arg_prefix(prefix)
@@ -59,8 +61,8 @@ dtjoin_cross <- function(
   check_arg_TF(i.first)
   check_arg_TF(i.home)
 
-  dot_args <- list(...)
-  check_dot_names(dot_args)
+  dots <- list(...)
+  check_dots_names(dots)
 
   mock <- is.null(.DT) && is.null(.i)
   if (mock) do <- FALSE
@@ -68,15 +70,15 @@ dtjoin_cross <- function(
 
   if (show) {
     .labels <-
-      if (".labels" %in% names(dot_args)) {
-        dot_args$.labels
+      if (".labels" %in% names(dots)) {
+        dots$.labels
       } else {
         c(make_label_dtjoin(.DT, substitute(.DT)), make_label_dtjoin(.i, substitute(.i)))
       }
   }
 
   if (mock) {
-    tmp   <- make_mock_tables(on = "id")
+    tmp   <- make_mock_tables(on_vec_to_df("id"))
     .DT   <- tmp[[1]]
     .i    <- tmp[[2]]
     asis.DT <- TRUE
@@ -101,22 +103,28 @@ dtjoin_cross <- function(
   has_select    <- !is.null(select)
   has_select.DT <- !is.null(select.DT)
   has_select.i  <- !is.null(select.i)
-  if (has_select) select <- unique(select)
-  select.DT <- if (has_select) union(select, select.DT) else unique(select.DT)
-  select.i  <- if (has_select) union(select, select.i)  else unique(select.i)
+  if (has_select) {
+    select    <- unique(select)
+    select.DT <- if (has_select.DT) c(select, unique(select.DT[!select.DT %in% select])) else select
+    select.i  <- if (has_select.i) c(select, unique(select.i[!select.i %in% select])) else select
+  } else {
+    if (has_select.DT) select.DT <- unique(select.DT)
+    if (has_select.i)  select.i <- unique(select.i)
+  }
 
-  # --------------------------------------------------------------------------
+  # cols.DT, cols.i-----------------------------------------------------------
 
-  names.DT <- unique(names(.DT))
-  names.i  <- unique(names(.i))
+  cols.DT <- data.table::setDT(list(name = unique(names(.DT))))
+  cols.i  <- data.table::setDT(list(name = unique(names(.i))))
 
-  is_selected.DT <- if (is.null(select.DT)) rep(TRUE, length(names.DT)) else names.DT %in% select.DT
-  is_selected.i  <- if (is.null(select.i)) rep(TRUE, length(names.i))  else names.i %in% select.i
+  cols.DT$is_selected <- if (is.null(select.DT)) TRUE else cols.DT$name %in% select.DT
+  cols.i$is_selected  <- if (is.null(select.i)) TRUE else cols.i$name %in% select.i
 
-  selected_names.DT <- if (is.null(select.DT)) names.DT else names.DT[is_selected.DT]
-  selected_names.i  <- if (is.null(select.i)) names.i else names.i[is_selected.i]
+  # sfc_present-----------------------------------------------------------------
 
-  sfc_present <- any_inherits(.DT, "sfc", mask = is_selected.DT) || any_inherits(.i, "sfc", mask = is_selected.i)
+  sfc_present <- any_inherits(.DT, "sfc", mask = cols.DT$is_selected) || any_inherits(.i, "sfc", mask = cols.i$is_selected)
+
+  # output class----------------------------------------------------------------
 
   if (!do) {
     as_DT <- asis.DT || asis.i
@@ -128,17 +136,17 @@ dtjoin_cross <- function(
       # .i ahead of .DT
       if (inherits(orig.i, "sf")) {
         sf_col <- attr(orig.i, "sf_column")
-        if (is_selected.i[match(sf_col, names.i)]) {
+        if (cols.i$is_selected[match(sf_col, cols.i$name)]) {
           as_sf <- TRUE
-          if (!i.home && sf_col %in% names.DT) sf_col <- sprintf("%s%s", prefix, sf_col)
+          if (!i.home && sf_col %in% cols.i$name) sf_col <- sprintf("%s%s", prefix, sf_col)
           as_tbl_df <- inherits(orig.i, "tbl_df") && as_tibble_ok
         }
       }
       if (!as_sf && inherits(orig.DT, "sf")) {
         sf_col <- attr(orig.DT, "sf_column")
-        if (is_selected.DT[match(sf_col, names.DT)]) {
+        if (cols.DT$is_selected[match(sf_col, cols.DT$name)]) {
           as_sf <- TRUE
-          if (i.home && sf_col %in% names.i) sf_col <- sprintf("%s%s", prefix, sf_col)
+          if (i.home && sf_col %in% cols.DT$name) sf_col <- sprintf("%s%s", prefix, sf_col)
           as_tbl_df <- inherits(orig.DT, "tbl_df") && as_tibble_ok
         }
       }
@@ -147,40 +155,73 @@ dtjoin_cross <- function(
     if (!as_DT) as_tbl_df <- (inherits(orig.DT, "tbl_df") || inherits(orig.i, "tbl_df")) && as_tibble_ok
   }
 
-  jvars.DT <- character(length(selected_names.DT))
-  jvars.i  <- character(length(selected_names.i))
+  # jvars, jointext-------------------------------------------------------------
+
+  cols.DT$jvar <- NA_character_
+  cols.i$jvar  <- NA_character_
+
+  selected_cols.DT <- if (is.null(select.DT)) cols.DT$name else cols.DT$name[cols.DT$is_selected]
+  selected_cols.i  <- if (is.null(select.i)) cols.i$name else cols.i$name[cols.i$is_selected]
 
   if (!i.home) {
     # (c,c) -> (c,PREF.c=i.c)
-    jvars.DT <- if (sfc_present) sprintf("%s = %s",selected_names.DT,selected_names.DT) else selected_names.DT
-    jvars.i  <- ifelse(selected_names.i %in% names.DT,
-                       sprintf("%s%s = i.%s",prefix,selected_names.i,selected_names.i),
-                       if (sfc_present) sprintf("%s = %s",selected_names.i,selected_names.i) else selected_names.i)
+    cols.DT$jvar[cols.DT$is_selected] <-
+      if (sfc_present) sprintf("%s = %s",selected_cols.DT,selected_cols.DT) else selected_cols.DT
+    cols.i$jvar[cols.i$is_selected]   <-
+      data.table::fifelse(selected_cols.i %in% cols.DT$name,
+                          sprintf("%s%s = i.%s",prefix,selected_cols.i,selected_cols.i),
+                          if (sfc_present) sprintf("%s = %s",selected_cols.i,selected_cols.i) else selected_cols.i)
   } else {
     # (c,c) -> (PREF.c=c,c=i.c)
-    jvars.DT <- ifelse(selected_names.DT %in% names.i,
-                       sprintf("%s%s = %s",prefix,selected_names.DT,selected_names.DT),
-                       if (sfc_present) sprintf("%s = %s",selected_names.DT,selected_names.DT) else selected_names.DT)
-    jvars.i  <- ifelse(selected_names.i %in% names.DT,
-                       sprintf("%s = i.%s",selected_names.i,selected_names.i),
-                       if (sfc_present) sprintf("%s = %s",selected_names.i,selected_names.i) else selected_names.i)
+    cols.DT$jvar[cols.DT$is_selected] <-
+      data.table::fifelse(selected_cols.DT %in% cols.i$name,
+                          sprintf("%s%s = %s",prefix,selected_cols.DT,selected_cols.DT),
+                          if (sfc_present) sprintf("%s = %s",selected_cols.DT,selected_cols.DT) else selected_cols.DT)
+    cols.i$jvar[cols.i$is_selected]   <-
+      data.table::fifelse(selected_cols.i %in% cols.DT$name,
+                          sprintf("%s = i.%s",selected_cols.i,selected_cols.i),
+                          if (sfc_present) sprintf("%s = %s",selected_cols.i,selected_cols.i) else selected_cols.i)
   }
 
-  jvars <-
-    if (has_select && !(has_select.DT || has_select.i)) {
+  jvars.DT <- cols.DT$jvar[cols.DT$is_selected]
+  jvars.i  <- cols.i$jvar[cols.i$is_selected]
+
+  if (has_select && !(has_select.DT || has_select.i)) {
     # select-only case (selected in order)
+
+    # for each selected name, jvar or NA
+    jvars.DT <- jvars.DT[match(select, selected_cols.DT)]
+    jvars.i  <- jvars.i[match(select, selected_cols.i)]
+
+    # interleave, dropping NAs (rbind then fast_na.omit which also flattens)
+    jvars <-
       if (i.first) {
-          stats::na.omit(unlist(lapply(select, function(x) c(jvars.i[match(x,selected_names.i)], jvars.DT[match(x,selected_names.DT)]))))
+        fast_na.omit(rbind(jvars.i, jvars.DT))
       } else {
-          stats::na.omit(unlist(lapply(select, function(x) c(jvars.DT[match(x,selected_names.DT)], jvars.i[match(x,selected_names.i)]))))
+        fast_na.omit(rbind(jvars.DT, jvars.i))
       }
-    } else {
-        if (i.first) c(jvars.i, jvars.DT) else c(jvars.DT, jvars.i)
-    }
+
+  } else {
+    jvars <- if (i.first) c(jvars.i, jvars.DT) else c(jvars.DT, jvars.i)
+  }
 
   jtext <- sprintf(if (sfc_present) "setDF(list(%s))" else "data.frame(%s)", paste(jvars, collapse = ", "))
   jointext <- sprintf("%s[, fjoin.ind := TRUE][%s[, fjoin.ind := TRUE], on = \"fjoin.ind\", allow.cartesian = TRUE, %s]", ".DT", ".i", jtext)
   if (as_DT) jointext <- sprintf("setDT(%s)", jointext)
+
+  # output key------------------------------------------------------------------
+
+  set_key <- as_DT && asis.i && data.table::haskey(.i)
+  if (set_key) {
+    kcols <- subset_while_in(data.table::key(orig.i), selected_cols.i)
+    if (is.null(kcols)) {
+      set_key <- FALSE
+    } else {
+      key <- cols.i$jvar[match(kcols, cols.i$name)]
+    }
+  }
+
+  # outputs---------------------------------------------------------------------
 
   if (show) {
     cat(".DT : ", .labels[[1]], "\n", ".i  : ", .labels[[2]], "\n", "Join: ", jointext, "\n\n", sep="")
@@ -190,7 +231,9 @@ dtjoin_cross <- function(
     if (asis.DT) on.exit(drop_temp_cols(.DT), add=TRUE)
     if (asis.i) on.exit(drop_temp_cols(.i), add=TRUE)
     ans <- (eval(parse(text=jointext), envir=list2env(list(.DT=.DT, .i=.i), parent=getNamespace("data.table"))))
-    if (!as_DT) {
+    if (as_DT) {
+      if (set_key) attr(ans, "sorted") <- key
+    } else{
       if (as_tbl_df) ans <- tibble::as_tibble(ans)
       if (as_sf)     ans <- sf::st_as_sf(ans, sf_column_name=sf_col, sfc_last=FALSE)
     }

@@ -5,17 +5,17 @@
 #' using a generalisation of \code{DT[i]} syntax with extended arguments and
 #' enhanced behaviour. Accepts any \code{data.frame}-like inputs (not only
 #' \code{data.table}s), permits left, right, inner, and full joins, prevents
-#' unwanted matches on \code{NA} and \code{NaN} by default, does not garble
-#' join columns in non-equality joins, allows \code{mult} on both sides of the
-#' join, creates an optional join indicator column, allows specifying which
-#' columns to select from each input, and provides convenience options to
-#' control column order and prefixing.
+#' unwanted matches on \code{NA} and \code{NaN} by default, does not garble join
+#' columns in non-equality joins, allows \code{mult} on both sides of the join,
+#' creates an optional join indicator column, allows specifying which columns to
+#' select from each input, and provides convenience options to control column
+#' order and prefixing.
 #'
-#' If run, the join returns a \code{data.frame}, \code{data.table},
-#' tibble, \code{sf}, or \code{sf}-tibble according to context.
-#' The generated \code{data.table} code can be printed to the console instead of
-#' (or as well as) being executed. This feature extends to \emph{mock joins},
-#' where no inputs are provided, and template code is produced.
+#' If run, the join returns a \code{data.frame}, \code{data.table}, tibble,
+#' \code{sf}, or \code{sf}-tibble according to context. The generated
+#' \pkg{data.table} code can be printed to the console instead of (or as well
+#' as) being executed. This feature extends to \emph{mock joins}, where no
+#' inputs are provided, and template code is produced.
 #'
 #' \code{dtjoin} is the workhorse function for \code{\link{fjoin_inner}},
 #' \code{\link{fjoin_left}}, \code{\link{fjoin_right}}, and
@@ -157,6 +157,15 @@
 #' of columns when casting inputs or outputs to different classes.)
 #' }
 #'
+#' \subsection{\pkg{data.table} \code{key}s}{
+#' If \code{.i} is a \code{key}ed \code{data.table} and the output is also a
+#' \code{data.table}, it inherits \code{.i}'s \code{key} provided
+#' \code{nomatch.DT} is \code{NULL} (i.e. the non-matching rows of \code{.DT}
+#' are not included in the result). This differs from a \pkg{data.table}
+#' \code{DT[i]} join, in which the output inherits the \code{key} of \code{DT}
+#' provided it remains sorted on those columns.
+#' }
+#'
 #' \subsection{Additional notes for \pkg{sf} users}{
 #' If \code{.DT} and \code{.i} are both \code{sf} objects whose active geometries
 #' are selected in the result, the result sets \code{.i}'s geometry as active.
@@ -233,8 +242,11 @@ dtjoin <- function(
   do         = !(is.null(.DT) && is.null(.i)),
   show       = !do,
   verbose    = FALSE,
+  # passed from fjoin_* (labels)
   ...
 ) {
+
+  # inputs----------------------------------------------------------------------
 
   check_names(.DT)
   check_names(.i)
@@ -257,39 +269,39 @@ dtjoin <- function(
   check_arg_TF(preserve)
   check_arg_TF(verbose)
 
-  dot_args <- list(...)
-  check_dot_names(dot_args)
+  dots <- list(...)
+  check_dots_names(dots)
 
-  on   <- clean_on(on)
+  cols.on <- on_vec_to_df(on)
+
   mock <- is.null(.DT) && is.null(.i)
   if (mock) do <- FALSE
   if (!do) show <- TRUE
 
   if (show) {
     .labels <-
-      if (".labels" %in% names(dot_args)) {
-        dot_args$.labels
+      if (".labels" %in% names(dots)) {
+        dots$.labels
       } else {
         c(make_label_dtjoin(.DT, substitute(.DT)), make_label_dtjoin(.i, substitute(.i)))
       }
   }
 
   if (mock) {
-    tmp   <- make_mock_tables(on)
-    .DT   <- tmp[[1]]
-    .i    <- tmp[[2]]
+    tmp <- make_mock_tables(cols.on)
+    .DT <- tmp[[1]]
+    .i  <- tmp[[2]]
     check_names(.DT)
     check_names(.i)
     asis.DT <- TRUE
     asis.i  <- TRUE
-  }
-  else {
+  } else {
     check_input_class(.DT)
     check_input_class(.i)
-    orig.DT           <- .DT
-    orig.i            <- .i
-    asis.DT           <- identical(class(.DT), c("data.table", "data.frame"))
-    asis.i            <- identical(class(.i), c("data.table", "data.frame"))
+    orig.DT <- .DT
+    orig.i  <- .i
+    asis.DT <- identical(class(.DT), c("data.table", "data.frame"))
+    asis.i  <- identical(class(.i), c("data.table", "data.frame"))
     if (!asis.DT) {
       .DT <- shallow_DT(.DT)
       if (show) .labels[[1]] <- paste(.labels[[1]], "(cast as data.table)")
@@ -303,217 +315,262 @@ dtjoin <- function(
   has_select    <- !is.null(select)
   has_select.DT <- !is.null(select.DT)
   has_select.i  <- !is.null(select.i)
-  if (has_select) select <- unique(select)
-  select.DT <- if (has_select) union(select, select.DT) else unique(select.DT)
-  select.i  <- if (has_select) union(select, select.i)  else unique(select.i)
-
-  has_mult       <- mult != "all"
-  has_mult.DT    <- mult.DT != "all"
-  outer.i        <- !(is.null(nomatch) || nomatch %in% 0L)
-  outer.DT       <- !(is.null(nomatch.DT) || nomatch.DT %in% 0L)
-  rename_anti.DT <- outer.DT && i.home
-
-  # ----------------------------------------------------------------------------
-  # is_joincol_, equi_names_, any_nonequi, is_selected_, jvars_, oldnames_anti.DT, newnames_anti.DT
-
-  names.DT      <- unique(names(.DT))
-  is_joincol.DT <- rep(FALSE, length(names.DT))
-  jvars.DT      <- rep(NA_character_, length(names.DT))
-
-  names.i       <- unique(names(.i))
-  is_joincol.i  <- rep(FALSE, length(names.i))
-  jvars.i       <- rep(NA_character_, length(names.i))
-
-  if (!match.na) {
-    equi_names.DT <- rep(NA_character_, length(on))
-    equi_names.i  <- rep(NA_character_, length(on))
+  if (has_select) {
+    select    <- unique(select)
+    select.DT <- if (has_select.DT) c(select, unique(select.DT[!select.DT %in% select])) else select
+    select.i  <- if (has_select.i) c(select, unique(select.i[!select.i %in% select])) else select
+  } else {
+    if (has_select.DT) select.DT <- unique(select.DT)
+    if (has_select.i)  select.i <- unique(select.i)
   }
 
-  if (rename_anti.DT) {
-    oldnames_anti.DT <- rep(NA_character_, length(on))
-    newnames_anti.DT <- rep(NA_character_, length(on))
-  }
+  has_mult    <- mult != "all"
+  has_mult.DT <- mult.DT != "all"
+  outer.i     <- !(is.null(nomatch) || nomatch %in% 0L)
+  outer.DT    <- !(is.null(nomatch.DT) || nomatch.DT %in% 0L)
 
-  any_nonequi <- FALSE # just for allow.cartesian in one case
+  # cols.on, cols.DT, cols.i ---------------------------------------------------
 
-  for (i in seq_along(on)) {
+  cols.DT <- data.table::setDT(list(name = unique(names(.DT))))
+  cols.i  <- data.table::setDT(list(name = unique(names(.i))))
 
-    s <- strsplit_predicate(on[i])
+  cols.on$idx.DT <- match(cols.on$joincol.DT, cols.DT$name)
+  cols.on$idx.i  <- match(cols.on$joincol.i, cols.i$name)
 
-    if (!any_nonequi && s[2] != "==") any_nonequi <- TRUE
+  if (anyNA(cols.on$idx.DT)) stop(
+    paste("Join column(s) not found in `.DT`:",
+          paste(cols.on[is.na(cols.on$idx.DT),"joincol.DT"], collapse = ", "))
+  )
+  if (anyNA(cols.on$idx.i)) stop(
+    paste("Join column(s) not found in `.i`:",
+          paste(cols.on[is.na(cols.on$idx.i),"joincol.i"], collapse = ", "))
+  )
 
-    idx.DT <- match(s[1], names.DT)
-    if (is.na(idx.DT)) stop(sprintf("No column named \"%s\" found in `.DT`", s[1]))
+  cols.DT$is_joincol <- FALSE
+  cols.i$is_joincol  <- FALSE
 
-    idx.i  <- match(s[3], names.i)
-    if (is.na(idx.i)) stop(sprintf("No column named \"%s\" found in `.i`", s[3]))
+  data.table::set(cols.DT, cols.on$idx.DT, "is_joincol", TRUE)
+  data.table::set(cols.i, cols.on$idx.i, "is_joincol", TRUE)
 
-    is_joincol.DT[idx.DT] <- TRUE
-    is_joincol.i[idx.i]   <- TRUE
+  # join column jvars
+  if (!(has_mult.DT && !has_mult)) {
+    # typical case
 
-    if (!match.na && allows_equi(s[2])) {
-      equi_names.DT[[i]] <- s[1]
-      equi_names.i[[i]]  <- s[3]
-    }
+    if (!i.home) {
+      # .DT home table
 
-    if (rename_anti.DT) {
-      if (s[2] == "==" && !preserve) {
-        if (s[1] != s[3]) {
-          # id1 -> id2
-          oldnames_anti.DT[[i]] <- s[1]
-          newnames_anti.DT[[i]] <- s[3]
-        }
-      } else {
-        if (s[1] == s[3]) {
-          # id -> PREF.id=id
-          oldnames_anti.DT[[i]] <- s[1]
-          newnames_anti.DT[[i]] <- sprintf("%s%s", prefix, s[3])
-        }
-      }
-    }
+      # equality and not preserve both:
+      #   (id, id)   -> (id, NULL)  (id garbles to id=i.id)
+      #   (id1, id2) -> (id1, NULL) (id1 garbles to id1=id2)
+      # otherwise preserve both:
+      #   (id, id)   -> (id=x.id, PREF.id=id)
+      #   (id1, id2) -> (id1=x.id1, id2)
 
-    if (!(has_mult.DT && !has_mult)) {
-      # typical case
-      if (!i.home) {
-        # .DT home table
-        if (s[2] == "==" && !preserve) {
-          # (id, id)   -> (id, NULL)  (id garbles to id=i.id)
-          # (id1, id2) -> (id1, NULL) (id1 garbles to id1=id2)
-          jvars.DT[idx.DT] <- s[1]
-        } else {
-          # (id, id)   -> (id=x.id, PREF.id=id)
-          # (id1, id2) -> (id1=x.id1, id2)
-          jvars.DT[idx.DT] <- sprintf("%s = x.%s", s[1], s[1])
-          jvars.i[idx.i]   <- if (s[1] == s[3]) sprintf("%s%s = %s", prefix, s[3], s[3]) else s[3]
-        }
-      } else {
-        # .i home table
-        if (s[2] == "==" && !preserve) {
-          # (id, id)   -> (NULL, id)  (id garbles to id=i.id)
-          # (id1, id2) -> (NULL, id2) (no garbling)
-          jvars.i[idx.i] <- s[3]
-        } else {
-          # (id, id)   -> (PREF.id=x.id, id) (id garbles to id=i.id)
-          # (id1, id2) -> (id1=x.id1, id2)   (avoid id1 garbling)
-          if (s[1] == s[3]) {
-            jvars.DT[idx.DT] <- sprintf("%s%s = x.%s", prefix, s[1], s[1])
-          } else {
-            jvars.DT[idx.DT] <- sprintf("%s = x.%s", s[1], s[1])
-          }
-          jvars.i[idx.i] <- s[3]
-        }
-      }
+      cols.on$jvar.DT <-
+        data.table::fifelse(
+          cols.on$op == "==" & !preserve,
+          cols.on$joincol.DT,
+          sprintf("%s = x.%s", cols.on$joincol.DT, cols.on$joincol.DT))
+
+      cols.on$jvar.i  <-
+        data.table::fifelse(
+          cols.on$op == "==" & !preserve,
+          NA_character_,
+          data.table::fifelse(
+            cols.on$joincol.i == cols.on$joincol.DT,
+            sprintf("%s%s = %s", prefix, cols.on$joincol.i, cols.on$joincol.i),
+            cols.on$joincol.i))
+
     } else {
-      # special case mult.DT but no mult: join is onto .i on row num (not the on arg)
-      if (!i.home) {
-        # .DT home table
-        if (s[2] == "==" && !preserve) {
-          # (id, id)   -> (id=i.id, NULL) (manually garble)
-          # (id1, id2) -> (id1=id2, NULL) (manually garble)
-          if (s[1] == s[3]) {
-            jvars.DT[idx.DT] <- sprintf("%s = i.%s", s[1], s[1])
-          } else {
-            jvars.DT[idx.DT] <- sprintf("%s = %s", s[1], s[3])
-          }
-        } else {
-          # (id, id)   -> (id, PREF.id=i.id) (do not garble)
-          # (id1, id2) -> (id1, id2)         (do not garble)
-          jvars.DT[idx.DT] <- s[1]
-          jvars.i[idx.i]   <- if (s[1] == s[3]) sprintf("%s%s = i.%s", prefix, s[3], s[3]) else s[3]
-        }
-      } else {
-        # .i home table
-        if (s[2] == "==" && !preserve) {
-          # (id, id)   -> (NULL, id=i.id) (manually garble)
-          # (id1, id2) -> (NULL, id2)     (no garbling)
-          jvars.i[idx.i] <- if (s[1] == s[3]) sprintf("%s = i.%s", s[3], s[3]) else s[3]
-        } else {
-          # (id, id)   -> (PREF.id=id, id=i.id) (do not garble)
-          # (id1, id2) -> (id1, id2)            (do not garble)
-          if (s[1] == s[3]) {
-            jvars.DT[idx.DT] <- sprintf("%s%s = %s", prefix, s[1], s[1])
-            jvars.i[idx.i]   <- sprintf("%s = i.%s", s[3], s[3])
-          } else {
-            jvars.DT[idx.DT] <- s[1]
-            jvars.i[idx.i]   <- s[3]
-          }
-        }
-      }
+      # .i home table
+
+      # equality and not preserve both:
+      #   (id, id)   -> (NULL, id)  (id garbles to id=i.id)
+      #   (id1, id2) -> (NULL, id2) (no garbling)
+      # otherwise preserve both:
+      #   (id, id)   -> (PREF.id=x.id, id) (id garbles to id=i.id)
+      #   (id1, id2) -> (id1=x.id1, id2)   (avoid id1 garbling)
+
+      cols.on$jvar.DT <-
+        data.table::fifelse(
+          cols.on$op == "==" & !preserve,
+          NA_character_,
+          data.table::fifelse(
+            cols.on$joincol.DT == cols.on$joincol.i,
+            sprintf("%s%s = x.%s", prefix, cols.on$joincol.DT, cols.on$joincol.DT),
+            sprintf("%s = x.%s", cols.on$joincol.DT, cols.on$joincol.DT)))
+
+      cols.on$jvar.i  <- cols.on$joincol.i
+    }
+
+  } else {
+    # special case mult.DT but no mult: join onto .i on fjoin.which.i (not the on arg)
+
+    if (!i.home) {
+      # .DT home table
+
+      # equality and not preserve both:
+      #   (id, id)   -> (id=i.id, NULL) (manually garble)
+      #   (id1, id2) -> (id1=id2, NULL) (manually garble)
+      # otherwise preserve both:
+      #   (id, id)   -> (id, PREF.id=i.id) (do not garble)
+      #   (id1, id2) -> (id1, id2)         (do not garble)
+
+      cols.on$jvar.DT <-
+        data.table::fifelse(
+          cols.on$op == "==" & !preserve,
+          data.table::fifelse(
+            cols.on$joincol.DT == cols.on$joincol.i,
+            sprintf("%s = i.%s", cols.on$joincol.DT, cols.on$joincol.DT),
+            sprintf("%s = %s", cols.on$joincol.DT, cols.on$joincol.i)),
+          cols.on$joincol.DT)
+
+      cols.on$jvar.i  <-
+        data.table::fifelse(
+          cols.on$op == "==" & !preserve,
+          NA_character_,
+          data.table::fifelse(
+            cols.on$joincol.i == cols.on$joincol.DT,
+            sprintf("%s%s = i.%s", prefix, cols.on$joincol.i, cols.on$joincol.i),
+            cols.on$joincol.i))
+
+    } else {
+      # .i home table
+
+      # equality and not preserve both:
+      #   (id, id)   -> (NULL, id=i.id) (manually garble)
+      #   (id1, id2) -> (NULL, id2)     (no garbling)
+      # otherwise preserve both:
+      #   (id, id)   -> (PREF.id=id, id=i.id) (do not garble)
+      #   (id1, id2) -> (id1, id2)            (do not garble)
+
+      cols.on$jvar.DT <-
+        data.table::fifelse(
+          cols.on$op == "==" & !preserve,
+          NA_character_,
+          data.table::fifelse(
+            cols.on$joincol.DT == cols.on$joincol.i,
+            sprintf("%s%s = %s", prefix, cols.on$joincol.DT, cols.on$joincol.DT),
+            cols.on$joincol.DT))
+
+      cols.on$jvar.i  <-
+        data.table::fifelse(
+          cols.on$joincol.i == cols.on$joincol.DT,
+          sprintf("%s = i.%s", cols.on$joincol.i, cols.on$joincol.i),
+          cols.on$joincol.i)
+
     }
   }
 
-  if (!match.na) {
-    equi_names.DT <- equi_names.DT[!is.na(equi_names.DT)]
-    equi_names.i  <- equi_names.i[!is.na(equi_names.i)]
-  }
+  # flag selected non-join columns
+  cols.DT$is_nonjoincol <-
+    if (is.null(select.DT)) !cols.DT$is_joincol else !cols.DT$is_joincol & (cols.DT$name %in% select.DT)
+  cols.i$is_nonjoincol <-
+    if (is.null(select.i)) !cols.i$is_joincol else !cols.i$is_joincol & (cols.i$name %in% select.i)
 
-  if (rename_anti.DT) {
-    oldnames_anti.DT <- oldnames_anti.DT[!is.na(oldnames_anti.DT)]
-    newnames_anti.DT <- newnames_anti.DT[!is.na(newnames_anti.DT)]
-  }
-
-  # selected (non-join) columns
-  is_selected.DT <- if (is.null(select.DT)) !is_joincol.DT else !is_joincol.DT & (names.DT %in% select.DT)
-  is_selected.i  <- if (is.null(select.i)) !is_joincol.i else !is_joincol.i & (names.i  %in% select.i)
-  jvars.DT[is_selected.DT] <- names.DT[is_selected.DT]
-  jvars.i[is_selected.i]   <- names.i[is_selected.i]
-
+  # non-join column jvars
   if (!i.home) {
     # (c,c) -> (c,PREF.c=i.c)
-    jvars.i <- ifelse(is_selected.i & jvars.i %in% names.DT, sprintf("%s%s = i.%s",prefix,jvars.i,jvars.i), jvars.i)
+    cols.DT$jvar <-
+      data.table::fifelse(cols.DT$is_nonjoincol, cols.DT$name, NA_character_)
+    cols.i$jvar  <-
+      data.table::fifelse(
+        cols.i$is_nonjoincol,
+        data.table::fifelse(
+          cols.i$name %in% cols.DT$name,
+          sprintf("%s%s = i.%s",prefix,cols.i$name,cols.i$name), cols.i$name),
+        NA_character_)
   } else {
     # (c,c) -> (PREF.c=c,c=i.c)
-    jvars.DT <- ifelse(is_selected.DT & jvars.DT %in% names.i, sprintf("%s%s = %s",prefix,jvars.DT,jvars.DT), jvars.DT)
-    jvars.i  <- ifelse(is_selected.i & jvars.i %in% names.DT, sprintf("%s = i.%s",jvars.i,jvars.i), jvars.i)
+    cols.DT$jvar <-
+      data.table::fifelse(
+        cols.DT$is_nonjoincol,
+        data.table::fifelse(
+          cols.DT$name %in% cols.i$name,
+          sprintf("%s%s = %s",prefix,cols.DT$name,cols.DT$name),
+          cols.DT$name),
+        NA_character_)
+    cols.i$jvar  <-
+      data.table::fifelse(
+        cols.i$is_nonjoincol,
+        data.table::fifelse(
+          cols.i$name %in% cols.DT$name,
+          sprintf("%s = i.%s",cols.i$name,cols.i$name),
+          cols.i$name),
+        NA_character_)
   }
 
-  include.DT <- !is.na(jvars.DT)
-  include.i  <- !is.na(jvars.i)
+  # join column jvars
+  data.table::set(cols.DT, cols.on$idx.DT, "jvar", cols.on$jvar.DT)
+  data.table::set(cols.i, cols.on$idx.i, "jvar", cols.on$jvar.i)
 
-  # ----------------------------------------------------------------------------
-  # handle outer.DT, rename_anti.DT
+  cols.DT$has_jvar <- !is.na(cols.DT$jvar)
+  cols.i$has_jvar  <- !is.na(cols.i$jvar)
+
+  # handle outer.DT-------------------------------------------------------------
 
   if (outer.DT) {
-    include_anti.DT <- is_joincol.DT | include.DT
-    if (rename_anti.DT) {
-      # renames for non-join columns x.v <- v
-      tmp <- names.DT[is_selected.DT & names.DT %in% names.i]
-      oldnames_anti.DT <- c(oldnames_anti.DT, tmp)
-      newnames_anti.DT <- c(newnames_anti.DT, sprintf("%s%s", prefix, tmp))
-      rename_anti.DT <- length(newnames_anti.DT) != 0L
+
+    cols.DT <- rbind(
+      cols.DT,
+      list(name          = "fjoin.which.DT",
+           is_joincol    = FALSE,
+           is_nonjoincol = TRUE,
+           jvar          = "fjoin.which.DT",
+           has_jvar      = TRUE),
+      use.names = TRUE,
+      fill = TRUE)
+    if (!is.null(select)) select <- c(select, "fjoin.which.DT")
+    if (!is.null(select.DT)) select.DT <- c(select.DT, "fjoin.which.DT")
+
+    if (i.home) {
+      # apply garbling and prefixing to .DT's columns in anti-join
+
+      # non-join cols: copy from jvar i.e. if name collision, v -> x.v
+      cols.DT$jvar_anti <- data.table::fifelse(cols.DT$is_nonjoincol, cols.DT$jvar, NA_character_)
+
+      # join cols:
+      cols.on$jvar_anti.DT <-
+        data.table::fcase(
+          cols.on$op == "==" & !preserve & cols.on$joincol.DT != cols.on$joincol.i,
+            # equality and not preserve, and different names: id1 -> id2
+            sprintf("%s = %s", cols.on$joincol.i, cols.on$joincol.DT),
+          (cols.on$op != "==" | preserve) & cols.on$joincol.DT == cols.on$joincol.i,
+            # preserve, and same names: id -> PREF.id=id
+            sprintf("%s%s = %s", prefix, cols.on$joincol.DT, cols.on$joincol.DT),
+          default = cols.on$joincol.DT
+      )
+      data.table::set(cols.DT, cols.on$idx.DT, "jvar_anti", cols.on$jvar_anti.DT)
     }
-    names.DT       <- c(names.DT, "fjoin.DT.rn")
-    jvars.DT       <- c(jvars.DT, "fjoin.DT.rn")
-    is_joincol.DT  <- c(is_joincol.DT, FALSE)
-    include.DT     <- c(include.DT, TRUE)
-    is_selected.DT <- c(is_selected.DT, TRUE)
-    if (!is.null(select)) select <- c(select, "fjoin.DT.rn")
-    if (!is.null(select.DT)) select.DT <- c(select.DT, "fjoin.DT.rn")
   }
 
-  # ----------------------------------------------------------------------------
-  # screen_NAs
+  # screen_NAs, equi_names_, sdcols_--------------------------------------------
 
-  screen_NAs <-
-    !match.na &&
-    length(equi_names.DT) &&
-    .DT[, anyNA(.SD), .SDcols=equi_names.DT] &&
-    .i[, anyNA(.SD), .SDcols=equi_names.i]
-
-  # ----------------------------------------------------------------------------
-  # sdcols_
+  if (match.na) {
+    screen_NAs <- FALSE
+  } else {
+    allows_equi <- cols.on$op %in% c("==",">=","<=")
+    if (any(allows_equi)) {
+      equi_names.DT <- cols.on$joincol.DT[allows_equi]
+      equi_names.i  <- cols.on$joincol.i[allows_equi]
+      screen_NAs <-
+        .DT[, anyNA(.SD), .SDcols=equi_names.DT] &&
+        .i[, anyNA(.SD), .SDcols=equi_names.i]
+    } else {
+      screen_NAs <- FALSE
+    }
+  }
 
   if (screen_NAs) {
-    sdcols.DT <- if (is.null(select.DT)) names.DT else names.DT[is_joincol.DT | is_selected.DT]
-    sdcols.i  <- if (is.null(select.i)) names.i else names.i[is_joincol.i | is_selected.i]
+    sdcols.DT <- if (is.null(select.DT)) cols.DT$name else cols.DT$name[cols.DT$is_joincol | cols.DT$is_nonjoincol]
+    sdcols.i  <- if (is.null(select.i)) cols.i$name else cols.i$name[cols.i$is_joincol | cols.i$is_nonjoincol]
   }
 
-  # ----------------------------------------------------------------------------
-  # sfc_present
-  sfc_present <- any_inherits(.DT, "sfc", mask=is_selected.DT) || any_inherits(.i, "sfc", mask=is_selected.i)
+  # sfc_present----------------------------------------------------------------
 
-  # ----------------------------------------------------------------------------
-  # output class
+  sfc_present <- any_inherits(.DT, "sfc", mask=cols.DT$is_nonjoincol) || any_inherits(.i, "sfc", mask=cols.i$is_nonjoincol)
+
+  # output class----------------------------------------------------------------
 
   if (!do) {
     as_DT <- asis.DT || asis.i
@@ -525,17 +582,19 @@ dtjoin <- function(
       # .i ahead of .DT
       if (inherits(orig.i, "sf")) {
         sf_col <- attr(orig.i, "sf_column")
-        if (include.i[match(sf_col, names.i)]) {
+        sf_col.idx <- match(sf_col, cols.i$name)
+        if (cols.i$has_jvar[sf_col.idx]) {
           as_sf <- TRUE
-          if (!i.home && sf_col %in% names.DT) sf_col <- sprintf("%s%s", prefix, sf_col)
+          sf_col <- substr_until(cols.i$jvar[sf_col.idx], until=" = ")
           as_tbl_df <- inherits(orig.i, "tbl_df") && as_tibble_ok
         }
       }
       if (!as_sf && inherits(orig.DT, "sf")) {
         sf_col <- attr(orig.DT, "sf_column")
-        if (include.DT[match(sf_col, names.DT)]) {
+        sf_col.idx <- match(sf_col, cols.DT$name)
+        if (cols.DT$has_jvar[sf_col.idx]) {
           as_sf <- TRUE
-          if (i.home && sf_col %in% names.i) sf_col <- sprintf("%s%s", prefix, sf_col)
+          sf_col <- substr_until(cols.DT$jvar[sf_col.idx], until=" = ")
           as_tbl_df <- inherits(orig.DT, "tbl_df") && as_tibble_ok
         }
       }
@@ -544,92 +603,103 @@ dtjoin <- function(
     if (!as_DT) as_tbl_df <- (inherits(orig.DT, "tbl_df") || inherits(orig.i, "tbl_df")) && as_tibble_ok
   }
 
-  # ----------------------------------------------------------------------------
-  # add_dummy_col.DT, jvars, jtext
+  # output key------------------------------------------------------------------
 
-  jvars.DT   <- jvars.DT[include.DT]
-  jvars.i    <- jvars.i[include.i]
+  set_key <- as_DT && asis.i && data.table::haskey(.i) && !outer.DT
+  if (set_key) {
+    kcols <- subset_while_in(data.table::key(orig.i), cols.i$name[cols.i$is_joincol | cols.i$is_nonjoincol])
+    if (is.null(kcols)) {
+      set_key <- FALSE
+    } else {
+      key <- rep(NA_character_, length(kcols))
+      kidx <- match(kcols, cols.i$name)
+      has_jvar <- cols.i$has_jvar[kidx]
+      key[has_jvar]  <- substr_until(cols.i$jvar[kidx[has_jvar]], " = ")
+      key[!has_jvar] <- cols.on[match(kidx[!has_jvar],cols.on$idx.i), "jvar.DT"]
+    }
+  }
+
+  # add_ind.DT, jvars, jtext----------------------------------------------------
 
   if (!on.first && !(has_select || has_select.DT || has_select.i)) {
   # all columns, order as is
+
+    jvars.DT <- cols.DT$jvar[cols.DT$has_jvar]
+    jvars.i  <- cols.i$jvar[cols.i$has_jvar]
 
     jvars <- if (i.first) c(jvars.i, jvars.DT) else c(jvars.DT, jvars.i)
 
   } else {
 
-    is_joincol.DT     <- is_joincol.DT[include.DT]
-    joincol_jvars.DT  <- jvars.DT[is_joincol.DT]
-    other_jvars.DT    <- jvars.DT[!is_joincol.DT]
-    selected_names.DT <- names.DT[is_selected.DT]
+    joincol_jvars.DT    <- cols.DT$jvar[cols.DT$is_joincol & cols.DT$has_jvar]
+    nonjoincol_jvars.DT <- cols.DT$jvar[cols.DT$is_nonjoincol]
 
-    is_joincol.i      <- is_joincol.i[include.i]
-    joincol_jvars.i   <- jvars.i[is_joincol.i]
-    other_jvars.i     <- jvars.i[!is_joincol.i]
-    selected_names.i  <- names.i[is_selected.i]
+    joincol_jvars.i     <- cols.i$jvar[cols.i$is_joincol & cols.i$has_jvar]
+    nonjoincol_jvars.i  <- cols.i$jvar[cols.i$is_nonjoincol]
 
     if (has_select && !(has_select.DT || has_select.i)) {
     # select-only case (always as if on.first, then selected in order)
 
+      # for each selected name, jvar or NA
+      nonjoincol_jvars.DT <- nonjoincol_jvars.DT[match(select, cols.DT$name[cols.DT$is_nonjoincol])]
+      nonjoincol_jvars.i  <- nonjoincol_jvars.i[match(select, cols.i$name[cols.i$is_nonjoincol])]
+
+      # interleave, dropping NAs (rbind then fast_na.omit which also flattens)
       jvars <-
         if (i.first) {
-          c(joincol_jvars.i,
-            joincol_jvars.DT,
-            stats::na.omit(unlist(lapply(select, function(x) c(other_jvars.i[match(x,selected_names.i)], other_jvars.DT[match(x,selected_names.DT)])))))
+          c(joincol_jvars.i, joincol_jvars.DT, fast_na.omit(rbind(nonjoincol_jvars.i, nonjoincol_jvars.DT)))
         } else {
-          c(joincol_jvars.DT,
-            joincol_jvars.i,
-            stats::na.omit(unlist(lapply(select, function(x) c(other_jvars.DT[match(x,selected_names.DT)], other_jvars.i[match(x,selected_names.i)])))))
+          c(joincol_jvars.DT, joincol_jvars.i, fast_na.omit(rbind(nonjoincol_jvars.DT, nonjoincol_jvars.i)))
         }
 
     } else {
     # all other cases
 
-      if (!is.null(select.DT)) {
-        other_jvars.DT <- c(stats::na.omit(other_jvars.DT[match(select.DT,selected_names.DT)], if (outer.DT) "fjoin.DT.rn" else NULL))
-      }
-      if (!is.null(select.i)) {
-        other_jvars.i  <- stats::na.omit(other_jvars.i[match(select.i,selected_names.i)])
-      }
       jvars <-
         if (i.first) {
-          if (on.first) c(joincol_jvars.i, joincol_jvars.DT, other_jvars.i, other_jvars.DT) else c(joincol_jvars.i, other_jvars.i, joincol_jvars.DT, other_jvars.DT)
+          if (on.first) {
+            c(joincol_jvars.i, joincol_jvars.DT, nonjoincol_jvars.i, nonjoincol_jvars.DT)
+          } else {
+            c(joincol_jvars.i, nonjoincol_jvars.i, joincol_jvars.DT, nonjoincol_jvars.DT)
+          }
         } else {
-          if (on.first) c(joincol_jvars.DT, joincol_jvars.i, other_jvars.DT, other_jvars.i) else c(joincol_jvars.DT, other_jvars.DT, joincol_jvars.i, other_jvars.i)
+          if (on.first) {
+            c(joincol_jvars.DT, joincol_jvars.i, nonjoincol_jvars.DT, nonjoincol_jvars.i)
+          } else {
+            c(joincol_jvars.DT, nonjoincol_jvars.DT, joincol_jvars.i, nonjoincol_jvars.i)
+          }
         }
     }
   }
 
-  add_dummy_col.DT <- FALSE
+  add_ind.DT <- FALSE
   if (indicate) {
     if (!outer.i) {
-      jvars <- c(list(".join = rep(3L, .N)"), jvars)
+      jvars <- c(".join = rep(3L, .N)", jvars)
     } else {
-      add_dummy_col.DT <- TRUE
-      jvars <- c(list(sprintf(".join = fifelse(is.na(fjoin.ind), %s, 3L)", if (!i.home) "2L" else "1L")), jvars)
+      add_ind.DT <- TRUE
+      jvars <- c(sprintf(".join = fifelse(is.na(fjoin.ind.DT), %s, 3L)", if (!i.home) "2L" else "1L"), jvars)
     }
   }
 
   # unnamed "x" to "x=x" for setDF(list())
-  # TODO improve this by dealing with it earlier
-  if (sfc_present) jvars <- ifelse(grepl("=", jvars), jvars, sprintf("%s = %s", jvars, jvars))
+  if (sfc_present) jvars <- data.table::fifelse(grepl("=", jvars), jvars, sprintf("%s = %s", jvars, jvars))
 
   jtext <- sprintf(if (sfc_present) "setDF(list(%s))" else "data.frame(%s)", paste(jvars, collapse=", "))
 
-  # ----------------------------------------------------------------------------
-  # argtext_
+  # argtext_--------------------------------------------------------------------
 
   argtext_nomatch   <- if (!outer.i) "nomatch = NULL, " else ""
   argtext_mult      <- if (mult != "all") sprintf("mult = %s, ", deparse(mult)) else ""
   argtext_verbose   <- if (verbose) ", verbose = TRUE" else ""
-  argtext_indicate  <- if (add_dummy_col.DT) "[, fjoin.ind := TRUE]" else ""
+  argtext_indicate  <- if (add_ind.DT) "[, fjoin.ind.DT := TRUE]" else ""
 
-  # ----------------------------------------------------------------------------
-  # jointext
+  # jointext--------------------------------------------------------------------
 
   if (!has_mult.DT) {
     # (1) no mult.DT
 
-    .DTtext <- if (outer.DT) ".DT[, fjoin.DT.rn := .I]" else ".DT"
+    .DTtext <- if (outer.DT) ".DT[, fjoin.which.DT := .I]" else ".DT"
     .itext  <- ".i"
     if (screen_NAs) {
       if (!outer.i && na_omit_cost_rc(nrow(.DT), length(sdcols.DT)) > na_omit_cost_rc(nrow(.i), length(sdcols.i))) {
@@ -644,11 +714,11 @@ dtjoin <- function(
               .DTtext,
               argtext_indicate,
               .itext,
-              deparse(on),
+              deparse(on_df_to_vec(cols.on)),
               argtext_nomatch,
               argtext_mult,
               jtext,
-              if (!has_mult && !any_nonequi) ", allow.cartesian = TRUE" else "",
+              if (!has_mult && all(cols.on$op == "==")) ", allow.cartesian = TRUE" else "",
               argtext_verbose)
     if (outer.DT) {
       jointext <- sprintf("setDT(%s)", jointext)
@@ -659,8 +729,8 @@ dtjoin <- function(
   } else if (mult == "all") {
     # (2) mult.DT but not mult
 
-    .DTtext <- if (outer.DT) ".DT[, fjoin.DT.rn := .I]" else ".DT"
-    .itext  <- ".i[, fjoin.i.rn := .I]"
+    .DTtext <- if (outer.DT) ".DT[, fjoin.which.DT := .I]" else ".DT"
+    .itext  <- ".i[, fjoin.which.i := .I]"
     if (screen_NAs) {
       if (na_omit_cost_rc(nrow(.DT), length(sdcols.DT)) > na_omit_cost_rc(nrow(.i), length(sdcols.i))) {
         .itext <- na_omit_text(.itext, na_cols=equi_names.i, sd_cols=if (is.null(select.i)) NULL else sdcols.i)
@@ -669,14 +739,14 @@ dtjoin <- function(
       }
     }
     jointext <-
-      sprintf("setDT(%s[%s, on = %s, nomatch = NULL, mult = %s, %s%s])[%s, on = \"fjoin.i.rn\", %s%s%s]",
+      sprintf("setDT(%s[%s, on = %s, nomatch = NULL, mult = %s, %s%s])[%s, on = \"fjoin.which.i\", %s%s%s]",
               .itext,
               .DTtext,
-              deparse(flip_on(on)),
+              deparse(on_df_to_vec(cols.on, flip = TRUE)),
               deparse(mult.DT),
-              sprintf(if (sfc_present) "setDF(list(%s%s, fjoin.i.rn = fjoin.i.rn))" else "data.frame(%s%s, fjoin.i.rn)",
-                      paste(sapply(names.DT[include.DT], function(x) sprintf("%s = i.%s",x,x)), collapse=", "),
-                      if (add_dummy_col.DT) ", fjoin.ind = TRUE" else ""
+              sprintf(if (sfc_present) "setDF(list(%s%s, fjoin.which.i = fjoin.which.i))" else "data.frame(%s%s, fjoin.which.i)",
+                      paste(sapply(cols.DT$name[cols.DT$has_jvar], function(x) sprintf("%s = i.%s",x,x)), collapse=", "),
+                      if (add_ind.DT) ", fjoin.ind.DT = TRUE" else ""
               ),
               argtext_verbose,
               ".i",                # TODO: make variable
@@ -690,65 +760,65 @@ dtjoin <- function(
     }
 
   } else {
-    # both mult.DT and mult - solution depends on whether outer wrt .i
-    # add fjoin.DT.rn if not already present for outer.DT
+    # both mult.DT and mult - solution depends on whether outer.i
+    # need fjoin.which.DT (add if not already present for outer.DT)
 
     if (!outer.i) {
       # (3) mult.DT and mult, inner wrt .i
 
-      .DTtext <- ".DT[, fjoin.DT.rn := .I]"
+      .DTtext <- ".DT[, fjoin.which.DT := .I]"
       .itext  <- ".i"
       if (screen_NAs) {
         if (na_omit_cost_rc(nrow(.DT), 1L + length(sdcols.DT)) > na_omit_cost_rc(nrow(.i), length(sdcols.i))) {
           .itext <- na_omit_text(.itext, na_cols=equi_names.i, sd_cols=if (is.null(select.i)) NULL else sdcols.i)
         } else {
-          .DTtext <- na_omit_text(.DTtext, na_cols=equi_names.DT, sd_cols=if (is.null(select.DT)) NULL else c(sdcols.DT, "fjoin.DT.rn"))
+          .DTtext <- na_omit_text(.DTtext, na_cols=equi_names.DT, sd_cols=if (is.null(select.DT)) NULL else c(sdcols.DT, "fjoin.which.DT"))
         }
       }
       jointext <-
         sprintf("setDT(%s[%s, on = %s, nomatch = NULL, %s%s%s])[%s%s]%s",
                 .DTtext,
                 .itext,
-                deparse(on),
+                deparse(on_df_to_vec(cols.on)),
                 argtext_mult,
                 sprintf(if (sfc_present) "setDF(list(%s%s%s))" else "data.frame(%s%s%s)",
                         paste(jvars, collapse=", "),
-                        if (outer.DT) "" else if (sfc_present) ", fjoin.DT.rn = fjoin.DT.rn" else ", fjoin.DT.rn",
-                        if (add_dummy_col.DT) ", fjoin.ind = TRUE" else ""
+                        if (outer.DT) "" else if (sfc_present) ", fjoin.which.DT = fjoin.which.DT" else ", fjoin.which.DT",
+                        if (add_ind.DT) ", fjoin.ind.DT = TRUE" else ""
                 ),
                 argtext_verbose,
                 if (mult.DT=="first") {
-                  ", first(.SD), by = \"fjoin.DT.rn\""
+                  ", first(.SD), by = \"fjoin.which.DT\""
                 } else {
-                  "!duplicated(fjoin.DT.rn, fromLast=TRUE)"
+                  "!duplicated(fjoin.which.DT, fromLast=TRUE)"
                 },
                 argtext_verbose,
-                if (outer.DT) "" else "[, fjoin.DT.rn := NULL][]")
+                if (outer.DT) "" else "[, fjoin.which.DT := NULL][]")
       if (!(outer.DT || as_DT)) jointext <- sprintf("setDF(%s)[]", jointext)
 
     } else {
       # (4) mult.DT and mult, outer wrt .i
 
-      .DTtext <- ".DT[, fjoin.DT.rn := .I]"
-      .itext  <- ".i[, fjoin.i.rn := .I]"
-      if (screen_NAs) .DTtext <- na_omit_text(.DTtext, na_cols=equi_names.DT, sd_cols=if (is.null(select.DT)) NULL else c(sdcols.DT, "fjoin.DT.rn"))
+      .DTtext <- ".DT[, fjoin.which.DT := .I]"
+      .itext  <- ".i[, fjoin.which.i := .I]"
+      if (screen_NAs) .DTtext <- na_omit_text(.DTtext, na_cols=equi_names.DT, sd_cols=if (is.null(select.DT)) NULL else c(sdcols.DT, "fjoin.which.DT"))
       jointext <-
-        sprintf("setDT(%s[%s, on = %s, nomatch = NULL, %s%s%s])[%s%s][.i, on = \"fjoin.i.rn\", %s%s]",
+        sprintf("setDT(%s[%s, on = %s, nomatch = NULL, %s%s%s])[%s%s][.i, on = \"fjoin.which.i\", %s%s]",
                 .DTtext,
                 .itext,
-                deparse(on),
+                deparse(on_df_to_vec(cols.on)),
                 argtext_mult,
                 sprintf(if (sfc_present) "setDF(list(%s%s%s%s))" else "data.frame(%s%s%s%s)",
-                        paste(sapply(names.DT[include.DT], function(x) sprintf("%s = x.%s",x,x)), collapse=", "),
-                        if (sfc_present) ", fjoin.i.rn = fjoin.i.rn" else ", fjoin.i.rn",
-                        if (outer.DT) "" else if (sfc_present) ", fjoin.DT.rn = fjoin.DT.rn" else ", fjoin.DT.rn",
-                        if (add_dummy_col.DT) ", fjoin.ind = TRUE" else ""
+                        paste(sapply(cols.DT$name[cols.DT$has_jvar], function(x) sprintf("%s = x.%s",x,x)), collapse=", "),
+                        if (sfc_present) ", fjoin.which.i = fjoin.which.i" else ", fjoin.which.i",
+                        if (outer.DT) "" else if (sfc_present) ", fjoin.which.DT = fjoin.which.DT" else ", fjoin.which.DT",
+                        if (add_ind.DT) ", fjoin.ind.DT = TRUE" else ""
                 ),
                 argtext_verbose,
                 if (mult.DT=="first") {
-                  ", first(.SD), by = \"fjoin.DT.rn\""
+                  ", first(.SD), by = \"fjoin.which.DT\""
                 } else {
-                  "!duplicated(fjoin.DT.rn, fromLast=TRUE)"
+                  "!duplicated(fjoin.which.DT, fromLast=TRUE)"
                 },
                 argtext_verbose,
                 jtext,
@@ -762,28 +832,26 @@ dtjoin <- function(
   }
 
   if (outer.DT) {
-    if (!indicate && all(include.DT)) {
-      # no j only if no selection and no deselection of fjoin.ind
-      .DTantitext <- ".DT[!fjoin.temp$fjoin.DT.rn]"
-    } else {
-      # NB not include.DT as need potentially excluded join columns
-      .DTantinames <- names.DT[include_anti.DT]
-      .DTantitext <- sprintf("setDT(.DT[!fjoin.temp$fjoin.DT.rn, %s])",
-                             if (sfc_present) {
-                               sprintf("setDF(list(%s))", paste(sprintf("%s = %s", .DTantinames, .DTantinames), collapse=", "))
-                             } else {
-                               sprintf("data.frame(%s)", paste(.DTantinames, collapse=", "))
-                             })
-    }
-    if (rename_anti.DT) .DTantitext <-
-        sprintf("setnames(%s, %s, %s)", .DTantitext, deparse(oldnames_anti.DT), deparse(newnames_anti.DT))
-    if (indicate) .DTantitext <-
-        sprintf("%s[, .join := %s]", .DTantitext, if (!i.home) "1L" else "2L")
-    jointext <- sprintf("with(list(fjoin.temp = %s), rbind(fjoin.temp, %s, fill = TRUE))[, fjoin.DT.rn := NULL]", jointext, .DTantitext)
+
+    jvars_anti.DT <- if (i.home) fast_na.omit(cols.DT$jvar_anti) else cols.DT$name[cols.DT$is_joincol | cols.DT$is_nonjoincol]
+    .DTantitext <-
+      sprintf("setDT(.DT[!fjoin.temp$fjoin.which.DT, %s])",
+              if (sfc_present) {
+                sprintf("setDF(list(%s%s))",
+                        paste(data.table::fifelse(grepl("=", jvars_anti.DT), jvars_anti.DT, sprintf("%s = %s", jvars_anti.DT, jvars_anti.DT)), collapse=", "),
+                        if (indicate) sprintf(", .join = %s", if (!i.home) "1L" else "2L") else "")
+              } else {
+                sprintf("data.frame(%s%s)",
+                        paste(jvars_anti.DT, collapse=", "),
+                        if (indicate) sprintf(", .join = %s", if (!i.home) "1L" else "2L") else "")
+              }
+      )
+    jointext <- sprintf("with(list(fjoin.temp = %s), rbind(fjoin.temp, %s, fill = TRUE))[, fjoin.which.DT := NULL]", jointext, .DTantitext)
     jointext <- if (as_DT) sprintf("%s[]", jointext) else sprintf("setDF(%s)[]", jointext)
   }
 
-  # --------------------------------------------------------------------------
+  # outputs---------------------------------------------------------------------
+
   if (show) {
     cat(".DT : ", .labels[[1]], "\n", ".i  : ", .labels[[2]], "\n", "Join: ", jointext, "\n\n", sep="")
   }
@@ -792,7 +860,9 @@ dtjoin <- function(
     if (asis.DT) on.exit(drop_temp_cols(.DT), add=TRUE)
     if (asis.i) on.exit(drop_temp_cols(.i), add=TRUE)
     ans <- (eval(parse(text=jointext), envir=list2env(list(.DT=.DT, .i=.i), parent=getNamespace("data.table"))))
-    if (!as_DT) {
+    if (as_DT) {
+      if (set_key) attr(ans, "sorted") <- key
+    } else{
       if (as_tbl_df) ans <- tibble::as_tibble(ans)
       if (as_sf)     ans <- sf::st_as_sf(ans, sf_column_name=sf_col, sfc_last=FALSE)
     }
@@ -800,4 +870,3 @@ dtjoin <- function(
     ans
   }
 }
-
