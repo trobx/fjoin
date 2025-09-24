@@ -94,7 +94,7 @@ pre code, code {
 </nav><div class="container template-quarto">
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.png" class="logo" alt=""><h1></h1>
+      <img src="../logo.png" class="logo" alt=""><h1>Guide to fjoin</h1>
 
 
 
@@ -108,7 +108,7 @@ pre code, code {
 
 
 
-    <header id="title-block-header" class="quarto-title-block"><h1 class="title">Guide to fjoin</h1></header><style>
+    <style>
 /* 1. Code chunks: wrap long lines and remove scrollbars */
 div.sourceCode {
   overflow-x: visible !important;
@@ -139,97 +139,117 @@ pre.sourceCode {
 </style>
 <section class="section level2"><h2 id="description">Description<a class="anchor" aria-label="anchor" href="#description"></a>
 </h2>
-<p><span class="pkgname">fjoin</span> performs fast equi and non-equi joins on any data frames by combining <span class="pkgname">data.table</span> with efficient, automatic class conversions. It slots into tidyverse pipelines and general workflows in a single line, and has features not found in other frameworks, including NA-safe matching by default, on-the-fly column selection, flexible row-order preservation, multiple-match handling on both sides, and an indicator column for row origin.</p>
+<p><span class="pkgname">fjoin</span> performs fast and flexible joins on any data frames by combining <span class="pkgname">data.table</span> code with efficient, automatic class-handling. It slots into tidyverse pipelines and general workflows in a single line, and has features including NA-safe matching by default, on-the-fly column selection, flexible row-order preservation, multiple-match handling on both sides, and an indicator column for row origin.</p>
 </section><section class="section level2"><h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>Latest version from GitHub :</p>
+<p>Latest version from GitHub:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"trobx/fjoin"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># install.packages("remotes")</span></span>
+<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"trobx/fjoin"</span><span class="op">)</span></span></code></pre></div>
 </section><section class="section level2"><h2 id="features">Features<a class="anchor" aria-label="anchor" href="#features"></a>
 </h2>
+<section class="level2"><h3 id="overall-design">Overall design<a class="anchor" aria-label="anchor" href="#overall-design"></a>
+</h3>
 <ul>
-<li><p><strong>Universal use</strong>: Accepts any mix of data frame-like objects and returns a plain <code>data.frame</code>, <code>data.table</code>, tibble, <code>sf</code>, or <code>sf</code>‑tibble according to context.</p></li>
-<li><p><strong>Scope</strong>: Inner, left, right, full, semi‑, and anti‑joins with equality and inequality conditions, plus cross joins.</p></li>
-<li><p><strong>NA-safe joins by default</strong>: Missing values are treated sensibly (no matches on <code>NA</code>) unless overridden via <code>match.na</code>.</p></li>
-<li><p><strong>On-the-fly column selection</strong>: Choose and order columns with <code>select</code> for efficient one-liners.</p></li>
-<li><p><strong>Flexible order</strong>: The <code>order</code> argument controls which data frame’s row order is preserved in the result (without expensive sorting).</p></li>
-<li><p><strong>Row origin tagging</strong>: The <code>indicate</code> option adds a Stata‑style marker column showing each row’s source.</p></li>
-<li><p><strong>Multiple‑match handling on both sides</strong>: Arguments <code>mult.x</code> and <code>mult.y</code> specify how to handle multiple matches on either or both sides, including in semi‑ and anti‑joins.</p></li>
-<li><p><strong>Transparency and mock joins</strong>: Print the resulting <span class="pkgname">data.table</span> code instead of (or as well as) executing it, or run “mock” joins without data that output template code.</p></li>
-<li><p><strong>High performance</strong>: Uses an advanced internal “cookbook” of <span class="pkgname">data.table</span> join recipes and efficiently casts inputs and outputs for speed and memory-efficiency.</p></li>
-<li><p><strong>Lightweight dependency</strong>: Depends only on <span class="pkgname">data.table</span>, a mature, dependency‑free package with long-term stability.</p></li>
-</ul></section><section class="section level2"><h2 id="api">API<a class="anchor" aria-label="anchor" href="#api"></a>
+<li>
+<strong>Compatibility:</strong> Accepts any mix of data frame-like objects or <code>list</code>s of same-length vectors, and returns a plain <code>data.frame</code>, <code>data.table</code>, tibble, <code>sf</code>, or <code>sf</code>-tibble according to context.</li>
+<li>
+<strong>Scope:</strong> Inner, left, right, full, semi-, and anti-joins with equality and inequality conditions, plus cross joins.</li>
+<li>
+<strong>Performance:</strong> Uses <span class="pkgname">data.table</span> solutions developed for speed and memory-efficiency, and avoids data-copying at any stage.</li>
+<li>
+<strong>Transparency:</strong> Print the resulting <span class="pkgname">data.table</span> code instead of (or as well as) executing it, or run “mock” joins without data that output template code.</li>
+<li>
+<strong>Perks for <span class="pkgname">sf</span> users:</strong> Joins <code>sf</code> data frames smoothly, and detects and refreshes all <code>sfc</code>-class columns in the output even if not <code>sf</code>.</li>
+<li>
+<strong>Lightweight dependency:</strong> Depends only on <span class="pkgname">data.table</span>, a mature, dependency-free package with long-term stability.</li>
+</ul></section><section class="level2"><h3 id="options-and-controls">Options and controls<a class="anchor" aria-label="anchor" href="#options-and-controls"></a>
+</h3>
+<ul>
+<li>
+<strong>NA-safe joins by default:</strong> Missing values are treated sensibly (no matches on <code>NA</code> unless overridden via <code>match.na</code>).</li>
+<li>
+<strong>On-the-fly column selection:</strong> Choose and order columns with <code>select</code> for efficient one-liners.</li>
+<li>
+<strong>Row origin tagging:</strong> Add a Stata-style marker column showing each row’s source with <code>indicate</code>.</li>
+<li>
+<strong>Multiple-match handling on both sides:</strong> Arguments <code>mult.x</code> and <code>mult.y</code> specify how to handle multiple matches on either or both sides of the join, including in semi- and anti-joins.</li>
+<li>
+<strong>Flexible order:</strong> Control which data frame’s row order is preserved in the result (without expensive sorting) using <code>order</code>.</li>
+</ul></section></section><section class="section level2"><h2 id="api">API<a class="anchor" aria-label="anchor" href="#api"></a>
 </h2>
 <table class="table caption-top">
 <colgroup>
-<col style="width: 58%">
-<col style="width: 41%">
+<col style="width: 72%">
+<col style="width: 27%">
 </colgroup>
 <thead><tr class="header">
-<th style="text-align: left;"><strong><code>fjoin_*</code> functions</strong></th>
-<th style="text-align: left;"><strong><code>dtjoin*</code> functions</strong></th>
+<th style="text-align: left;">
+<code>fjoin_*</code> functions<br>(<code>x</code>/<code>y</code> style)</th>
+<th style="text-align: left;">
+<code>dtjoin_*</code> functions<br>(extended <code>DT[i]</code> style)</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;"><em><code>x</code>/<code>y</code> style</em></td>
-<td style="text-align: left;"><em>Extended <code>DT[i]</code> style</em></td>
-</tr>
-<tr class="even">
 <td style="text-align: left;">
-<code><a href="../reference/fjoin_inner.html">fjoin_inner()</a></code>, <code><a href="../reference/fjoin_left.html">fjoin_left()</a></code>, <code><a href="../reference/fjoin_right.html">fjoin_right()</a></code>, <code><a href="../reference/fjoin_full.html">fjoin_full()</a></code>
+<code><a href="../reference/fjoin_inner.html">fjoin_inner()</a></code>, <code><a href="../reference/fjoin_left.html">fjoin_left()</a></code>, <code><a href="../reference/fjoin_right.html">fjoin_right()</a></code>,<code><a href="../reference/fjoin_full.html">fjoin_full()</a></code>
 </td>
 <td style="text-align: left;"><code><a href="../reference/dtjoin.html">dtjoin()</a></code></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">
 <code>fjoin_left_semi</code> (alias <code>fjoin_semi</code>), <code><a href="../reference/fjoin_right_semi.html">fjoin_right_semi()</a></code>
 </td>
 <td style="text-align: left;"><code><a href="../reference/dtjoin_semi.html">dtjoin_semi()</a></code></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">
 <code>fjoin_left_anti</code> (alias <code>fjoin_anti</code>), <code><a href="../reference/fjoin_right_anti.html">fjoin_right_anti()</a></code>
 </td>
 <td style="text-align: left;"><code><a href="../reference/dtjoin_anti.html">dtjoin_anti()</a></code></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;"><code><a href="../reference/fjoin_cross.html">fjoin_cross()</a></code></td>
 <td style="text-align: left;"><code><a href="../reference/dtjoin_cross.html">dtjoin_cross()</a></code></td>
 </tr>
 </tbody>
 </table>
-<p>The <code>fjoin_*</code> functions are intended as the ones to use for almost all users and cases. The <code>dtjoin*</code> functions handle object classes and write <span class="pkgname">data.table</span> code via a generalisation of <code>DT[i]</code> join syntax, which the <code>fjoin_*</code> wrappers translate into a familiar <code>x</code>/<code>y</code> style.</p>
+<p>The <code>fjoin_*</code> functions are meant as the main interface and are in a familiar <code>x</code>/<code>y</code> style. They are wrappers around the <code>dtjoin_*</code> functions, which write <span class="pkgname">data.table</span> code via a generalisation of <code>DT[i]</code> join syntax, and handle execution including casting inputs and outputs to and from <code>data.table</code>s as necessary. These functions are exported but there is little reason to use them directly, even for <span class="pkgname">data.table</span> users.</p>
 </section><section class="section level2"><h2 id="examples">Examples<a class="anchor" aria-label="anchor" href="#examples"></a>
 </h2>
+<p>Example 1 is a quick overview of <code>fjoin_*</code> with essential options, while 2 and 3 are more advanced and technical.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://trobx.github.io/fjoin">fjoin</a></span><span class="op">)</span></span></code></pre></div>
 </div>
 <section class="level2"><h3 id="example-1-basic-usage-and-options">Example 1: Basic usage and options<a class="anchor" aria-label="anchor" href="#example-1-basic-usage-and-options"></a>
 </h3>
-<p>This example uses <code><a href="../reference/fjoin_full.html">fjoin_full()</a></code>, which nests other cases.</p>
+<p>We’ll take a simple equality join between plain data frames using <code><a href="../reference/fjoin_full.html">fjoin_full()</a></code>, which nests other cases.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># data frames</span></span>
-<span><span class="va">dfQ</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="st">"</span></span>
-<span><span class="st">id quantity                   notes other_cols</span></span>
-<span><span class="st"> 2        5                      ''        ...</span></span>
-<span><span class="st"> 1        6                      ''        ...</span></span>
-<span><span class="st"> 3        7                      ''        ...</span></span>
-<span><span class="st">NA        8  'oranges (not listed)'        ...</span></span>
-<span><span class="st">"</span>, quote <span class="op">=</span><span class="st">"'"</span>, data.table <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">dfP</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="st">"</span></span>
+<span><span class="va">dfP</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/fread.html" class="external-link">fread</a></span><span class="op">(</span></span>
+<span><span class="st">"</span></span>
 <span><span class="st">id     item price other_cols</span></span>
 <span><span class="st">NA   apples    10        ...</span></span>
 <span><span class="st"> 3  bananas    20        ...</span></span>
 <span><span class="st"> 2 cherries    30        ...</span></span>
 <span><span class="st"> 1    dates    40        ...</span></span>
-<span><span class="st">"</span>, data.table <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<span><span class="st">"</span>,</span>
+<span>data.table <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">dfQ</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/fread.html" class="external-link">fread</a></span><span class="op">(</span></span>
+<span><span class="st">"</span></span>
+<span><span class="st">id quantity                   notes other_cols</span></span>
+<span><span class="st"> 2        5                      ''        ...</span></span>
+<span><span class="st"> 1        6                      ''        ...</span></span>
+<span><span class="st"> 3        7                      ''        ...</span></span>
+<span><span class="st">NA        8  'oranges (not listed)'        ...</span></span>
+<span><span class="st">"</span>,</span>
+<span>quote <span class="op">=</span> <span class="st">"'"</span>, data.table <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 </div>
 <section class="level3"><h4 id="basic-syntax">(1) Basic syntax<a class="anchor" aria-label="anchor" href="#basic-syntax"></a>
 </h4>
-<p>Default <code>match.na = FALSE</code> avoids apples-and-oranges matches on missing values.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/fjoin_full.html">fjoin_full</a></span><span class="op">(</span><span class="va">dfQ</span>, <span class="va">dfP</span>, on <span class="op">=</span> <span class="st">"id"</span><span class="op">)</span></span></code></pre></div>
@@ -242,6 +262,7 @@ pre.sourceCode {
 5 NA       NA                 &lt;NA&gt;       &lt;NA&gt;   apples    10          ...</code></pre>
 </div>
 </div>
+<p>Notice that the default <code>match.na = FALSE</code> prevents apples-and-oranges matches on missing values.</p>
 </section><section class="level3"><h4 id="efficient-selective-joins-in-one-line">(2) Efficient selective joins in one line<a class="anchor" aria-label="anchor" href="#efficient-selective-joins-in-one-line"></a>
 </h4>
 <div class="cell">
@@ -256,7 +277,7 @@ pre.sourceCode {
 5 NA   apples    10       NA</code></pre>
 </div>
 </div>
-<p>Equivalent to the following in <span class="pkgname">dplyr</span> (where the first two lines avoid inflating the join with irrelevant columns):</p>
+<p>Compare the equivalent operation in <span class="pkgname">dplyr</span> (where the first two lines avoid inflating the join with irrelevant columns):</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="va">dfQ</span> <span class="op">|&gt;</span> <span class="fu">select</span><span class="op">(</span><span class="va">id</span>, <span class="va">quantity</span><span class="op">)</span></span>
@@ -266,7 +287,7 @@ pre.sourceCode {
 </div>
 </section><section class="level3"><h4 id="indicator-column-for-row-origin">(3) Indicator column for row origin<a class="anchor" aria-label="anchor" href="#indicator-column-for-row-origin"></a>
 </h4>
-<p>1: left only, 2: right only, 3: joined from both. In Stata since 1985!</p>
+<p><code>1</code>: left only, <code>2</code>: right only, <code>3</code>: joined from both. In Stata since <a href="https://www.statalist.org/forums/forum/general-stata-discussion/general/1638352-stata-1-reference-manual-now-available-to-anyone-who-wants-it" class="external-link">1984</a>!</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/fjoin_full.html">fjoin_full</a></span><span class="op">(</span></span>
@@ -323,13 +344,14 @@ pre.sourceCode {
 <div class="cell-output cell-output-stdout">
 <pre><code>.DT : x = dfQ (cast as data.table)
 .i  : y = dfP (cast as data.table)
-Join: setDF(with(list(fjoin.temp = setDT(.DT[, fjoin.DT.rn := .I][, na.omit(.SD, cols = "id"), .SDcols = c("id", "quantity", "fjoin.DT.rn")][, fjoin.ind := TRUE][.i, on = "id", data.frame(.join = fifelse(is.na(fjoin.ind), 2L, 3L), id, item, price, quantity, fjoin.DT.rn), allow.cartesian = TRUE])), rbind(fjoin.temp, setDT(.DT[!fjoin.temp$fjoin.DT.rn, data.frame(id, quantity, fjoin.DT.rn)])[, .join := 1L], fill = TRUE))[, fjoin.DT.rn := NULL])[]</code></pre>
+Join: setDF(with(list(fjoin.temp = setDT(.DT[, fjoin.which.DT := .I][, na.omit(.SD, cols = "id"), .SDcols = c("id", "quantity", "fjoin.which.DT")][, fjoin.ind.DT := TRUE][.i, on = "id", data.frame(.join = fifelse(is.na(fjoin.ind.DT), 2L, 3L), id, item, price, quantity, fjoin.which.DT), allow.cartesian = TRUE])), rbind(fjoin.temp, setDT(.DT[!fjoin.temp$fjoin.which.DT, data.frame(id, quantity, fjoin.which.DT, .join = 1L)]), fill = TRUE))[, fjoin.which.DT := NULL])[]</code></pre>
 </div>
 </div>
+<p>This is a relatively complicated example (there are some simpler ones in what follows).</p>
 </section></section><section class="level2"><h3 id="example-2-reducing-an-inequality-join-from-mm-to-11-with-mult-x-and-mult-y">Example 2: Reducing an inequality join from M:M to 1:1 with <code>mult.x</code> and <code>mult.y</code>
 <a class="anchor" aria-label="anchor" href="#example-2-reducing-an-inequality-join-from-mm-to-11-with-mult-x-and-mult-y"></a>
 </h3>
-<p><span class="pkgname">data.table</span> (<code>mult</code>) and <span class="pkgname">dplyr</span> (<code>multiple</code>) can reduce the cardinality on one side of the join from many (“all”) to one (“first” or “last”). <span class="pkgname">fjoin</span> (<code>mult.x</code>, <code>mult.y</code>) will do this on either side of the join, or on both sides. This example (using <code><a href="../reference/fjoin_left.html">fjoin_left()</a></code>) shows an application to temporally ordered data frames of generic “events” and “reactions”.</p>
+<p><span class="pkgname">data.table</span> (<code>mult</code>) and <span class="pkgname">dplyr</span> (<code>multiple</code>) can reduce the cardinality on one side of the join from many (<code>"all"</code>) to one (<code>"first"</code> or <code>"last"</code>). <span class="pkgname">fjoin</span> (<code>mult.x</code>, <code>mult.y</code>) will do this on either side of the join, or on both sides at the same time. This example (using <code><a href="../reference/fjoin_left.html">fjoin_left()</a></code>) shows an application to temporally ordered data frames of generic “events” and “reactions”.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># data frames</span></span>
@@ -354,7 +376,7 @@ Join: setDF(with(list(fjoin.temp = setDT(.DT[, fjoin.DT.rn := .I][, na.omit(.SD,
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/fjoin_left.html">fjoin_left</a></span><span class="op">(</span></span>
 <span>  <span class="va">events</span>,</span>
 <span>  <span class="va">reactions</span>,</span>
-<span>  on <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"event_ts &lt; reaction_ts"</span><span class="op">)</span>,</span>
+<span>  on <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"event_ts &lt; reaction_ts"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  event_id event_ts reaction_id reaction_ts
@@ -370,6 +392,7 @@ Join: setDF(with(list(fjoin.temp = setDT(.DT[, fjoin.DT.rn := .I][, na.omit(.SD,
 </div>
 </section><section class="level3"><h4 id="for-each-event-the-next-reaction-1m">(2) For each event, the next reaction (1:M)<a class="anchor" aria-label="anchor" href="#for-each-event-the-next-reaction-1m"></a>
 </h4>
+<p>Equivalent to a one-way forward rolling join.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/fjoin_left.html">fjoin_left</a></span><span class="op">(</span></span>
@@ -387,6 +410,7 @@ Join: setDF(with(list(fjoin.temp = setDT(.DT[, fjoin.DT.rn := .I][, na.omit(.SD,
 </div>
 </section><section class="level3"><h4 id="for-each-event-the-next-reaction-provided-there-was-no-intervening-event-11">(3) For each event, the next reaction, provided there was no intervening event (1:1)<a class="anchor" aria-label="anchor" href="#for-each-event-the-next-reaction-provided-there-was-no-intervening-event-11"></a>
 </h4>
+<p>Equivalent to a two-way rolling join (mutual forward/backward rolling matches).</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/fjoin_left.html">fjoin_left</a></span><span class="op">(</span></span>
@@ -403,24 +427,39 @@ Join: setDF(with(list(fjoin.temp = setDT(.DT[, fjoin.DT.rn := .I][, na.omit(.SD,
 3        3       40           2          50</code></pre>
 </div>
 </div>
-</section></section><section class="level2"><h3 id="example-3-fjoin_-to-dtjoin-to-data-table-and-outputs">Example 3: <code>fjoin_*</code> to <code>dtjoin*</code> to <span class="pkgname">data.table</span> and outputs<a class="anchor" aria-label="anchor" href="#example-3-fjoin_-to-dtjoin-to-data-table-and-outputs"></a>
+</section></section><section class="level2"><h3 id="example-3-chain-of-calls-from-fjoin_-to-dtjoin_-to-data-table">Example 3: Chain of calls from <code>fjoin_*</code> to <code>dtjoin_*</code> to <span class="pkgname">data.table</span>
+<a class="anchor" aria-label="anchor" href="#example-3-chain-of-calls-from-fjoin_-to-dtjoin_-to-data-table"></a>
 </h3>
 <p>An illustration showing:</p>
 <ul>
 <li>two calls to <code><a href="../reference/fjoin_left.html">fjoin_left()</a></code> (commented out), differing in the <code>order</code> argument</li>
-<li>the resulting calls to <code><a href="../reference/dtjoin.html">dtjoin()</a></code>, plus <code>show = TRUE</code>
+<li>the resulting calls to <code><a href="../reference/dtjoin.html">dtjoin()</a></code>, with the addition of <code>show = TRUE</code>
 </li>
-<li>the generated <span class="pkgname">data.table</span> code and output.</li>
+<li>the generated <span class="pkgname">data.table</span> code and its output</li>
 </ul>
-<p>This shows the use of table-swapping plus <code><a href="../reference/dtjoin.html">dtjoin()</a></code>’s extended arguments <code>nomatch.DT</code> and <code>mult.DT</code> (counterparts to <code>nomatch</code> and <code>mult</code>), along with <code>i.home</code>, which determines the “home” table for the purposes of column order, prefixing and <code>indicate</code>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># data frames</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
-<span><span class="va">df_x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>id_x <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, col_x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"x"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span>, val <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">df_y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>id_y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">4</span><span class="op">:</span><span class="fl">2</span>, each <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>, col_y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"y"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">)</span>, val <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">6</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">df_x</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="st">"</span></span>
+<span><span class="st">id_x row_x</span></span>
+<span><span class="st">   1    x1</span></span>
+<span><span class="st">   2    x2</span></span>
+<span><span class="st">   3    x3</span></span>
+<span><span class="st">"</span>, data.table <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># (1) fjoin_left(df_x, df_y, on = "id_x == id_y", mult.x = "first")</span></span>
+<span><span class="va">df_y</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="st">"</span></span>
+<span><span class="st">id_y row_y</span></span>
+<span><span class="st">   4    y1</span></span>
+<span><span class="st">   4    y2</span></span>
+<span><span class="st">   3    y3</span></span>
+<span><span class="st">   3    y4</span></span>
+<span><span class="st">   2    y5</span></span>
+<span><span class="st">   2    y6</span></span>
+<span><span class="st">"</span>, data.table <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># (1) fjoin_left(df_x, df_y, on = "id_x == id_y", mult.x = "first")</span></span>
 <span><span class="fu"><a href="../reference/dtjoin.html">dtjoin</a></span><span class="op">(</span></span>
 <span>  <span class="va">df_y</span>,</span>
 <span>  <span class="va">df_x</span>,</span>
@@ -433,15 +472,15 @@ Join: setDF(with(list(fjoin.temp = setDT(.DT[, fjoin.DT.rn := .I][, na.omit(.SD,
 <div class="cell-output cell-output-stdout">
 <pre><code>.DT : df_y (cast as data.table)
 .i  : df_x (cast as data.table)
-Join: .DT[.i, on = "id_y == id_x", mult = "first", data.frame(id_x, col_x, val = i.val, col_y, R.val = val)]</code></pre>
+Join: .DT[.i, on = "id_y == id_x", mult = "first", data.frame(id_x, row_x, row_y)]</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>  id_x col_x       val col_y     R.val
-1    1    x1 0.2655087  &lt;NA&gt;        NA
-2    2    x2 0.3721239    y5 0.6607978
-3    3    x3 0.5728534    y3 0.8983897</code></pre>
+<pre><code>  id_x row_x row_y
+1    1    x1  &lt;NA&gt;
+2    2    x2    y5
+3    3    x3    y3</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># (2) fjoin_left(df_x, df_y, on = "id_x == id_y", mult.x = "first", order = "right")</span></span>
 <span><span class="fu"><a href="../reference/dtjoin.html">dtjoin</a></span><span class="op">(</span></span>
 <span>  <span class="va">df_x</span>,</span>
@@ -456,31 +495,32 @@ Join: .DT[.i, on = "id_y == id_x", mult = "first", data.frame(id_x, col_x, val =
 <div class="cell-output cell-output-stdout">
 <pre><code>.DT : df_x (cast as data.table)
 .i  : df_y (cast as data.table)
-Join: setDF(with(list(fjoin.temp = setDT(setDT(.i[, fjoin.i.rn := .I][.DT[, fjoin.DT.rn := .I], on = "id_y == id_x", nomatch = NULL, mult = "first", data.frame(id_x = i.id_x, col_x = i.col_x, val = i.val, fjoin.DT.rn = i.fjoin.DT.rn, fjoin.i.rn)])[.i, on = "fjoin.i.rn", nomatch = NULL, data.frame(id_x = id_y, col_x, val, fjoin.DT.rn, col_y, R.val = i.val)])), rbind(fjoin.temp, .DT[!fjoin.temp$fjoin.DT.rn], fill = TRUE))[, fjoin.DT.rn := NULL])[]</code></pre>
+Join: setDF(with(list(fjoin.temp = setDT(setDT(.i[, fjoin.which.i := .I][.DT[, fjoin.which.DT := .I], on = "id_y == id_x", nomatch = NULL, mult = "first", data.frame(id_x = i.id_x, row_x = i.row_x, fjoin.which.DT = i.fjoin.which.DT, fjoin.which.i)])[.i, on = "fjoin.which.i", nomatch = NULL, data.frame(id_x = id_y, row_x, fjoin.which.DT, row_y)])), rbind(fjoin.temp, setDT(.DT[!fjoin.temp$fjoin.which.DT, data.frame(id_x, row_x, fjoin.which.DT)]), fill = TRUE))[, fjoin.which.DT := NULL])[]</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>  id_x col_x       val col_y     R.val
-1    3    x3 0.5728534    y3 0.8983897
-2    2    x2 0.3721239    y5 0.6607978
-3    1    x1 0.2655087  &lt;NA&gt;        NA</code></pre>
+<pre><code>  id_x row_x row_y
+1    3    x3    y3
+2    2    x2    y5
+3    1    x1  &lt;NA&gt;</code></pre>
 </div>
 </div>
+<p>The difference in the <code>order</code> argument passed to <code>fjoin_*</code> is reflected at <code><a href="../reference/dtjoin.html">dtjoin()</a></code> level in the choice of tables passed to <code>.DT</code> and <code>.i</code>, the values of the extended arguments <code>nomatch.DT</code> and <code>mult.DT</code> (counterparts to the familiar <span class="pkgname">data.table</span> arguments <code>nomatch</code> and <code>mult</code> on the other side of the join), and a compensating argument <code>i.home</code> which toggles the “home” and “foreign” table for the purposes of column order, prefixing and <code>indicate</code>. <code><a href="../reference/dtjoin.html">dtjoin()</a></code> in turn translates these specifications into <span class="pkgname">data.table</span> code for execution. See the <code><a href="../reference/dtjoin.html">dtjoin()</a></code> documentation for full details of this extended <code>DT[i]</code>-style syntax.</p>
 </section></section><section class="section level2"><h2 id="performance">Performance<a class="anchor" aria-label="anchor" href="#performance"></a>
 </h2>
 <div class="cell">
 <div class="cell-output-display">
 <div>
-<figure><p><img src="fjoin_files/figure-html/unnamed-chunk-15-1.png" style="width:100.0%"></p>
+<figure><p><img src="fjoin_files/figure-html/unnamed-chunk-16-1.png" style="width:100.0%"></p>
 </figure>
 </div>
 </div>
 </div>
-<p>The example above is based on a no-frills equality join to allow comparison with <code>merge.data.table</code> and <code><a href="https://sebkrantz.github.io/collapse/reference/join.html" class="external-link">collapse::join()</a></code>, which have limited feature sets; see the <a href="https://trobx.github.io/fjoin/articles/fjoin-performance.html">Performance</a> article for more detail. In the inner and left joins, <span class="pkgname">fjoin</span> and <code>merge.data.table</code> reflect a simple operation in <span class="pkgname">data.table</span>, and directly inherit its excellent performance. But <span class="pkgname">fjoin</span> performs a bit better than <code>merge.data.table</code> on the right and full joins. This is typical: <span class="pkgname">fjoin</span>’s solutions for join types and additional options that are not straightforward in native <span class="pkgname">data.table</span> have been developed with close attention to performance.</p>
-</section><section class="section level2"><h2 id="notes-for-tidyverse-users">Notes for tidyverse users<a class="anchor" aria-label="anchor" href="#notes-for-tidyverse-users"></a>
+<p>The benchmark above is based on a no-frills equality join to allow comparison with <code>merge.data.table</code> and <code><a href="https://sebkrantz.github.io/collapse/reference/join.html" class="external-link">collapse::join()</a></code>, which have limited capabilities; see the <a href="https://trobx.github.io/fjoin/articles/fjoin-performance.html">Performance</a> article for more detail. In the inner and left joins, <span class="pkgname">fjoin</span> and <code>merge.data.table</code> reflect a simple operation in <span class="pkgname">data.table</span>, and straightforwardly inherit its advantages of speed and robustness to the order of the tables. But <span class="pkgname">fjoin</span> performs a bit better than <code>merge.data.table</code> on the right and full joins. This is typical: <span class="pkgname">fjoin</span>’s solutions for join types and additional options that are not straightforward in native <span class="pkgname">data.table</span> have been developed with close attention to performance.</p>
+</section><section class="section level2"><h2 id="notes-for-tidyverse-users">Notes for <span class="pkgname">tidyverse</span> users<a class="anchor" aria-label="anchor" href="#notes-for-tidyverse-users"></a>
 </h2>
-<p><span class="pkgname">fjoin</span> is a drop-in alternative to <code>dplyr::*_join()</code> with faster large data performance and useful options that <code>dplyr::*_join()</code> lacks (though the reverse is also true — see below). Joins are infrequent operations, and the package name is short, so you may not feel the need to attach it:</p>
+<p>Use <span class="pkgname">fjoin</span> as a drop-in alternative to <code>dplyr::*_join()</code> with faster large data performance and useful options that <code>dplyr::*_join()</code> lacks (though the reverse is also true — see below). Joins are infrequent operations, and the package name is short, so you may not feel the need to attach it:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb28"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
 <span><span class="va">dfQ</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/as_tibble.html" class="external-link">as_tibble</a></span><span class="op">(</span><span class="va">dfQ</span><span class="op">)</span></span>
 <span></span>
@@ -503,29 +543,96 @@ Join: setDF(with(list(fjoin.temp = setDT(setDT(.i[, fjoin.i.rn := .I][.DT[, fjoi
 5     1    NA &lt;NA&gt;        NA        8      NA</code></pre>
 </div>
 </div>
-<p>Please note, however, that <span class="pkgname">fjoin</span> is silent and permissive about cardinality: it currently has no equivalent of <code>dplyr::*_join()</code>’s <code>relationship</code> validation. Nor does it yet support rolling joins, which <code>r pkg("dplyr")</code> achieves elegantly via helper functions in <code>join_by</code>. These features will be added. Nested/list‑column joins (supported by <code>dplyr::*_join()</code>) are not planned.</p>
-<p>The <span class="pkgname">data.table</span>-backed implementation of joins in <span class="pkgname">dtplyr</span> is apparently no longer maintained and should be avoided. It only supports equality joins, malfunctions with same-named columns on each side, and silently ignores <span class="pkgname">dplyr</span>’s additional join arguments such as <code>na.matches</code> and <code>multiple</code> (as well as <code>relationship</code>). Use of <span class="pkgname">dtplyr</span> also requires object conversions.</p>
+<p>Please note that <span class="pkgname">fjoin</span> currently has no equivalent of <code>dplyr::*_join()</code>’s <code>relationship</code> validation: it is silent and permissive about cardinality. Also, it doesn’t yet support rolling joins on unordered data, which <span class="pkgname">dplyr</span> implements elegantly via a helper function in <code>join_by</code>, or dedicated overlap joins (although these can be written in terms of inequalities). These features should be added. Nest joins and joins on list columns (supported by <code>dplyr::*_join()</code>) are not planned.</p>
+<p>Beware <span class="pkgname">dtplyr</span>’s <span class="pkgname">data.table</span>-backed implementation of joins, which is in need of maintenance. It only supports equality joins, malfunctions in the presence of same-named non-join columns on each side, and silently ignores <span class="pkgname">dplyr</span>’s additional join arguments such as <code>na.matches</code> and <code>multiple</code> (as well as <code>relationship</code>). Use of <span class="pkgname">dtplyr</span> also requires manual object conversions.</p>
 </section><section class="section level2"><h2 id="notes-for-sf-users">Notes for <span class="pkgname">sf</span> users<a class="anchor" aria-label="anchor" href="#notes-for-sf-users"></a>
 </h2>
-<p>TODO:</p>
-<ul>
-<li>attribute joins between <code>sf</code> objects are permitted (not in <span class="pkgname">dplyr</span>)</li>
-<li>
-<code>sfc</code>-class output columns always detected and refreshed regardless of whether output is <code>sf</code> and whether they are the active geometry</li>
-<li>an example</li>
-</ul></section><section class="section level2"><h2 id="notes-for-data-table-users">Notes for <span class="pkgname">data.table</span> users<a class="anchor" aria-label="anchor" href="#notes-for-data-table-users"></a>
+<p><span class="pkgname">fjoin</span> makes some special accommodations for joins with <code>sf</code> objects.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">countries</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="st">"</span></span>
+<span><span class="st">country_id   country_name                          country_shape</span></span>
+<span><span class="st">         1     'Country A'  'POLYGON ((0 0, 1 0, 1 1, 0 1, 0 0))'     </span></span>
+<span><span class="st">         2     'Country B'  'POLYGON ((1 1, 2 1, 2 2, 1 2, 1 1))'    </span></span>
+<span><span class="st">         3     'Country C'  'POLYGON ((2 2, 3 2, 3 3, 2 3, 2 2))'    </span></span>
+<span><span class="st">"</span>, data.table <span class="op">=</span> <span class="cn">FALSE</span>, quote <span class="op">=</span> <span class="st">"'"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_as_sf.html" class="external-link">st_as_sf</a></span><span class="op">(</span>wkt <span class="op">=</span> <span class="st">"country_shape"</span>, crs <span class="op">=</span> <span class="fl">4326</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">capitals</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="st">"</span></span>
+<span><span class="st">country_id  capital_name        capital_loc</span></span>
+<span><span class="st">         2       'City B'  'POINT (1.5 1.5)'    </span></span>
+<span><span class="st">         3       'City C'  'POINT (2.5 2.5)'    </span></span>
+<span><span class="st">         4       'City D'  'POINT (3.5 3.5)'    </span></span>
+<span><span class="st">"</span>, data.table <span class="op">=</span> <span class="cn">FALSE</span>, quote <span class="op">=</span> <span class="st">"'"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_as_sf.html" class="external-link">st_as_sf</a></span><span class="op">(</span>wkt <span class="op">=</span> <span class="st">"capital_loc"</span>, crs <span class="op">=</span> <span class="fl">4326</span><span class="op">)</span></span></code></pre></div>
+</div>
+<p>First, joins return an <code>sf</code> object if at least one of the inputs is of that class and its active geometry is selected in the result. In particular, joins between two <code>sf</code> objects work exactly as you would hope:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/fjoin_inner.html">fjoin_inner</a></span><span class="op">(</span><span class="va">countries</span>, <span class="va">capitals</span>, on <span class="op">=</span> <span class="st">"country_id"</span><span class="op">)</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Simple feature collection with 2 features and 3 fields
+Active geometry column: country_shape
+Geometry type: POLYGON
+Dimension:     XY
+Bounding box:  xmin: 1 ymin: 1 xmax: 3 ymax: 3
+Geodetic CRS:  WGS 84
+  country_id country_name                  country_shape capital_name     capital_loc
+1          2    Country B POLYGON ((1 1, 2 1, 2 2, 1 ...       City B POINT (1.5 1.5)
+2          3    Country C POLYGON ((2 2, 3 2, 3 3, 2 ...       City C POINT (2.5 2.5)</code></pre>
+</div>
+</div>
+<p>In <span class="pkgname">dplyr</span> such joins are prohibited, which necessitates workarounds if you want to join <code>sf</code> objects on non-spatial attributes, for example to hold multiple geometries in the same object.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/try.html" class="external-link">try</a></span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">inner_join</a></span><span class="op">(</span><span class="va">countries</span>, <span class="va">capitals</span>, by <span class="op">=</span> <span class="st">"country_id"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Error : y should not have class sf; for spatial joins, use st_join</code></pre>
+</div>
+</div>
+<p>Note that when (as here) both active geometries are selected, the choice of active geometry in the result follows the <code>order</code> parameter:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/fjoin_inner.html">fjoin_inner</a></span><span class="op">(</span><span class="va">countries</span>, <span class="va">capitals</span>, on <span class="op">=</span> <span class="st">"country_id"</span>, order <span class="op">=</span> <span class="st">"right"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="st">"sf_column"</span><span class="op">)</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "capital_loc"</code></pre>
+</div>
+</div>
+<p>Second, all <code>sfc</code>-class columns in the output are detected and refreshed, regardless of whether the inputs and output have <code>sf</code> class (and whether those columns were/are active geometries). This avoids stale bounding boxes and ensures that values at non-matching rows are converted from <code>NULL</code> to a valid empty geometry. For example, here is an <code>sfc</code> column from the input on the right after a left join between plain data frames:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/fjoin_left.html">fjoin_left</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="va">countries</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="va">capitals</span><span class="op">)</span>, on <span class="op">=</span> <span class="st">"country_id"</span><span class="op">)</span><span class="op">$</span><span class="va">capital_loc</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Geometry set for 3 features  (with 1 geometry empty)
+Geometry type: POINT
+Dimension:     XY
+Bounding box:  xmin: 1.5 ymin: 1.5 xmax: 2.5 ymax: 2.5
+Geodetic CRS:  WGS 84</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>POINT EMPTY</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>POINT (1.5 1.5)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>POINT (2.5 2.5)</code></pre>
+</div>
+</div>
+</section><section class="section level2"><h2 id="notes-for-data-table-users">Notes for <span class="pkgname">data.table</span> users<a class="anchor" aria-label="anchor" href="#notes-for-data-table-users"></a>
 </h2>
-<p><span class="pkgname">fjoin</span> automates joins that are challenging or laborious to write in <span class="pkgname">data.table</span>, solving frustrations such as garbled join columns in inequality joins and the lack of an effective <code>incomparables</code> argument, and providing other useful options. Even for simple joins, there is little reason <em>not</em> to use it, since it is as fast or faster than <code>merge</code> and even native <span class="pkgname">data.table</span> (see below).</p>
-<p>However, it doesn’t provide the full versatility of <span class="pkgname">data.table</span> joins, such as:</p>
+<p><span class="pkgname">fjoin</span> automates joins that are challenging or laborious to write in <span class="pkgname">data.table</span>, while solving frustrations such as garbled join columns in inequality joins and the lack of an effective <code>incomparables</code> argument, and providing other useful options. Even for simple joins, there is little reason <em>not</em> to use it, since it is as fast or faster than <code>merge</code> and even native <span class="pkgname">data.table</span> (see below).</p>
+<p>That said, <span class="pkgname">fjoin</span> is by no means a wholesale replacement for <span class="pkgname">data.table</span>’s rich join functionality. Some things it cannot do are:</p>
 <ul>
-<li>computing on joined columns inside <code>j</code>, rather than simply selecting them</li>
+<li>computing on joined columns inside <code>j</code> (including <code>by = .EACHI</code> aggregations), rather than simply selecting them</li>
 <li>joins by reference of the “direct” form <code>DT[i, on = &lt;on&gt; , v := i.v]</code>
 </li>
 <li>for now, rolling and overlap joins</li>
 </ul>
-<p>You nevertheless have the option of setting <code>do = FALSE</code>, copying the console output, and editing the <code>j</code>-expression(s). And another way of adding new joined columns by reference is by assignment <code>DT[, v := fjoin_left(DT, i, on = &lt;on&gt;, select = "v")$v]</code>, which can often usefully be combined with the <code>".join"</code> indicator:</p>
+<p>There is nevertheless the option of setting <code>do = FALSE</code>, copying the console output, and editing the <code>j</code>-expression(s). You can also “plonk” joined columns by reference using <code>DT[, v := fjoin_left(DT, i, on = &lt;on&gt;, select = "v")$v]</code>, which can often usefully be combined with the <code>".join"</code> indicator:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb30"><pre class="downlit sourceCode r">
+<div class="sourceCode cell-code" id="cb43"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></span>
 <span><span class="va">dtQ</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/as.data.table.html" class="external-link">as.data.table</a></span><span class="op">(</span><span class="va">dfQ</span><span class="op">)</span></span>
 <span><span class="va">dtP</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/as.data.table.html" class="external-link">as.data.table</a></span><span class="op">(</span><span class="va">dfP</span><span class="op">)</span></span>
@@ -549,22 +656,22 @@ Join: setDF(with(list(fjoin.temp = setDT(setDT(.i[, fjoin.i.rn := .I][.DT[, fjoi
 </div>
 <p>The package actually began life as a tool to solve <span class="pkgname">data.table</span>’s garbling of join columns in non-equi joins. It still does that:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb32"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">DT1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></span><span class="op">(</span>t<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>,<span class="fl">25</span>,<span class="fl">45</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">DT2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></span><span class="op">(</span>t_start<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">21</span><span class="op">)</span>, t_end<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span>,<span class="fl">30</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode cell-code" id="cb45"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">dt1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></span><span class="op">(</span>t<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5L</span>,<span class="fl">25L</span>,<span class="fl">45L</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">dt2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></span><span class="op">(</span>t_start<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1L</span>,<span class="fl">21L</span><span class="op">)</span>, t_end<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10L</span>,<span class="fl">30L</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
-<p>Range join with <span class="pkgname">fjoin</span>:</p>
+<p>Here is a range join with <span class="pkgname">fjoin</span>:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb33"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/dtjoin.html">dtjoin</a></span><span class="op">(</span><span class="va">DT2</span>, <span class="va">DT1</span>, on<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"t_start &lt;= t"</span>, <span class="st">"t_end &gt;= t"</span><span class="op">)</span>, show <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode cell-code" id="cb46"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/dtjoin.html">dtjoin</a></span><span class="op">(</span><span class="va">dt2</span>, <span class="va">dt1</span>, on<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"t_start &lt;= t"</span>, <span class="st">"t_end &gt;= t"</span><span class="op">)</span>, show <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code><span><span class="va">.DT</span> <span class="op">:</span> <span class="va">DT2</span></span>
-<span><span class="va">.i</span>  <span class="op">:</span> <span class="va">DT1</span></span>
+<pre><code><span><span class="va">.DT</span> <span class="op">:</span> <span class="va">dt2</span></span>
+<span><span class="va">.i</span>  <span class="op">:</span> <span class="va">dt1</span></span>
 <span><span class="va">Join</span><span class="op">:</span> <span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/setDT.html" class="external-link">setDT</a></span><span class="op">(</span><span class="va">.DT</span><span class="op">[</span><span class="va">.i</span>, on <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"t_start &lt;= t"</span>, <span class="st">"t_end &gt;= t"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>t_start <span class="op">=</span> <span class="va">x.t_start</span>, t_end <span class="op">=</span> <span class="va">x.t_end</span>, <span class="va">t</span><span class="op">)</span><span class="op">]</span><span class="op">)</span><span class="op">[</span><span class="op">]</span></span></code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   t_start t_end     t
-     &lt;num&gt; &lt;num&gt; &lt;num&gt;
+     &lt;int&gt; &lt;int&gt; &lt;int&gt;
 1:       1    10     5
 2:      21    30    25
 3:      NA    NA    45</code></pre>
@@ -572,151 +679,136 @@ Join: setDF(with(list(fjoin.temp = setDT(setDT(.i[, fjoin.i.rn := .I][.DT[, fjoi
 </div>
 <p>Compare the default output from <span class="pkgname">data.table</span>:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb36"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">DT2</span><span class="op">[</span><span class="va">DT1</span>, on<span class="op">=</span><span class="fu">.</span><span class="op">(</span><span class="va">t_start</span> <span class="op">&lt;=</span> <span class="va">t</span>, <span class="va">t_end</span> <span class="op">&gt;=</span> <span class="va">t</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
+<div class="sourceCode cell-code" id="cb49"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">dt2</span><span class="op">[</span><span class="va">dt1</span>, on<span class="op">=</span><span class="fu">.</span><span class="op">(</span><span class="va">t_start</span> <span class="op">&lt;=</span> <span class="va">t</span>, <span class="va">t_end</span> <span class="op">&gt;=</span> <span class="va">t</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   t_start t_end
-     &lt;num&gt; &lt;num&gt;
+     &lt;int&gt; &lt;int&gt;
 1:       5     5
 2:      25    25
 3:      45    45</code></pre>
 </div>
 </div>
-<p><span class="pkgname">fjoin</span> uses <code><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame()</a></code> coupled with <code><a href="https://rdatatable.gitlab.io/data.table/reference/setDT.html" class="external-link">setDT()</a></code> instead of the more usual <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> in <code>j</code>. This is to sidestep an unnecessary deep copy of the joined columns. Likewise, <span class="pkgname">fjoin</span> avoids deep copies on the way in and out by “shallow-casting” inputs and outputs to and from <code>data.table</code>s as necessary. Shallow conversion is not a safe general way of operating with foreign objects in <span class="pkgname">data.table</span>, but it works for joins, because the input vectors only need to be read, and the output vectors are guaranteed to be unshared.</p>
+<p>Notice that <span class="pkgname">fjoin</span> uses <code><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame()</a></code> in <code>j</code> (coupled with an outer <code><a href="https://rdatatable.gitlab.io/data.table/reference/setDT.html" class="external-link">setDT()</a></code>) even when the required output is a <code>data.table</code>, instead of the more usual <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code>. This is to sidestep an unnecessary deep copy of the joined columns currently made by <span class="pkgname">data.table</span> in this case. Likewise, <span class="pkgname">fjoin</span> avoids deep copies on the way in and out by “shallow-casting” inputs and outputs to and from <code>data.table</code>s as necessary. Shallow conversion is not a safe general way of operating with foreign objects in <span class="pkgname">data.table</span>, but it works for joins, because the input vectors only need to be read, and the output vectors are guaranteed to be unshared.</p>
 <p>One consequence of this is that <span class="pkgname">fjoin</span> is more efficient than <span class="pkgname">data.table</span> itself with standard interactive idioms. Consider the following (exaggerated) example, where the <code>i</code> expression is a <code>data.frame</code> and we select columns in <code>j</code> with <code><a href="https://rdrr.io/r/base/list.html" class="external-link">list()</a></code> (aliased <code>.()</code>):</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb38"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">1e7L</span>; <span class="va">ncolDT</span> <span class="op">&lt;-</span> <span class="fl">2L</span>; <span class="va">ncolDF</span> <span class="op">&lt;-</span> <span class="fl">10L</span></span>
-<span><span class="va">DT</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></span><span class="op">(</span>id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="va">n</span>, each <span class="op">=</span> <span class="fl">5L</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="va">n</span> <span class="op">*</span> <span class="va">ncolDT</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="va">ncolDT</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">DF</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>id <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="va">n</span>, <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="va">n</span> <span class="op">*</span> <span class="va">ncolDF</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="va">ncolDF</span><span class="op">)</span><span class="op">)</span></span>
+<div class="sourceCode cell-code" id="cb51"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">1e6L</span>; <span class="va">ncol_dt</span> <span class="op">&lt;-</span> <span class="fl">2L</span>; <span class="va">ncol_df</span> <span class="op">&lt;-</span> <span class="fl">10L</span></span>
+<span><span class="va">dt</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></span><span class="op">(</span>id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="va">n</span>, each <span class="op">=</span> <span class="fl">5L</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="va">n</span> <span class="op">*</span> <span class="va">ncol_dt</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="va">ncol_dt</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>id <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="va">n</span>, <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="va">n</span> <span class="op">*</span> <span class="va">ncol_df</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="va">ncol_df</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">bench</span><span class="fu">::</span><span class="fu"><a href="https://bench.r-lib.org/reference/mark.html" class="external-link">mark</a></span><span class="op">(</span></span>
+<span>  data.table <span class="op">=</span> <span class="va">dt</span><span class="op">[</span><span class="va">df</span>, on <span class="op">=</span> <span class="fu">.</span><span class="op">(</span><span class="va">id</span><span class="op">)</span>, <span class="fu">.</span><span class="op">(</span><span class="va">id</span>, <span class="va">V1</span>, <span class="va">V2</span>, <span class="va">X1</span>, <span class="va">X3</span>, <span class="va">X5</span>, <span class="va">X7</span>, <span class="va">X9</span><span class="op">)</span><span class="op">]</span>,</span>
+<span>  fjoin      <span class="op">=</span> <span class="fu"><a href="../reference/dtjoin.html">dtjoin</a></span><span class="op">(</span><span class="va">dt</span>, <span class="va">df</span>, on <span class="op">=</span> <span class="st">"id"</span>, select.i <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"X1"</span>, <span class="st">"X3"</span>, <span class="st">"X5"</span>, <span class="st">"X7"</span>, <span class="st">"X9"</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  iterations <span class="op">=</span> <span class="fl">3</span>,</span>
-<span>  check      <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  data.table <span class="op">=</span> <span class="va">DT</span><span class="op">[</span><span class="va">DF</span>, on <span class="op">=</span> <span class="fu">.</span><span class="op">(</span><span class="va">id</span><span class="op">)</span>, <span class="fu">.</span><span class="op">(</span><span class="va">id</span>, <span class="va">V1</span>, <span class="va">V2</span>, <span class="va">X1</span>, <span class="va">X3</span>, <span class="va">X5</span>, <span class="va">X7</span>, <span class="va">X9</span><span class="op">)</span><span class="op">]</span>,</span>
-<span>  fjoin      <span class="op">=</span> <span class="fu"><a href="../reference/dtjoin.html">dtjoin</a></span><span class="op">(</span><span class="va">DT</span>, <span class="va">DF</span>, on <span class="op">=</span> <span class="st">"id"</span>, select.i <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"X1"</span>, <span class="st">"X3"</span>, <span class="st">"X5"</span>, <span class="st">"X7"</span>, <span class="st">"X9"</span><span class="op">)</span><span class="op">)</span></span>
+<span>  check      <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span>select <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"expression"</span>, <span class="st">"n_itr"</span>, <span class="st">"median"</span>,  <span class="st">"mem_alloc"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 2 × 3
   expression   median mem_alloc
   &lt;bch:expr&gt; &lt;bch:tm&gt; &lt;bch:byt&gt;
-1 data.table     3.6s    7.39GB
-2 fjoin          1.9s    3.58GB</code></pre>
+1 data.table    454ms     752MB
+2 fjoin         190ms     367MB</code></pre>
 </div>
 </div>
 <p>Here <span class="pkgname">fjoin</span> avoids a call to <code>as.data.table.data.frame</code> on the way in, and a call to <code>as.data.table.list</code> on the way out, both of which (currently) always deep-copy. The <code><a href="https://bench.r-lib.org/reference/mark.html" class="external-link">bench::mark</a></code> memory measurements <a href="https://rdatatable-community.github.io/The-Raft/posts/2025-07-14-memory_R-jangorecki/" class="external-link">exclude C-level allocations</a>, but the difference between them reflects these R-level copies. This behaviour will eventually change in <span class="pkgname">data.table</span>, at which point <span class="pkgname">fjoin</span> will revert to the more familiar <code>j = list()</code> idiom.</p>
+<p>Finally, please note that <span class="pkgname">fjoin</span> differs from <span class="pkgname">data.table</span> in its handling of <code>key</code>s. In a <span class="pkgname">data.table</span> <code>DT[i]</code> join, the output inherits the <code>key</code> of <code>DT</code> provided it happens to remain sorted on those columns; this is consistent with <span class="pkgname">data.table</span>’s conception that everything inside <code>[.data.table</code> is an operation on <code>DT</code>, even though it is the <code>i</code>-table that dictates the row order. With <code><a href="../reference/dtjoin.html">dtjoin()</a></code>, the output always inherits the <code>key</code> of <code>.i</code> (unless the unmatched rows of <code>.DT</code> are appended, in which case the <code>key</code> is <code>NULL</code> since sortedness on <code>.i</code>’s <code>key</code> columns can no longer be guaranteed). This design choice ensures intuitive behaviour of the <code>fjoin_*()</code> functions: for example, <code>fjoin_left(x, y)</code> with the default <code>order = "left"</code> preserves <code>x</code>’s key, as a user would surely expect.</p>
 </section><section class="section level2"><h2 id="internals">“Internals”<a class="anchor" aria-label="anchor" href="#internals"></a>
 </h2>
-<p>With <code>match.na = FALSE</code> (the default), <span class="pkgname">fjoin</span> inspects the data and, if the join permits, chooses which table to omit <code>NA</code>-containing rows from using a heuristic. The only thing that is not reflected in the <span class="pkgname">data.table</span> code that <span class="pkgname">fjoin</span> produces are the input and output handling steps:</p>
+<p>With <code>match.na = FALSE</code> (the default), <span class="pkgname">fjoin</span> inspects the data and, if the join permits, decides which table to omit <code>NA</code>-containing rows from using a heuristic. The only thing that is not reflected in the <span class="pkgname">data.table</span> code that <span class="pkgname">fjoin</span> produces are the input and output handling steps:</p>
 <ul>
-<li>shallow-casting non-<code>data.table</code> objects as <code>data.table</code>s</li>
-<li>adding tibble and/or <code>sf</code> class to outputs (and refreshing <code>sfc</code> columns regardless of output class)</li>
+<li>shallow-casting non-<code>data.table</code> inputs as <code>data.table</code>s</li>
+<li>adding tibble and/or <code>sf</code> class to <code>data.frame</code> outputs where appropriate</li>
+<li>keying <code>data.table</code> outputs as described above</li>
+<li>refreshing <code>sfc</code> columns regardless of output class</li>
 <li>on exit, dropping temporary columns (pointers) from <code>data.table</code> inputs used as-is</li>
 </ul>
 <p>These ensure that <span class="pkgname">fjoin</span> handles object classes with maximum efficiency (no data copying) while leaving inputs intact.</p>
-<p>In other respects, the package is a builder of <span class="pkgname">data.table</span> code to a set of carefully developed solutions. <span class="pkgname">fjoin</span> pays a lot of attention to doing this well and is also very thoroughly tested.</p>
+<p>In other respects, the package is a constructor of <span class="pkgname">data.table</span> code to a set of carefully thought-out solutions. <span class="pkgname">fjoin</span> pays a lot of attention to doing this well and is also very thoroughly tested.</p>
 </section><script id="quarto-html-after-body" type="application/javascript">
-window.document.addEventListener("DOMContentLoaded", function (event) {
-  const toggleBodyColorMode = (bsSheetEl) => {
-    const mode = bsSheetEl.getAttribute("data-mode");
-    const bodyEl = window.document.querySelector("body");
-    if (mode === "dark") {
-      bodyEl.classList.add("quarto-dark");
-      bodyEl.classList.remove("quarto-light");
-    } else {
-      bodyEl.classList.add("quarto-light");
-      bodyEl.classList.remove("quarto-dark");
-    }
-  }
-  const toggleBodyColorPrimary = () => {
-    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
-    if (bsSheetEl) {
-      toggleBodyColorMode(bsSheetEl);
-    }
-  }
-  toggleBodyColorPrimary();
-    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
-    var mailtoRegex = new RegExp(/^mailto:/);
-      var filterRegex = new RegExp('/' + window.location.host + '/');
-    var isInternal = (href) => {
-        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
-    }
-    // Inspect non-navigation links and adorn them if external
- 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
-    for (var i=0; i<links.length; i++) {
-      const link = links[i];
-      if (!isInternal(link.href)) {
-        // undo the damage that might have been done by quarto-nav.js in the case of
-        // links that we want to consider external
-        if (link.dataset.originalHref !== undefined) {
-          link.href = link.dataset.originalHref;
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
         }
       }
-    }
-  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
-    const config = {
-      allowHTML: true,
-      maxWidth: 500,
-      delay: 100,
-      arrow: false,
-      appendTo: function(el) {
-          return el.parentElement;
-      },
-      interactive: true,
-      interactiveBorder: 10,
-      theme: 'light-border',
-      placement: 'bottom-start',
-    };
-    if (contentFn) {
-      config.content = contentFn;
-    }
-    if (onTriggerFn) {
-      config.onTrigger = onTriggerFn;
-    }
-    if (onUntriggerFn) {
-      config.onUntrigger = onUntriggerFn;
-    }
-    window.tippy(el, config);
-  }
-  const findCites = (el) => {
-    const parentEl = el.parentElement;
-    if (parentEl) {
-      const cites = parentEl.dataset.cites;
-      if (cites) {
-        return {
-          el,
-          cites: cites.split(' ')
-        };
-      } else {
-        return findCites(el.parentElement)
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'light-border',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
       }
-    } else {
-      return undefined;
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config);
     }
-  };
-  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
-  for (var i=0; i<bibliorefs.length; i++) {
-    const ref = bibliorefs[i];
-    const citeInfo = findCites(ref);
-    if (citeInfo) {
-      tippyHover(citeInfo.el, function() {
-        var popup = window.document.createElement('div');
-        citeInfo.cites.forEach(function(cite) {
-          var citeDiv = window.document.createElement('div');
-          citeDiv.classList.add('hanging-indent');
-          citeDiv.classList.add('csl-entry');
-          var biblioDiv = window.document.getElementById('ref-' + cite);
-          if (biblioDiv) {
-            citeDiv.innerHTML = biblioDiv.innerHTML;
-          }
-          popup.appendChild(citeDiv);
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
         });
-        return popup.innerHTML;
-      });
+      }
     }
-  }
-});
-</script></main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+  });
+  </script></main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
 </div>
 

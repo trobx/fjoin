@@ -80,10 +80,10 @@ pre code, code {
 <span>  x <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  y <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  order <span class="op">=</span> <span class="st">"left"</span>,</span>
-<span>  prefix.y <span class="op">=</span> <span class="st">"R."</span>,</span>
 <span>  select <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  select.x <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  select.y <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  prefix.y <span class="op">=</span> <span class="st">"R."</span>,</span>
 <span>  do <span class="op">=</span> <span class="op">!</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">&amp;&amp;</span> <span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  show <span class="op">=</span> <span class="op">!</span><span class="va">do</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -105,17 +105,17 @@ tibble, <code>sf</code>, <code>list</code>, etc.) or else both omitted
 Default <code>"left"</code>.</p></dd>
 
 
-<dt id="arg-prefix-y">prefix.y<a class="anchor" aria-label="anchor" href="#arg-prefix-y"></a></dt>
-<dd><p>A prefix to attach to column names in <code>y</code> that are the
-same as a column name in <code>x</code>. Default <code>"R."</code>.</p></dd>
-
-
 <dt id="arg-select-select-x-select-y">select, select.x, select.y<a class="anchor" aria-label="anchor" href="#arg-select-select-x-select-y"></a></dt>
 <dd><p>Character vectors of columns to be selected
 from either input if present (<code>select</code>) or specifically from one or
 other of them (e.g. <code>select.x</code>). <code>NULL</code> (the default) selects
 all columns. Use <code>""</code> (or <code>NA</code>) to select no columns. Join
 columns are always selected. See Details.</p></dd>
+
+
+<dt id="arg-prefix-y">prefix.y<a class="anchor" aria-label="anchor" href="#arg-prefix-y"></a></dt>
+<dd><p>A prefix to attach to column names in <code>y</code> that are the
+same as a column name in <code>x</code>. Default <code>"R."</code>.</p></dd>
 
 
 <dt id="arg-do">do<a class="anchor" aria-label="anchor" href="#arg-do"></a></dt>

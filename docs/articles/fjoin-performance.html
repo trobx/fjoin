@@ -104,6 +104,18 @@ pre code, code {
 
     
     
+<!--
+NOTES:
+
+This article is for the website only and is not part of the package
+(no vignette header, added to .Rbuildignore)
+
+It is left as .Rmd not .qmd because of issues with the use of external data with
+quarto vignettes and articles. See e.g. 
+https://github.com/r-lib/pkgdown/issues/2846
+https://github.com/r-lib/pkgdown/issues/2877
+https://github.com/permaverse/flipr/issues/26
+-->
 <style>
 /* Force wrapping for output blocks after code */
 div.sourceCode + pre, pre {
@@ -111,13 +123,7 @@ div.sourceCode + pre, pre {
   word-break: break-word !important;
 }
 </style>
-<!-- This article is for the website only and is not part of the package --><!-- 
-Leave as .Rmd not .qmd because of issues with the use of external data with
-quarto vignettes and articles. See e.g. 
-https://github.com/r-lib/pkgdown/issues/2846
-https://github.com/r-lib/pkgdown/issues/2877
-https://github.com/permaverse/flipr/issues/26
---><p>This exercise checks the performance of <span class="pkgname">fjoin</span> against <span class="pkgname">data.table</span> <code><a href="https://rdrr.io/r/base/merge.html" class="external-link">merge()</a></code>
+<p>This exercise checks the performance of <span class="pkgname">fjoin</span> against <span class="pkgname">data.table</span> <code><a href="https://rdrr.io/r/base/merge.html" class="external-link">merge()</a></code>
 (i.e. <code>merge.data.table</code>), <span class="pkgname">dplyr</span>, and <span class="pkgname">collapse</span>
 on simple equality joins with moderately large laptop-size data. It does
 not do justice to the much more comprehensive join functionality offered

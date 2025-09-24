@@ -250,6 +250,14 @@ of columns when casting inputs or outputs to different classes.)</p>
 </div>
 
 <div class="section">
+<h3 id="data-table-keys"><span class="pkg">data.table</span> <code>key</code>s<a class="anchor" aria-label="anchor" href="#data-table-keys"></a></h3>
+<p>When the output is a <code>data.table</code>, it inherits a <code>key</code> as follows:</p><ul><li><p><code>fjoin_inner</code> or <code>fjoin_left</code> with <code>order = "left"</code>
+  (default): <code>x</code>'s <code>key</code> if present</p></li>
+<li><p><code>fjoin_inner</code> or <code>fjoin_right</code> with <code>order = "right"</code>:
+  <code>y</code>'s <code>key</code> if present</p></li>
+</ul></div>
+
+<div class="section">
 <h3 id="additional-notes-for-sf-users">Additional notes for <span class="pkg">sf</span> users<a class="anchor" aria-label="anchor" href="#additional-notes-for-sf-users"></a></h3>
 <p>Joins (non-spatial) between two <code>sf</code> objects are supported. If both
 active geometries are selected in the result, the result sets <code>x</code>'s
@@ -413,7 +421,7 @@ output is <code>sf</code>.</p>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> .DT : x = dfQ (cast as data.table)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> .i  : y = dfP (cast as data.table)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Join: setDF(with(list(fjoin.temp = setDT(.DT[, fjoin.DT.rn := .I][, na.omit(.SD, cols = "id"), .SDcols = c("id", "quantity", "fjoin.DT.rn")][, fjoin.ind := TRUE][.i, on = "id", data.frame(.join = fifelse(is.na(fjoin.ind), 2L, 3L), id, item, price, quantity, fjoin.DT.rn), allow.cartesian = TRUE])), rbind(fjoin.temp, setDT(.DT[!fjoin.temp$fjoin.DT.rn, data.frame(id, quantity, fjoin.DT.rn)])[, .join := 1L], fill = TRUE))[, fjoin.DT.rn := NULL])[]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Join: setDF(with(list(fjoin.temp = setDT(.DT[, fjoin.which.DT := .I][, na.omit(.SD, cols = "id"), .SDcols = c("id", "quantity", "fjoin.which.DT")][, fjoin.ind.DT := TRUE][.i, on = "id", data.frame(.join = fifelse(is.na(fjoin.ind.DT), 2L, 3L), id, item, price, quantity, fjoin.which.DT), allow.cartesian = TRUE])), rbind(fjoin.temp, setDT(.DT[!fjoin.temp$fjoin.which.DT, data.frame(id, quantity, fjoin.which.DT, .join = 1L)]), fill = TRUE))[, fjoin.which.DT := NULL])[]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># ---------------------------------------------------------------------------</span></span></span>
