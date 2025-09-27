@@ -118,7 +118,7 @@ test_that(desc, {
   compare <-
     dtjoin(DF_B, DF_A, on=c("id_B == id_A", "t_B < t_A"), nomatch=NULL, mult="first", mult.DT="last") |>
     data.table::as.data.table() |>
-    _[DF_A, on=.(i.c==c), .(id_B, t_B, c, v_B, t_A=i.t_A, i.c, v_A = data.table::fifelse(is.na(v_A),i.v_A,v_A))] |>
+    _[DF_A, on=.(i.c==c), .(id_B=id_A, t_B, c, v_B, t_A=i.t_A, i.c, v_A = data.table::fifelse(is.na(v_A),i.v_A,v_A))] |>
     as.data.frame()
   if (PRINT_TEST_OBJECTS) {print(result); print(compare)}
   expect_true(all.equal(result, compare, check.attributes = FALSE))
@@ -132,7 +132,7 @@ test_that(desc, {
   compare <-
     dtjoin(DF_B, DF_A, on=c("id_B == id_A", "t_B < t_A"), nomatch=NULL, mult="last", mult.DT="first") |>
     data.table::as.data.table() |>
-    _[DF_A, on=.(i.c==c), .(id_B, t_B, c, v_B, t_A=i.t_A, i.c, v_A = data.table::fifelse(is.na(v_A),i.v_A,v_A))] |>
+    _[DF_A, on=.(i.c==c), .(id_B=id_A, t_B, c, v_B, t_A=i.t_A, i.c, v_A = data.table::fifelse(is.na(v_A),i.v_A,v_A))] |>
     as.data.frame()
   if (PRINT_TEST_OBJECTS) {print(result); print(compare)}
   expect_true(all.equal(result, compare, check.attributes = FALSE))
@@ -192,7 +192,7 @@ test_that(desc, {
   compare <-
     dtjoin(DF_A, DF_B, on=c("id_A == id_B", "t_A > t_B"), nomatch = NULL, mult = "first", mult.DT="last", select = "c") |>
     data.table::as.data.table() |>
-    _[DF_B, on=.(i.c==c), .(id_A, t_A, t_B=i.t_B, c, i.c)] |>
+    _[DF_B, on=.(i.c==c), .(id_A=id_B, t_A, t_B=i.t_B, c, i.c)] |>
     as.data.frame()
   if (PRINT_TEST_OBJECTS) {print(result); print(compare)}
   expect_true(all.equal(result, compare, check.attributes = FALSE))

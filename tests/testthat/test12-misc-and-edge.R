@@ -46,6 +46,17 @@ test_that(desc, {
   expect_true(nrow(result)==0)
 })
 
+test_that("right join with empty right anti-join and indicate", {
+  x <- data.frame(id=1)
+  expect_no_error(fjoin_right(x,x,on="id",indicate=TRUE))
+})
+
+test_that("right join with empty inner join and indicate", {
+  x <- data.frame(id=1)
+  y <- data.frame(id=2)
+  expect_no_error(fjoin_right(x,y,on="id",indicate=TRUE))
+})
+
 # ------------------------------------------------------------------------------
 # mock joins
 test_that("dtjoin mock", {

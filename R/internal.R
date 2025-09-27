@@ -220,3 +220,7 @@ on_df_to_vec <- function(df, flip = FALSE) {
 vcat <- function(x) {
   cat(deparse(substitute(x)),": ",paste(x,collapse=", "),"\n", sep="")
 }
+vprint <- function(x) {
+  cat(deparse(substitute(x)),"\n")
+  print(x)
+}

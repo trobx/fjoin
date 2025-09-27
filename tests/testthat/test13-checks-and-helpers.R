@@ -131,9 +131,12 @@ test_that("subset_while_in", {
   expect_identical(subset_while_in(letters[1:3],y), letters[1:3])
 })
 # ------------------------------------------------------------------------------
-# vcat debug helper
+# vcat, vprint debug helpers
 test_that("vcat", {
   x <- c("foo","bar")
   expect_output(vcat(x), "x: foo, bar")
 })
-
+test_that("vprint", {
+  df <- data.frame(id=1L)
+  expect_output(vprint(df), "^df")
+})
