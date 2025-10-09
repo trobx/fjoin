@@ -7,32 +7,32 @@ check_dots_names <- function(dots, valid_names = valid_dots_names){
 }
 check_arg_TF <- function(x) {
   if (!x %in% c(TRUE, FALSE))
-    stop(sprintf("Argument '%s' must be TRUE or FALSE", deparse(substitute(x))))
+    stop(sprintf("'%s' must be TRUE or FALSE", deparse(substitute(x))))
 }
 check_arg_order <- function(x) {
   if (!x %in% c("left", "right"))
-    stop(sprintf("Argument '%s' must be \"left\" or \"right\"", deparse(substitute(x))))
+    stop(sprintf("'%s' must be \"left\" or \"right\"", deparse(substitute(x))))
 }
 check_arg_on <- function(x) {
   if (!(is.character(x) && length(x) > 0L && all(nzchar(x)) && !anyNA(x)))
-    stop(sprintf("Argument '%s' must be a non-empty character vector with no empty strings or NAs", deparse(substitute(x))))
+    stop(sprintf("'%s' must be a non-empty character vector with no empty strings or NAs", deparse(substitute(x))))
 }
 check_arg_select <- function(x) {
   if (!(is.null(x) || is.character(x) || ((length(x) == 1L && is.na(x)))))
-    stop(sprintf("Argument '%s' must be a character vector, NA, or NULL", deparse(substitute(x))))
+    stop(sprintf("'%s' must be a character vector, NA, or NULL", deparse(substitute(x))))
 }
 check_arg_mult <- function(x) {
   if (!x %in% c("all", "first", "last"))
-    stop(sprintf("Argument '%s' must be \"all\", \"first\", or \"last\"", deparse(substitute(x))))
+    stop(sprintf("'%s' must be \"all\", \"first\", or \"last\"", deparse(substitute(x))))
 }
 check_arg_nomatch <- function(x) {
   if (!(is.null(x) || x %in% c(NA, 0L)))
-    stop(sprintf("Argument '%s' must be NA, NULL, or 0L", deparse(substitute(x))))
+    stop(sprintf("'%s' must be NA, NULL, or 0L", deparse(substitute(x))))
 }
 check_arg_prefix <- function(x) {
   if (!(length(x) == 1 && isTRUE(make.names(x) == x)))
     stop(sprintf(
-      paste("Argument '%s' must be a single string of letters, digits, dots (.), and underscores (_)",
+      paste("'%s' must be a single string of letters, digits, dots (.), and underscores (_)",
             "forming a syntactically valid name. See `?base::make.names` for a description."),
       deparse(substitute(x))))
 }
@@ -52,24 +52,14 @@ check_names <- function(x) {
 check_input_class <- function(x) {
   # Check x is either a non-object list or data.frame (data.table etc.)
   if (!(is.list(x) && (is.data.frame(x) || !is.object(x))))
-    stop(sprintf("Argument '%s' must be a data.frame-like object or list", deparse(substitute(x))))
+    stop(sprintf("'%s' must be a data.frame-like object or list", deparse(substitute(x))))
 }
 # ------------------------------------------------------------------------------
-shallow_DT <- function(x, use_setDT = TRUE) {
+shallow_DT <- function(x) {
   # Shallow-copy columns of a data.frame-like object (or list of vectors) into a new DT
-  # use_setDT = FALSE (no overallocation) is for pure read-only with no assignments
-  if(!is.list(x)) stop("'x' must be 'list'-type")
-  if (is.object(x)) {
-    if (use_setDT) {
-      data.table::setDT(unclass(x))
-    } else {
-      # assumes regular object list
-      data.table::setattr(unclass(x), "class", c("data.table", "data.frame"))
-    }
-  } else {
-    # unclass doesn't (shallow) copy non-object, and use setDT for common length check
-    data.table::setDT(as.list(x))
-  }
+  # use setDT() for common length check and overallocation
+  # unclass() doesn't (shallow) copy non-object
+  data.table::setDT(if (is.object(x)) unclass(x) else as.list(x))
 }
 # ------------------------------------------------------------------------------
 any_inherits <- function (x, cls, mask = NULL) {

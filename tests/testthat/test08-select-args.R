@@ -1,5 +1,5 @@
 # test select args
-# do in on shot using fjoin funcs
+# do in one shot using fjoin funcs
 
 desc <- "fjoin_inner with select"
 if (PRINT_TEST_NAME) cat("\nTest: ", desc, "\n")
@@ -133,4 +133,64 @@ test_that(desc, {
     dplyr::select(c.x, v_B)
   if (PRINT_TEST_OBJECTS) {print(result); print(compare)}
   expect_true(all.equal(result, compare, check.attributes = FALSE))
+})
+
+# ______________________________________________________________________________
+# cover dtjoin_semi case-specific DT/DF output class handling that depends on select
+# (c.f. dtjoin_anti where common logic for all cases)
+test_that("dtjoin_semi (1a) with select, data.table output", {
+  # semi 1a
+  expect_identical(
+    rbind(
+      dtjoin_semi(DT_A,DT_B,on="id_A==id_B",select="c"),
+      dtjoin_anti(DT_A,DT_B,on="id_A==id_B",select="c")
+    )[order(c)],
+    DT_A[, .(id_A, c)]
+  )
+})
+test_that("dtjoin_semi (1b) with select, data.table output", {
+  # semi 1b
+  expect_identical(
+    rbind(
+      dtjoin_semi(DT_B,DT_A,on="id_B==id_A",select="c"),
+      dtjoin_anti(DT_B,DT_A,on="id_B==id_A",select="c")
+    )[order(c)],
+    DT_B[, .(id_B, c)]
+  )
+})
+test_that("dtjoin_semi (2) with select, data.table output", {
+  # semi 2
+  expect_identical(
+    rbind(
+      dtjoin_semi(DT_A,DT_B,on="t_A>t_B",select="c"),
+      dtjoin_anti(DT_A,DT_B,on="t_A>t_B",select="c")
+    )[order(c)],
+    DT_A[, .(t_A, c)]
+  )
+})
+test_that("dtjoin_semi (3) with select, data.table output", {
+  # semi 3
+  expect_identical(
+    rbind(
+      dtjoin_semi(DT_A,DT_B,on="t_A>t_B",select="c", mult="first"),
+      dtjoin_anti(DT_A,DT_B,on="t_A>t_B",select="c", mult="first")
+    )[order(c)],
+    DT_A[, .(t_A, c)]
+  )
+})
+
+# ______________________________________________________________________________
+# cover dtjoin with select.DT/select.i, one case not covered by fjoin select.x/select.y tests
+test_that("dtjoin with select.DT, data.table output", {
+  DT_A2 <- DT_A[, .(id_A, v_A)]
+  DT_B2 <- DT_B[, .(id_B, v_B)]
+  compare <- dtjoin(DT_A2,DT_B2,on="id_A==id_B")
+  expect_identical(
+    dtjoin(DT_A2,DT_B2,on="id_A==id_B",select.DT="v_A",select.i=""),
+    compare[, .(id_A, v_A)]
+  )
+  expect_identical(
+    dtjoin(DT_A2,DT_B2,on="id_A==id_B",select.DT="",select.i="v_B"),
+    compare[, .(id_A, v_B)]
+  )
 })

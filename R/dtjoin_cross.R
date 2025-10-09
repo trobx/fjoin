@@ -1,4 +1,4 @@
-#' Cross join of data.frame-like objects \code{DT} and \code{i} using
+#' Cross join of data frame-like objects \code{DT} and \code{i} using
 #' a \code{DT[i]}-style interface to data.table
 #'
 #' @description
@@ -34,18 +34,18 @@
 #'
 #' @export
 dtjoin_cross <- function(
-    .DT        = NULL,
-    .i         = NULL,
-    select     = NULL,
-    select.DT  = NULL,
-    select.i   = NULL,
-    i.first    = i.home,
-    i.home     = FALSE,
-    prefix     = if (i.home) "x." else "i.",
-    do         = !(is.null(.DT) && is.null(.i)),
-    show       = !do,
-    ...
-
+  .DT       = NULL,
+  .i        = NULL,
+  select    = NULL,
+  select.DT = NULL,
+  select.i  = NULL,
+  i.home    = FALSE,
+  i.first   = i.home,
+  prefix    = if (i.home) "x." else "i.",
+  i.class   = i.home,
+  do        = !(is.null(.DT) && is.null(.i)),
+  show      = !do,
+  ...
 ) {
 
   # input-----------------------------------------------------------------------
@@ -60,6 +60,7 @@ dtjoin_cross <- function(
   check_arg_TF(show)
   check_arg_TF(i.first)
   check_arg_TF(i.home)
+  check_arg_TF(i.class)
 
   dots <- list(...)
   check_dots_names(dots)
@@ -112,7 +113,7 @@ dtjoin_cross <- function(
     if (has_select.i)  select.i <- unique(select.i)
   }
 
-  # cols.DT, cols.i-----------------------------------------------------------
+  # cols.DT, cols.i, has_sfc----------------------------------------------------
 
   cols.DT <- data.table::setDT(list(name = unique(names(.DT))))
   cols.i  <- data.table::setDT(list(name = unique(names(.i))))
@@ -120,42 +121,9 @@ dtjoin_cross <- function(
   cols.DT$is_selected <- if (is.null(select.DT)) TRUE else cols.DT$name %in% select.DT
   cols.i$is_selected  <- if (is.null(select.i)) TRUE else cols.i$name %in% select.i
 
-  # sfc_present-----------------------------------------------------------------
-
-  sfc_present <- any_inherits(.DT, "sfc", mask = cols.DT$is_selected) || any_inherits(.i, "sfc", mask = cols.i$is_selected)
-
-  # output class----------------------------------------------------------------
-
-  if (!do) {
-    as_DT <- asis.DT || asis.i
-  } else {
-    as_sf <- as_tbl_df <- FALSE
-    as_tibble_ok <- requireNamespace("tibble", quietly = TRUE)
-    # sf/sf-tibble iff sfc col(s) present, sf installed, and .DT or .i is sf whose active geometry is selected
-    if (sfc_present && requireNamespace("sf", quietly = TRUE)) {
-      # .i ahead of .DT
-      if (inherits(orig.i, "sf")) {
-        sf_col <- attr(orig.i, "sf_column")
-        if (cols.i$is_selected[match(sf_col, cols.i$name)]) {
-          as_sf <- TRUE
-          if (!i.home && sf_col %in% cols.i$name) sf_col <- sprintf("%s%s", prefix, sf_col)
-          as_tbl_df <- inherits(orig.i, "tbl_df") && as_tibble_ok
-        }
-      }
-      if (!as_sf && inherits(orig.DT, "sf")) {
-        sf_col <- attr(orig.DT, "sf_column")
-        if (cols.DT$is_selected[match(sf_col, cols.DT$name)]) {
-          as_sf <- TRUE
-          if (i.home && sf_col %in% cols.DT$name) sf_col <- sprintf("%s%s", prefix, sf_col)
-          as_tbl_df <- inherits(orig.DT, "tbl_df") && as_tibble_ok
-        }
-      }
-    }
-    as_DT <- !as_sf && (asis.DT || asis.i)
-    if (!as_DT) as_tbl_df <- (inherits(orig.DT, "tbl_df") || inherits(orig.i, "tbl_df")) && as_tibble_ok
-  }
-
-  # jvars, jointext-------------------------------------------------------------
+  has_sfc <-
+    requireNamespace("sf", quietly = TRUE) &&
+    (any_inherits(.DT, "sfc", mask=cols.DT$is_selected) || any_inherits(.i, "sfc", mask=cols.i$is_selected))
 
   cols.DT$jvar <- NA_character_
   cols.i$jvar  <- NA_character_
@@ -166,22 +134,66 @@ dtjoin_cross <- function(
   if (!i.home) {
     # (c,c) -> (c,PREF.c=i.c)
     cols.DT$jvar[cols.DT$is_selected] <-
-      if (sfc_present) sprintf("%s = %s",selected_cols.DT,selected_cols.DT) else selected_cols.DT
+      if (has_sfc) sprintf("%s = %s",selected_cols.DT,selected_cols.DT) else selected_cols.DT
     cols.i$jvar[cols.i$is_selected]   <-
       data.table::fifelse(selected_cols.i %in% cols.DT$name,
                           sprintf("%s%s = i.%s",prefix,selected_cols.i,selected_cols.i),
-                          if (sfc_present) sprintf("%s = %s",selected_cols.i,selected_cols.i) else selected_cols.i)
+                          if (has_sfc) sprintf("%s = %s",selected_cols.i,selected_cols.i) else selected_cols.i)
   } else {
     # (c,c) -> (PREF.c=c,c=i.c)
     cols.DT$jvar[cols.DT$is_selected] <-
       data.table::fifelse(selected_cols.DT %in% cols.i$name,
                           sprintf("%s%s = %s",prefix,selected_cols.DT,selected_cols.DT),
-                          if (sfc_present) sprintf("%s = %s",selected_cols.DT,selected_cols.DT) else selected_cols.DT)
+                          if (has_sfc) sprintf("%s = %s",selected_cols.DT,selected_cols.DT) else selected_cols.DT)
     cols.i$jvar[cols.i$is_selected]   <-
       data.table::fifelse(selected_cols.i %in% cols.DT$name,
                           sprintf("%s = i.%s",selected_cols.i,selected_cols.i),
-                          if (sfc_present) sprintf("%s = %s",selected_cols.i,selected_cols.i) else selected_cols.i)
+                          if (has_sfc) sprintf("%s = %s",selected_cols.i,selected_cols.i) else selected_cols.i)
   }
+
+  # output class----------------------------------------------------------------
+
+  as_DT <- if (i.class) asis.i else asis.DT
+
+  if (do) {
+
+    if (as_DT) {
+      # key from .i always
+      set_key <- asis.i && data.table::haskey(.i)
+      if (set_key) {
+        kcols <- subset_while_in(data.table::key(orig.i), selected_cols.i)
+        if (is.null(kcols)) {
+          set_key <- FALSE
+        } else {
+          key <- if (i.home) kcols else substr_until(cols.i$jvar[match(kcols, cols.i$name)], " = ")
+        }
+      }
+
+    } else {
+      as_tbl_df <- as_grouped_df <- as_sf <- FALSE
+      whose_class <- if (i.class) orig.i else orig.DT
+      whose_cols  <- if (i.class) cols.i else cols.DT
+      # (grouped) tibble
+      if (requireNamespace("dplyr", quietly = TRUE)) {
+        if (inherits(whose_class, "grouped_df")) {
+          groups <- names(attr(whose_class,"groups"))[-length(names(attr(whose_class,"groups")))]
+          groups <- substr_until(fast_na.omit(whose_cols$jvar[match(groups, whose_cols$name)]), " = ")
+          as_grouped_df <- length(groups) > 0L
+        }
+        if (!as_grouped_df) as_tbl_df <- (inherits(whose_class, "tbl_df"))
+      }
+      # sf data frame
+      if (inherits(whose_class, "sf") && requireNamespace("sf", quietly = TRUE)) {
+        sf_col_idx <- match(attr(whose_class, "sf_column"), whose_cols$name)
+        if (whose_cols$is_selected[sf_col_idx]) {
+          as_sf <- TRUE
+          sf_col <- substr_until(whose_cols$jvar[sf_col_idx], until=" = ")
+        }
+      }
+    }
+  }
+
+  # jvars, jointext-------------------------------------------------------------
 
   jvars.DT <- cols.DT$jvar[cols.DT$is_selected]
   jvars.i  <- cols.i$jvar[cols.i$is_selected]
@@ -205,21 +217,9 @@ dtjoin_cross <- function(
     jvars <- if (i.first) c(jvars.i, jvars.DT) else c(jvars.DT, jvars.i)
   }
 
-  jtext <- sprintf(if (sfc_present) "setDF(list(%s))" else "data.frame(%s)", paste(jvars, collapse = ", "))
+  jtext <- sprintf(if (has_sfc) "setDF(list(%s))" else "data.frame(%s)", paste(jvars, collapse = ", "))
   jointext <- sprintf("%s[, fjoin.ind := TRUE][%s[, fjoin.ind := TRUE], on = \"fjoin.ind\", allow.cartesian = TRUE, %s]", ".DT", ".i", jtext)
   if (as_DT) jointext <- sprintf("setDT(%s)", jointext)
-
-  # output key------------------------------------------------------------------
-
-  set_key <- as_DT && asis.i && data.table::haskey(.i)
-  if (set_key) {
-    kcols <- subset_while_in(data.table::key(orig.i), selected_cols.i)
-    if (is.null(kcols)) {
-      set_key <- FALSE
-    } else {
-      key <- cols.i$jvar[match(kcols, cols.i$name)]
-    }
-  }
 
   # outputs---------------------------------------------------------------------
 
@@ -230,14 +230,18 @@ dtjoin_cross <- function(
   if (do) {
     if (asis.DT) on.exit(drop_temp_cols(.DT), add=TRUE)
     if (asis.i) on.exit(drop_temp_cols(.i), add=TRUE)
-    ans <- (eval(parse(text=jointext), envir=list2env(list(.DT=.DT, .i=.i), parent=getNamespace("data.table"))))
+    ans <- eval(parse(text=jointext), envir=list2env(list(.DT=.DT, .i=.i), parent=getNamespace("data.table")))
     if (as_DT) {
       if (set_key) attr(ans, "sorted") <- key
     } else{
-      if (as_tbl_df) ans <- tibble::as_tibble(ans)
-      if (as_sf)     ans <- sf::st_as_sf(ans, sf_column_name=sf_col, sfc_last=FALSE)
+      if (as_grouped_df) {
+        ans <- dplyr::group_by(ans, !!!dplyr::syms(groups))
+      } else {
+        if (as_tbl_df) ans <- dplyr::as_tibble(ans)
+      }
+      if (as_sf) ans <- sf::st_as_sf(ans, sf_column_name=sf_col, sfc_last=FALSE)
     }
-    if (sfc_present) ans <- refresh_sfc_cols(ans)
+    if (has_sfc) ans <- refresh_sfc_cols(ans)
     ans
   }
 }

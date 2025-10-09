@@ -8,7 +8,7 @@ test_that("true/false arg check", {
   dtjoin(on="id", match.na=TRUE) |>
     expect_no_error()
   dtjoin(on="id", match.na=NA) |>
-    expect_error("Argument 'match.na' must be TRUE or FALSE")
+    expect_error("'match.na' must be TRUE or FALSE")
 })
 
 test_that("order arg check", {
@@ -17,33 +17,33 @@ test_that("order arg check", {
   fjoin_left(DF_A, DF_B, on="id_A==id_B", order="right") |>
     expect_no_error()
   fjoin_left(DF_A, DF_B, on="id_A==id_B", order=TRUE) |>
-    expect_error("Argument 'order' must be \"left\" or \"right\"")
+    expect_error("'order' must be \"left\" or \"right\"")
 })
 
 test_that("on arg check", {
   fjoin_left(DF_A, DF_B, on=1L) |>
-    expect_error("Argument 'on' must be a non-empty character vector with no empty strings or NAs")
+    expect_error("'on' must be a non-empty character vector with no empty strings or NAs")
   fjoin_left(DF_A, DF_B, on=TRUE) |>
-    expect_error("Argument 'on' must be a non-empty character vector with no empty strings or NAs")
+    expect_error("'on' must be a non-empty character vector with no empty strings or NAs")
   fjoin_left(DF_A, DF_B, on=character(0)) |>
-    expect_error("Argument 'on' must be a non-empty character vector with no empty strings or NAs")
+    expect_error("'on' must be a non-empty character vector with no empty strings or NAs")
 })
 
 test_that("prefix arg check", {
   fjoin_left(DF_A, DF_B, on="id_A==id_B", prefix="i.") |>
     expect_no_error()
   fjoin_left(DF_A, DF_B, on="id_A==id_B", prefix="i. ") |>
-    expect_error("^Argument 'prefix' must be")
+    expect_error("^'prefix' must be")
   fjoin_left(DF_A, DF_B, on="id_A==id_B", prefix=c("i.","i.")) |>
-    expect_error("^Argument 'prefix' must be")
+    expect_error("^'prefix' must be")
   fjoin_left(DF_A, DF_B, on="id_A==id_B", prefix=1L) |>
-    expect_error("^Argument 'prefix' must be")
+    expect_error("^'prefix' must be")
   fjoin_left(DF_A, DF_B, on="id_A==id_B", prefix=NA_character_) |>
-    expect_error("^Argument 'prefix' must be")
+    expect_error("^'prefix' must be")
   fjoin_left(DF_A, DF_B, on="id_A==id_B", prefix=NA) |>
-    expect_error("^Argument 'prefix' must be")
+    expect_error("^'prefix' must be")
   fjoin_left(DF_A, DF_B, on="id_A==id_B", prefix=NULL) |>
-    expect_error("^Argument 'prefix' must be")
+    expect_error("^'prefix' must be")
 })
 
 test_that("select arg check", {
@@ -54,16 +54,16 @@ test_that("select arg check", {
   fjoin_left(DF_A, DF_B, on="id_A==id_B", select=NA) |>
     expect_no_error()
   fjoin_left(DF_A, DF_B, on="id_A==id_B", select=c(1L)) |>
-    expect_error("Argument 'select' must be a character vector, NA, or NULL")
+    expect_error("'select' must be a character vector, NA, or NULL")
   fjoin_left(DF_A, DF_B, on="id_A==id_B", select=c(NA,NA)) |>
-    expect_error("Argument 'select' must be a character vector, NA, or NULL")
+    expect_error("'select' must be a character vector, NA, or NULL")
 })
 
 test_that("mult arg check", {
   dtjoin(on="id", mult="all") |>
     expect_no_error()
   dtjoin(on="id", mult="foo") |>
-    expect_error("Argument 'mult' must be \"all\", \"first\", or \"last\"")
+    expect_error("'mult' must be \"all\", \"first\", or \"last\"")
 })
 
 test_that("nomatch arg check", {
@@ -76,16 +76,16 @@ test_that("nomatch arg check", {
   dtjoin(on="id", nomatch=FALSE) |>
     expect_no_error()
   dtjoin(on="id", nomatch=TRUE) |>
-    expect_error("Argument 'nomatch' must be NA, NULL, or 0L")
+    expect_error("'nomatch' must be NA, NULL, or 0L")
 })
 
 test_that("input class check", {
   dtjoin(data.frame(id=1L), list(id=1L), on="id") |>
     expect_no_error()
   dtjoin(data.frame(id=1L), data.table::setattr(list(id=1L),"class","foo"), on="id") |>
-    expect_error("Argument '.i' must be a data.frame-like object or list")
+    expect_error("'.i' must be a data.frame-like object or list")
   dtjoin(data.frame(id=1L), c(1L), on="id") |>
-    expect_error("Argument '.i' must be a data.frame-like object or list")
+    expect_error("'.i' must be a data.frame-like object or list")
 })
 
 # ------------------------------------------------------------------------------
@@ -100,9 +100,6 @@ test_that("shallow_DT", {
   result <- shallow_DT(x <- data.table::data.table(id=1L))
   expect_identical(class(result), c("data.table", "data.frame"))
   expect_no_warning(result[,foo:=1L])
-  result <- shallow_DT(x <- data.table::data.table(id=1L), use_setDT=FALSE)
-  expect_identical(data.table::address(x$id), data.table::address(result$id))
-  expect_warning(result[,foo:=1L])
 })
 
 # ------------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-# names with i.home=TRUE including outer.DT case (rename_anti.DT-TRUE
+# names with i.home=TRUE including outer.DT case
 # These tests based on names only; tests of fjoin functions cover column values
 
 test_that("dtjoin names with i.home", {

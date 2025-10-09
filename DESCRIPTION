@@ -21,10 +21,9 @@ Encoding: UTF-8
 Depends: R (>= 3.3.0)
 Imports: data.table
 Suggests: 
-    tibble,
+    dplyr (>= 1.1.0),
     sf,
     testthat (>= 3.0.0),
-    dplyr (>= 1.1.0),
     knitr,
     rmarkdown,
     quarto,

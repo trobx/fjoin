@@ -22,27 +22,26 @@ test_that("as-is data.table inputs left intact", {
 })
 
 # ------------------------------------------------------------------------------
+# invalid input
+test_that("invalid input", {
+  expect_error(dtjoin(DF_A,letters,on="id"), "^'.i' must be")
+  expect_error(dtjoin(letters,letters,on="id"), "^'.DT' must be")
+})
+
+# ------------------------------------------------------------------------------
 # zero-length outputs (esp. with indicate and setDF(list()))
-desc <- "empty output"
-if (PRINT_TEST_NAME) cat("\nTest:", desc, "\n")
-test_that(desc, {
+test_that("empty output", {
   x <- data.frame(id=1)
   y <- data.frame(id=2)
-  result <-
-    fjoin_inner(x, y, on="id")
-  if (PRINT_TEST_OBJECTS) print(result)
+  result <- fjoin_inner(x, y, on="id")
   expect_identical(class(result), c("data.frame"))
   expect_true(nrow(result)==0)
 })
 
-desc <- "empty output with setDF(list()) and indicate"
-if (PRINT_TEST_NAME) cat("\nTest:", desc, "\n")
-test_that(desc, {
+test_that("empty output with setDF(list()) and indicate", {
   sf1 <- sf::st_sf(id=1:2, geom=sf::st_sfc(sf::st_point(c(1,1)),sf::st_point(c(2,2))))
   sf2 <- sf::st_sf(id=3:4, geom=sf::st_sfc(sf::st_point(c(3,3)),sf::st_point(c(4,4))))
-  result <-
-    fjoin_inner(sf1, sf2, on="id", indicate=TRUE)
-  if (PRINT_TEST_OBJECTS) print(result)
+  result <- fjoin_inner(sf1, sf2, on="id", indicate=TRUE)
   expect_true(nrow(result)==0)
 })
 

@@ -1,4 +1,4 @@
-#' Join data.frame-like objects using an extended \code{DT[i]}-style interface
+#' Join data frame-like objects using an extended \code{DT[i]}-style interface
 #' to data.table
 #'
 #' @description Write (and optionally run) \pkg{data.table} code for a join
@@ -51,13 +51,14 @@
 #' @param select,select.DT,select.i Character vectors of columns to be selected
 #'   from either input if present (\code{select}) or specifically from one or
 #'   other (\code{select.DT}, \code{select.i}). \code{NULL} (the default)
-#'   selects all columns. Use \code{NA} or \code{""} to select no columns. Join
+#'   selects all columns. Use \code{""} or \code{NA} to select no columns. Join
 #'   columns are always selected. See Details.
 #' @param on.first Whether to place the join columns from both inputs first in
 #'   the join result. Default \code{FALSE}.
 #' @param i.home Whether to treat \code{.i} as the "home" table and \code{.DT}
 #'   as the "foreign" table for column prefixing and \code{indicate}. Default
-#'   \code{FALSE}, i.e. \code{.DT} is the "home" table, as in \code{[.data.table}.
+#'   \code{FALSE}, i.e. \code{.DT} is the "home" table, as in
+#'   \code{[.data.table}.
 #' @param i.first Whether to place \code{.i}'s columns before \code{.DT}'s in
 #'   the join result. The default is to use the value of \code{i.home}, i.e.
 #'   bring \code{.i}'s columns to the front if \code{.i} is the "home" table.
@@ -66,10 +67,14 @@
 #'   \code{"i."} if the "foreign" table is \code{.i} (\code{i.home} is
 #'   \code{FALSE}) and \code{"x."} if it is \code{.DT} (\code{i.home} is
 #'   \code{TRUE}).
-#' @param preserve (rarely used) Whether to include the "foreign" table's
-#'   equality join column(s) in addition to the "home" table's (equivalent to
-#'   \code{keep} in dplyr). Default \code{FALSE}. Note that non-equality join
-#'   columns from the foreign table are always included separately.
+#' @param preserve Whether to include equality join columns from the "foreign"
+#'   table separately in the output, instead of combining them with those from
+#'   the "home" table. Default \code{FALSE}. Note that non-equality join columns
+#'   from the foreign table are always included separately.
+#' @param i.class Whether the \code{class} of the output should be based on
+#'   \code{.i} instead of \code{.DT}. The default follows \code{i.home} (default
+#'   \code{FALSE}). See Details for how output \code{class} and other attributes
+#'   are set.
 #' @param do Whether to execute the join. Default is \code{TRUE} unless
 #'   \code{.DT} and \code{.i} are both omitted/\code{NULL}, in which case a mock
 #'   join statement is produced.
@@ -80,24 +85,28 @@
 #'   print information to the console during execution. Default \code{FALSE}.
 #' @param ... Further arguments (for internal use).
 #'
-#' @returns A \code{data.frame}, \code{data.table}, tibble, \code{sf}, or
-#' \code{sf}-tibble, or else \code{NULL} if \code{do} is \code{FALSE}.
-#' See Details.
+#' @returns A \code{data.frame}, \code{data.table}, (grouped) tibble, \code{sf},
+#' or \code{sf}-tibble, or else \code{NULL} if \code{do} is \code{FALSE}. See
+#' Details.
 #'
 #' @details
 #' \subsection{Input and output class}{
 #' Each input can be any object with class \code{data.frame}, or a plain
 #' \code{list} of same-length vectors.
 #'
-#' The output class follows these rules:
+#' The output class depends on \code{.DT} by default (but \code{.i} with
+#' \code{i.class = TRUE}) and is as follows:
 #' \itemize{
-#'   \item if either input is an \code{sf} with its active geometry selected in
-#'   the join, create an \code{sf}
-#'   \item otherwise, return a \code{data.table} if either input is a
-#'   \code{data.table}, or else create a plain \code{data.frame}
-#'   \item finally, if either input is a tibble and the result is not a
-#'   \code{data.table}, add tibble class \code{"tbl-df"}.
+#'   \item a \code{data.table} if the input is a pure \code{data.table}
+#'   \item a tibble if it is a tibble (and a grouped tibble if it has class
+#'   \code{grouped_df})
+#'   \item an \code{sf} if it is an \code{sf} with its active geometry selected
+#'   in the join
+#'   \item a plain \code{data.frame} in all other cases.
 #' }
+#' The following attributes are carried through and refreshed: \code{data.table}
+#' key, grouped tibble \code{groups}, \code{sf} bounding box, etc. See below for
+#' specifics. Other classes and attributes are not carried through.
 #' }
 #'
 #' \subsection{Using \code{select}, \code{select.DT}, and \code{select.i}}{
@@ -157,22 +166,26 @@
 #' of columns when casting inputs or outputs to different classes.)
 #' }
 #'
-#' \subsection{\pkg{data.table} \code{key}s}{
-#' If \code{.i} is a \code{key}ed \code{data.table} and the output is also a
-#' \code{data.table}, it inherits \code{.i}'s \code{key} provided
-#' \code{nomatch.DT} is \code{NULL} (i.e. the non-matching rows of \code{.DT}
-#' are not included in the result). This differs from a \pkg{data.table}
-#' \code{DT[i]} join, in which the output inherits the \code{key} of \code{DT}
-#' provided it remains sorted on those columns.
+#' \subsection{tibble \code{groups}}{
+#' If the relevant input is a grouped tibble (class \code{grouped_df}), the
+#' output is grouped by the grouping columns that are selected in the result.
 #' }
 #'
-#' \subsection{Additional notes for \pkg{sf} users}{
-#' If \code{.DT} and \code{.i} are both \code{sf} objects whose active geometries
-#' are selected in the result, the result sets \code{.i}'s geometry as active.
+#' \subsection{\pkg{data.table} \code{key}s}{
+#' If \code{.i} is a \code{key}ed \code{data.table} and the output is also a
+#' \code{data.table}, it inherits \code{.i}'s key provided
+#' \code{nomatch.DT} is \code{NULL} (i.e. the non-matching rows of \code{.DT}
+#' are not included in the result). This differs from a \pkg{data.table}
+#' \code{DT[i]} join, in which the output inherits the key of \code{DT}
+#' provided it remains sorted on those columns. If not all of the key columns
+#' are selected in the result, the leading subset is used.
+#' }
 #'
-#' Regardless of whether or not the inputs and output are \code{sf}, all
-#' \code{sfc}-class columns in the join result are refreshed after joining (using
-#' \code{sf::st_sfc()} with \code{recompute_bbox = TRUE}).
+#' \subsection{\pkg{sf} objects and \code{sfc}-class columns}{
+#' Joins between two \code{sf} objects are supported. All \code{sfc}-class
+#' columns in the output are refreshed after joining (using \code{sf::st_sfc()}
+#' with \code{recompute_bbox = TRUE}); this is true regardless of whether or not
+#' the inputs and output are \code{sf}s.
 #' }
 #'
 #' @seealso
@@ -233,11 +246,13 @@ dtjoin <- function(
   select     = NULL,
   select.DT  = NULL,
   select.i   = NULL,
+  preserve   = FALSE,
   on.first   = FALSE,
   i.home     = FALSE,
   i.first    = i.home,
   prefix     = if (i.home) "x." else "i.",
-  preserve   = FALSE,
+  # output class
+  i.class    = i.home,
   # execution options
   do         = !(is.null(.DT) && is.null(.i)),
   show       = !do,
@@ -264,8 +279,9 @@ dtjoin <- function(
   check_arg_TF(show)
   check_arg_TF(indicate)
   check_arg_TF(on.first)
-  check_arg_TF(i.first)
   check_arg_TF(i.home)
+  check_arg_TF(i.first)
+  check_arg_TF(i.class)
   check_arg_TF(preserve)
   check_arg_TF(verbose)
 
@@ -574,58 +590,59 @@ dtjoin <- function(
     sdcols.i  <- if (is.null(select.i)) cols.i$name else cols.i$name[cols.i$is_joincol | cols.i$is_nonjoincol]
   }
 
-  # sfc_present----------------------------------------------------------------
-
-  sfc_present <- any_inherits(.DT, "sfc", mask=cols.DT$is_nonjoincol) || any_inherits(.i, "sfc", mask=cols.i$is_nonjoincol)
-
   # output class----------------------------------------------------------------
 
-  if (!do) {
-    as_DT <- asis.DT || asis.i
-  } else {
-    as_sf <- as_tbl_df <- FALSE
-    as_tibble_ok <- requireNamespace("tibble", quietly = TRUE)
-    # sf/sf-tibble iff sfc col(s) present, sf installed, and .DT or .i is sf whose active geometry is selected
-    if (sfc_present && requireNamespace("sf", quietly = TRUE)) {
-      # .i ahead of .DT
-      if (inherits(orig.i, "sf")) {
-        sf_col <- attr(orig.i, "sf_column")
-        sf_col.idx <- match(sf_col, cols.i$name)
-        if (cols.i$has_jvar[sf_col.idx]) {
-          as_sf <- TRUE
-          sf_col <- substr_until(cols.i$jvar[sf_col.idx], until=" = ")
-          as_tbl_df <- inherits(orig.i, "tbl_df") && as_tibble_ok
+  as_DT <- if (i.class) asis.i else asis.DT
+
+  if (do) {
+
+    if (as_DT) {
+      # key from .i always
+      set_key <- asis.i && data.table::haskey(.i) && !outer.DT
+      if (set_key) {
+        kcols <- subset_while_in(data.table::key(orig.i), cols.i$name[cols.i$is_joincol | cols.i$is_nonjoincol])
+        if (is.null(kcols)) {
+          set_key <- FALSE
+        } else {
+          if (i.home) {
+            key <- kcols
+          } else {
+            kidx <- match(kcols, cols.i$name)
+            has_jvar <- cols.i$has_jvar[kidx]
+            key <- rep(NA_character_, length(kcols))
+            key[has_jvar]  <- substr_until(cols.i$jvar[kidx[has_jvar]], " = ")
+            key[!has_jvar] <- cols.on[match(kidx[!has_jvar],cols.on$idx.i), "jvar.DT"]
+          }
         }
       }
-      if (!as_sf && inherits(orig.DT, "sf")) {
-        sf_col <- attr(orig.DT, "sf_column")
-        sf_col.idx <- match(sf_col, cols.DT$name)
-        if (cols.DT$has_jvar[sf_col.idx]) {
-          as_sf <- TRUE
-          sf_col <- substr_until(cols.DT$jvar[sf_col.idx], until=" = ")
-          as_tbl_df <- inherits(orig.DT, "tbl_df") && as_tibble_ok
-        }
-      }
-    }
-    as_DT <- !as_sf && (asis.DT || asis.i)
-    if (!as_DT) as_tbl_df <- (inherits(orig.DT, "tbl_df") || inherits(orig.i, "tbl_df")) && as_tibble_ok
-  }
 
-  # output key------------------------------------------------------------------
-
-  set_key <- as_DT && asis.i && data.table::haskey(.i) && !outer.DT
-  if (set_key) {
-    kcols <- subset_while_in(data.table::key(orig.i), cols.i$name[cols.i$is_joincol | cols.i$is_nonjoincol])
-    if (is.null(kcols)) {
-      set_key <- FALSE
     } else {
-      key <- rep(NA_character_, length(kcols))
-      kidx <- match(kcols, cols.i$name)
-      has_jvar <- cols.i$has_jvar[kidx]
-      key[has_jvar]  <- substr_until(cols.i$jvar[kidx[has_jvar]], " = ")
-      key[!has_jvar] <- cols.on[match(kidx[!has_jvar],cols.on$idx.i), "jvar.DT"]
+      as_tbl_df <- as_grouped_df <- as_sf <- FALSE
+      whose_class <- if (i.class) orig.i else orig.DT
+      whose_cols  <- if (i.class) cols.i else cols.DT
+      # (grouped) tibble
+      if (requireNamespace("dplyr", quietly = TRUE)) {
+        if (inherits(whose_class, "grouped_df")) {
+          groups <- names(attr(whose_class,"groups"))[-length(names(attr(whose_class,"groups")))]
+          groups <- substr_until(fast_na.omit(whose_cols$jvar[match(groups, whose_cols$name)]), " = ")
+          as_grouped_df <- length(groups) > 0L
+        }
+        if (!as_grouped_df) as_tbl_df <- (inherits(whose_class, "tbl_df"))
+      }
+      # sf data frame
+      if (inherits(whose_class, "sf") && requireNamespace("sf", quietly = TRUE)) {
+        sf_col_idx <- match(attr(whose_class, "sf_column"), whose_cols$name)
+        if (whose_cols$has_jvar[sf_col_idx]) {
+          as_sf <- TRUE
+          sf_col <- substr_until(whose_cols$jvar[sf_col_idx], until=" = ")
+        }
+      }
     }
   }
+
+  has_sfc <-
+    requireNamespace("sf", quietly = TRUE) &&
+    (any_inherits(.DT, "sfc", mask=cols.DT$is_nonjoincol) || any_inherits(.i, "sfc", mask=cols.i$is_nonjoincol))
 
   # add_ind.DT, jvars, jtext----------------------------------------------------
 
@@ -690,19 +707,17 @@ dtjoin <- function(
     }
   }
 
-  # unnamed "x" to "x=x" for setDF(list())
-  if (sfc_present) jvars <- data.table::fifelse(grepl("=", jvars), jvars, sprintf("%s = %s", jvars, jvars))
+  # Unnamed "x" to "x=x" for setDF(list()), used when sfc(s) selected to avoid renaming to "geometry"
+  if (has_sfc) jvars <- data.table::fifelse(grepl("=", jvars), jvars, sprintf("%s = %s", jvars, jvars))
 
-  jtext <- sprintf(if (sfc_present) "setDF(list(%s))" else "data.frame(%s)", paste(jvars, collapse=", "))
+  jtext <- sprintf(if (has_sfc) "setDF(list(%s))" else "data.frame(%s)", paste(jvars, collapse=", "))
 
-  # argtext_--------------------------------------------------------------------
+  # jointext--------------------------------------------------------------------
 
   argtext_nomatch   <- if (!outer.i) "nomatch = NULL, " else ""
   argtext_mult      <- if (mult != "all") sprintf("mult = %s, ", deparse(mult)) else ""
   argtext_verbose   <- if (verbose) ", verbose = TRUE" else ""
   argtext_indicate  <- if (add_ind.DT) "[, fjoin.ind.DT := TRUE]" else ""
-
-  # jointext--------------------------------------------------------------------
 
   if (case == 1L) {
     # (1) no mult.DT
@@ -752,7 +767,7 @@ dtjoin <- function(
               .DTtext,
               deparse(on_df_to_vec(cols.on, flip = TRUE)),
               deparse(mult.DT),
-              sprintf(if (sfc_present) "setDF(list(%s%s, fjoin.which.i = fjoin.which.i))" else "data.frame(%s%s, fjoin.which.i)",
+              sprintf(if (has_sfc) "setDF(list(%s%s, fjoin.which.i = fjoin.which.i))" else "data.frame(%s%s, fjoin.which.i)",
                       with(list(x=cols.DT$name[cols.DT$has_jvar]), paste(sprintf("%s = i.%s",x,x), collapse=", ")),
                       if (add_ind.DT) ", fjoin.ind.DT = TRUE" else ""
               ),
@@ -789,9 +804,9 @@ dtjoin <- function(
                 .itext,
                 deparse(on_df_to_vec(cols.on)),
                 argtext_mult,
-                sprintf(if (sfc_present) "setDF(list(%s%s%s))" else "data.frame(%s%s%s)",
+                sprintf(if (has_sfc) "setDF(list(%s%s%s))" else "data.frame(%s%s%s)",
                         paste(jvars, collapse=", "),
-                        if (outer.DT) "" else if (sfc_present) ", fjoin.which.DT = fjoin.which.DT" else ", fjoin.which.DT",
+                        if (outer.DT) "" else if (has_sfc) ", fjoin.which.DT = fjoin.which.DT" else ", fjoin.which.DT",
                         if (add_ind.DT) ", fjoin.ind.DT = TRUE" else ""
                 ),
                 argtext_verbose,
@@ -816,10 +831,10 @@ dtjoin <- function(
                 .itext,
                 deparse(on_df_to_vec(cols.on)),
                 argtext_mult,
-                sprintf(if (sfc_present) "setDF(list(%s%s%s%s))" else "data.frame(%s%s%s%s)",
+                sprintf(if (has_sfc) "setDF(list(%s%s%s%s))" else "data.frame(%s%s%s%s)",
                         with(list(x=cols.DT$name[cols.DT$has_jvar]), paste(sprintf("%s = x.%s",x,x), collapse=", ")),
-                        if (sfc_present) ", fjoin.which.i = fjoin.which.i" else ", fjoin.which.i",
-                        if (outer.DT) "" else if (sfc_present) ", fjoin.which.DT = fjoin.which.DT" else ", fjoin.which.DT",
+                        if (has_sfc) ", fjoin.which.i = fjoin.which.i" else ", fjoin.which.i",
+                        if (outer.DT) "" else if (has_sfc) ", fjoin.which.DT = fjoin.which.DT" else ", fjoin.which.DT",
                         if (add_ind.DT) ", fjoin.ind.DT = TRUE" else ""
                 ),
                 argtext_verbose,
@@ -844,7 +859,7 @@ dtjoin <- function(
     jvars_anti.DT <- if (i.home) fast_na.omit(cols.DT$jvar_anti) else cols.DT$name[cols.DT$is_joincol | cols.DT$is_nonjoincol]
     .DTantitext <-
       sprintf("setDT(.DT[!fjoin.temp$fjoin.which.DT, %s])",
-              if (sfc_present) {
+              if (has_sfc) {
                 sprintf("setDF(list(%s%s))",
                         paste(data.table::fifelse(grepl("=", jvars_anti.DT), jvars_anti.DT, sprintf("%s = %s", jvars_anti.DT, jvars_anti.DT)), collapse=", "),
                         if (indicate) sprintf(", .join = rep(%s, .N)", if (!i.home) "1L" else "2L") else "")
@@ -867,14 +882,18 @@ dtjoin <- function(
   if (do) {
     if (asis.DT) on.exit(drop_temp_cols(.DT), add=TRUE)
     if (asis.i) on.exit(drop_temp_cols(.i), add=TRUE)
-    ans <- (eval(parse(text=jointext), envir=list2env(list(.DT=.DT, .i=.i), parent=getNamespace("data.table"))))
+    ans <- eval(parse(text=jointext), envir=list2env(list(.DT=.DT, .i=.i), parent=getNamespace("data.table")))
     if (as_DT) {
       if (set_key) attr(ans, "sorted") <- key
     } else{
-      if (as_tbl_df) ans <- tibble::as_tibble(ans)
-      if (as_sf)     ans <- sf::st_as_sf(ans, sf_column_name=sf_col, sfc_last=FALSE)
+      if (as_grouped_df) {
+        ans <- dplyr::group_by(ans, !!!dplyr::syms(groups))
+      } else {
+        if (as_tbl_df) ans <- dplyr::as_tibble(ans)
+      }
+      if (as_sf) ans <- sf::st_as_sf(ans, sf_column_name=sf_col, sfc_last=FALSE)
     }
-    if (sfc_present) ans <- refresh_sfc_cols(ans)
+    if (has_sfc) ans <- refresh_sfc_cols(ans)
     ans
   }
 }

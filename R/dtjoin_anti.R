@@ -1,4 +1,4 @@
-#' Anti-join of \code{DT} in a \code{DT[i]}-style join of data.frame-like
+#' Anti-join of \code{DT} in a \code{DT[i]}-style join of data frame-like
 #' objects
 #'
 #' @description
@@ -131,36 +131,45 @@ dtjoin_anti <- function(
     }
   }
 
-  # sfc_present-----------------------------------------------------------------
-
-  sfc_present <- any_inherits(.DT, "sfc", mask=if (has_select) cols.DT$is_selected else NULL)
-
   # output class----------------------------------------------------------------
 
   as_DT <- asis.DT
-  if (do && !as_DT) {
-    as_sf <- FALSE
-    # sf/sf-tibble iff sfc col(s) present, sf installed, and .DT is sf whose active geometry is selected
-    if (sfc_present && inherits(orig.DT, "sf") && requireNamespace("sf", quietly = TRUE)) {
-      sf_col <- attr(orig.DT, "sf_column")
-      if (!has_select || sf_col %in% select) as_sf <- TRUE
+
+  if (do) {
+
+    if (as_DT) {
+      set_key <- data.table::haskey(.DT)
+      if (set_key) {
+        key <- subset_while_in(data.table::key(.DT), selected_cols)
+        if (is.null(key)) set_key <- FALSE
+      }
+
+    } else {
+      as_tbl_df <- as_grouped_df <- as_sf <- FALSE
+      # (grouped) tibble
+      if (requireNamespace("dplyr", quietly = TRUE)) {
+        if (inherits(orig.DT, "grouped_df")) {
+          groups <- names(attr(orig.DT,"groups"))[-length(names(attr(orig.DT,"groups")))]
+          groups <- groups[groups %in% selected_cols]
+          as_grouped_df <- length(groups) > 0L
+        }
+        if (!as_grouped_df) as_tbl_df <- (inherits(orig.DT, "tbl_df"))
+      }
+      # sf data frame
+      if (inherits(orig.DT, "sf") && requireNamespace("sf", quietly = TRUE)) {
+        sf_col <- attr(orig.DT, "sf_column")
+        as_sf <- sf_col %in% selected_cols
+      }
     }
-    as_tbl_df <- inherits(orig.DT, "tbl_df") && requireNamespace("tibble", quietly = TRUE)
   }
 
-  # output key------------------------------------------------------------------
-
-  set_key <- as_DT && data.table::haskey(.DT)
-  if (set_key) {
-    key <- subset_while_in(data.table::key(.DT), selected_cols)
-    if (is.null(key)) set_key <- FALSE
-  }
+  has_sfc <- any_inherits(.DT, "sfc", mask=if (has_select) cols.DT$is_selected else NULL)
 
   # jvars, jtext (if selective)-------------------------------------------------
 
   if (has_select) {
     jvars <- selected_cols
-    if (sfc_present) {
+    if (has_sfc) {
       jvars <- sprintf("%s = %s", jvars, jvars)
       jtext <- sprintf("setDF(list(%s))", paste(jvars, collapse=", "))
     } else {
@@ -255,14 +264,18 @@ dtjoin_anti <- function(
   if (do) {
     if (asis.DT) on.exit(drop_temp_cols(.DT), add=TRUE)
     if (asis.i) on.exit(drop_temp_cols(.i), add=TRUE)
-    ans <- (eval(parse(text=jointext), envir=list2env(list(.DT=.DT, .i=.i), parent=getNamespace("data.table"))))
+    ans <- eval(parse(text=jointext), envir=list2env(list(.DT=.DT, .i=.i), parent=getNamespace("data.table")))
     if (as_DT) {
       if (set_key) attr(ans, "sorted") <- key
     } else{
-      if (as_tbl_df) ans <- tibble::as_tibble(ans)
-      if (as_sf)     ans <- sf::st_as_sf(ans, sf_column_name=sf_col, sfc_last=FALSE)
+      if (as_grouped_df) {
+        ans <- dplyr::group_by(ans, !!!dplyr::syms(groups))
+      } else {
+        if (as_tbl_df) ans <- dplyr::as_tibble(ans)
+      }
+      if (as_sf) ans <- sf::st_as_sf(ans, sf_column_name=sf_col, sfc_last=FALSE)
     }
-    if (sfc_present) ans <- refresh_sfc_cols(ans)
+    if (has_sfc) ans <- refresh_sfc_cols(ans)
     ans
   }
 }
