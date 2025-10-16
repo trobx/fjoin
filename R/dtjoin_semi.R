@@ -171,6 +171,9 @@ dtjoin_semi <- function(
       if (inherits(orig.DT, "sf") && requireNamespace("sf", quietly = TRUE)) {
         sf_col <- attr(orig.DT, "sf_column")
         as_sf <- sf_col %in% selected_cols
+        agr <- fast_na.omit(attr(.DT, "agr"))
+        if (length(agr) > 0L) agr <- agr[names(agr) %in% selected_cols]
+        set_agr <- length(agr) > 0L
       }
     }
   }
@@ -311,7 +314,10 @@ dtjoin_semi <- function(
       } else {
         if (as_tbl_df) ans <- dplyr::as_tibble(ans)
       }
-      if (as_sf) ans <- sf::st_as_sf(ans, sf_column_name=sf_col, sfc_last=FALSE)
+      if (as_sf) {
+        ans <- sf::st_as_sf(ans, sf_column_name=sf_col, sfc_last=FALSE)
+        if (set_agr) attr(ans, "agr")[names(agr)] <- agr
+      }
     }
     if (has_sfc) ans <- refresh_sfc_cols(ans)
     ans

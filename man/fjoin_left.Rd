@@ -25,8 +25,8 @@ fjoin_left(
 }
 \arguments{
 \item{x, y}{\code{data.frame}-like objects (plain, \code{data.table},
-tibble, \code{sf}, \code{list}, etc.) or else both omitted
-(\code{NULL}) for a mock join statement with no data. See Details.}
+tibble, \code{sf}, \code{list}, etc.) or else both omitted for a mock join
+statement with no data. See Details.}
 
 \item{on}{A character vector of join predicates, e.g. \code{c("id", "col_x ==
 col_y", "date > date", "cost <= budget")}.}
@@ -49,7 +49,7 @@ Default \code{"left"}.}
 \item{select, select.x, select.y}{Character vectors of columns to be selected
 from either input if present (\code{select}) or specifically from one or
 other of them (e.g. \code{select.x}). \code{NULL} (the default) selects
-all columns. Use \code{""} (or \code{NA}) to select no columns. Join
+all columns. Use \code{""} or \code{NA} to select no columns. Join
 columns are always selected. See Details.}
 
 \item{indicate}{Whether to add a column \code{".join"}  at the front of the
@@ -63,10 +63,10 @@ same as a column name in \code{x}. Default \code{"R."}.}
 \item{on.first}{Whether to place the join columns first in the join result.
 Default \code{FALSE}.}
 
-\item{preserve}{Whether to include \code{y}'s equality join column(s) in
-addition to \code{x}'s (equivalent to \code{keep} in dplyr). Default
-\code{FALSE}. Note that non-equality join columns from \code{x} are always
-included separately.}
+\item{preserve}{Whether to include \code{y}'s equality join column(s)
+separately in the output, instead of combining them with \code{x}'s
+Default \code{FALSE}. Note that non-equality join columns from \code{x} are
+always included separately.}
 
 \item{do}{Whether to execute the join. If \code{FALSE}, \code{show} is set to
 \code{TRUE} and the \pkg{data.table} code for the join is printed to the
@@ -79,9 +79,9 @@ console. Default is the opposite of \code{do}. If \code{x} and \code{y} are
 both omitted/\code{NULL}, mock join code is displayed.}
 }
 \value{
-A \code{data.frame}, \code{data.table}, tibble, \code{sf}, or
-\code{sf}-tibble, or else \code{NULL} if \code{do} is \code{FALSE}.
-See Details.
+A \code{data.frame}, \code{data.table}, (grouped) tibble, \code{sf},
+or \code{sf}-tibble, or else \code{NULL} if \code{do} is \code{FALSE}. See
+Details.
 }
 \description{
 Left join of \code{x} and \code{y}
@@ -91,15 +91,19 @@ Left join of \code{x} and \code{y}
 Each input can be any object with class \code{data.frame}, or a plain
 \code{list} of same-length vectors.
 
-The output class follows these rules:
+The output class depends on \code{x} as follows:
 \itemize{
-  \item if either input is an \code{sf} with its active geometry selected in
-  the join, create an \code{sf}
-  \item otherwise, return a \code{data.table} if either input is a
-  \code{data.table}, or else create a plain \code{data.frame}
-  \item finally, if either input is a tibble and the result is not a
-  \code{data.table}, add tibble class \code{"tbl-df"}.
+  \item a \code{data.table} if \code{x} is a pure \code{data.table}
+  \item a tibble if it is a tibble (and a grouped tibble if it has class
+  \code{grouped_df})
+  \item an \code{sf} if it is an \code{sf} with its active geometry selected
+  in the output
+  \item a plain \code{data.frame} in all other cases
 }
+The following attributes are carried through and refreshed: \code{data.table}
+key, tibble \code{groups}, \code{sf} \code{agr} (and \code{bbox} etc. of all
+individual \code{sfc}-class columns regardless of output class). See below
+for specifics.
 }
 
 \subsection{Using \code{select}, \code{select.x}, and \code{select.y}}{
@@ -155,24 +159,29 @@ and/or \code{sf} if applicable. Note that \pkg{fjoin} departs from the usual
 of columns when casting inputs or outputs to different classes.)
 }
 
+\subsection{tibble \code{groups}}{
+If \code{x} is a grouped tibble (class \code{grouped_df}), the
+output is grouped by the grouping columns that are selected in the result.
+}
+
 \subsection{\pkg{data.table} \code{key}s}{
-When the output is a \code{data.table}, it inherits a \code{key} as follows:
+If the output is a \code{data.table}, it inherits a \code{key} as follows:
 \itemize{
   \item \code{fjoin_inner} or \code{fjoin_left} with \code{order = "left"}
   (default): \code{x}'s \code{key} if present
   \item \code{fjoin_inner} or \code{fjoin_right} with \code{order = "right"}:
   \code{y}'s \code{key} if present
 }
+If not all of the key columns are selected in the result, the leading subset
+is used.
 }
 
-\subsection{Additional notes for \pkg{sf} users}{
-Joins (non-spatial) between two \code{sf} objects are supported. If both
-active geometries are selected in the result, the result sets \code{x}'s
-or \code{y}'s geometry as active according to the value of \code{order}.
-
-All \code{sfc}-class columns in the join result are refreshed (using
-\code{sf::st_sfc()} with \code{recompute_bbox = TRUE}), whether or not the
-output is \code{sf}.
+\subsection{\pkg{sf} objects and \code{sfc}-class columns}{
+Joins between two \code{sf} objects are supported. The relation-to-geometry
+attribute \code{agr} is inherited from the input supplying the active
+geometry. All \code{sfc}-class columns in the output are refreshed after
+joining (using \code{sf::st_sfc()} with \code{recompute_bbox = TRUE}); this
+is true regardless of whether or not the inputs and output are \code{sf}s.
 }
 }
 \examples{

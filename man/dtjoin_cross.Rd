@@ -2,7 +2,7 @@
 % Please edit documentation in R/dtjoin_cross.R
 \name{dtjoin_cross}
 \alias{dtjoin_cross}
-\title{Cross join of data.frame-like objects \code{DT} and \code{i} using
+\title{Cross join of data frame-like objects \code{DT} and \code{i} using
 a \code{DT[i]}-style interface to data.table}
 \usage{
 dtjoin_cross(
@@ -11,9 +11,10 @@ dtjoin_cross(
   select = NULL,
   select.DT = NULL,
   select.i = NULL,
-  i.first = i.home,
   i.home = FALSE,
+  i.first = i.home,
   prefix = if (i.home) "x." else "i.",
+  i.class = i.home,
   do = !(is.null(.DT) && is.null(.i)),
   show = !do,
   ...
@@ -21,28 +22,34 @@ dtjoin_cross(
 }
 \arguments{
 \item{.DT, .i}{\code{data.frame}-like objects (plain, \code{data.table}, tibble,
-\code{sf}, \code{list}, etc.), or else both omitted (\code{NULL}) for a mock
-join statement with no data.}
+\code{sf}, \code{list}, etc.), or else both omitted for a mock join
+statement with no data.}
 
 \item{select, select.DT, select.i}{Character vectors of columns to be selected
 from either input if present (\code{select}) or specifically from one or
 other (\code{select.DT}, \code{select.i}). \code{NULL} (the default)
-selects all columns. Use \code{NA} or \code{""} to select no columns. Join
+selects all columns. Use \code{""} or \code{NA} to select no columns. Join
 columns are always selected. See Details.}
+
+\item{i.home}{Whether to treat \code{.i} as the "home" table and \code{.DT}
+as the "foreign" table for column prefixing and \code{indicate}. Default
+\code{FALSE}, i.e. \code{.DT} is the "home" table, as in
+\code{[.data.table}.}
 
 \item{i.first}{Whether to place \code{.i}'s columns before \code{.DT}'s in
 the join result. The default is to use the value of \code{i.home}, i.e.
 bring \code{.i}'s columns to the front if \code{.i} is the "home" table.}
-
-\item{i.home}{Whether to treat \code{.i} as the "home" table and \code{.DT}
-as the "foreign" table for column prefixing and \code{indicate}. Default
-\code{FALSE}, i.e. \code{.DT} is the "home" table, as in \code{[.data.table}.}
 
 \item{prefix}{A prefix to attach to column names in the "foreign" table that
 are the same as a column name in the "home" table. The default is
 \code{"i."} if the "foreign" table is \code{.i} (\code{i.home} is
 \code{FALSE}) and \code{"x."} if it is \code{.DT} (\code{i.home} is
 \code{TRUE}).}
+
+\item{i.class}{Whether the \code{class} of the output should be based on
+\code{.i} instead of \code{.DT}. The default follows \code{i.home} (default
+\code{FALSE}). See Details for how output \code{class} and other attributes
+are set.}
 
 \item{do}{Whether to execute the join. Default is \code{TRUE} unless
 \code{.DT} and \code{.i} are both omitted/\code{NULL}, in which case a mock
@@ -55,9 +62,9 @@ omitted/\code{NULL}, mock join code is displayed.}
 \item{...}{Further arguments (for internal use).}
 }
 \value{
-A \code{data.frame}, \code{data.table}, tibble, \code{sf}, or
-\code{sf}-tibble, or else \code{NULL} if \code{do} is \code{FALSE}.
-See Details.
+A \code{data.frame}, \code{data.table}, (grouped) tibble, \code{sf},
+or \code{sf}-tibble, or else \code{NULL} if \code{do} is \code{FALSE}. See
+Details.
 }
 \description{
 Write (and optionally run) \code{data.table} code to return the cross join of

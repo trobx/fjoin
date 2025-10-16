@@ -18,8 +18,8 @@ fjoin_right_anti(
 }
 \arguments{
 \item{x, y}{\code{data.frame}-like objects (plain, \code{data.table},
-tibble, \code{sf}, \code{list}, etc.) or else both omitted
-(\code{NULL}) for a mock join statement with no data. See Details.}
+tibble, \code{sf}, \code{list}, etc.) or else both omitted for a mock join
+statement with no data. See Details.}
 
 \item{on}{A character vector of join predicates, e.g. \code{c("id", "col_x ==
 col_y", "date > date", "cost <= budget")}.}
@@ -50,9 +50,9 @@ console. Default is the opposite of \code{do}. If \code{x} and \code{y} are
 both omitted/\code{NULL}, mock join code is displayed.}
 }
 \value{
-A \code{data.frame}, \code{data.table}, tibble, \code{sf}, or
-\code{sf}-tibble, or else \code{NULL} if \code{do} is \code{FALSE}.
-See Details.
+A \code{data.frame}, \code{data.table}, (grouped) tibble, \code{sf},
+or \code{sf}-tibble, or else \code{NULL} if \code{do} is \code{FALSE}. See
+Details.
 }
 \description{
 The anti-join of \code{y} in a join of \code{x} and \code{y}, i.e. the rows

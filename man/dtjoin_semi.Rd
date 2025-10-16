@@ -2,7 +2,7 @@
 % Please edit documentation in R/dtjoin_semi.R
 \name{dtjoin_semi}
 \alias{dtjoin_semi}
-\title{Semi-join of \code{DT} in a \code{DT[i]}-style join of data.frame-like
+\title{Semi-join of \code{DT} in a \code{DT[i]}-style join of data frame-like
 objects}
 \usage{
 dtjoin_semi(
@@ -23,8 +23,8 @@ dtjoin_semi(
 }
 \arguments{
 \item{.DT, .i}{\code{data.frame}-like objects (plain, \code{data.table}, tibble,
-\code{sf}, \code{list}, etc.), or else both omitted (\code{NULL}) for a mock
-join statement with no data.}
+\code{sf}, \code{list}, etc.), or else both omitted for a mock join
+statement with no data.}
 
 \item{on}{A character vector of join predicates, e.g. \code{c("id", "col_DT
 == col_i", "date < date")}.}
@@ -60,9 +60,9 @@ print information to the console during execution. Default \code{FALSE}.}
 \item{...}{Further arguments (for internal use).}
 }
 \value{
-A \code{data.frame}, \code{data.table}, tibble, \code{sf}, or
-\code{sf}-tibble, or else \code{NULL} if \code{do} is \code{FALSE}.
-See Details.
+A \code{data.frame}, \code{data.table}, (grouped) tibble, \code{sf},
+or \code{sf}-tibble, or else \code{NULL} if \code{do} is \code{FALSE}. See
+Details.
 }
 \description{
 Write (and optionally run) \pkg{data.table} code to return the semi-join of
@@ -75,8 +75,7 @@ provide a more conventional interface that is recommended over
 }
 \details{
 Details are as for \code{\link{dtjoin}} except for arguments controlling
-the order and prefixing of output columns, which do not apply. Output class
-(and \code{key} if applicable) are determined by \code{.DT}.
+the order and prefixing of output columns, which do not apply.
 }
 \examples{
 # TODO

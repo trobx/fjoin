@@ -2,7 +2,7 @@
 % Please edit documentation in R/dtjoin.R
 \name{dtjoin}
 \alias{dtjoin}
-\title{Join data.frame-like objects using an extended \code{DT[i]}-style interface
+\title{Join data frame-like objects using an extended \code{DT[i]}-style interface
 to data.table}
 \usage{
 dtjoin(
@@ -18,11 +18,12 @@ dtjoin(
   select = NULL,
   select.DT = NULL,
   select.i = NULL,
+  preserve = FALSE,
   on.first = FALSE,
   i.home = FALSE,
   i.first = i.home,
   prefix = if (i.home) "x." else "i.",
-  preserve = FALSE,
+  i.class = i.home,
   do = !(is.null(.DT) && is.null(.i)),
   show = !do,
   verbose = FALSE,
@@ -31,8 +32,8 @@ dtjoin(
 }
 \arguments{
 \item{.DT, .i}{\code{data.frame}-like objects (plain, \code{data.table}, tibble,
-\code{sf}, \code{list}, etc.), or else both omitted (\code{NULL}) for a mock
-join statement with no data.}
+\code{sf}, \code{list}, etc.), or else both omitted for a mock join
+statement with no data.}
 
 \item{on}{A character vector of join predicates, e.g. \code{c("id", "col_DT
 == col_i", "date < date")}.}
@@ -66,15 +67,21 @@ from the "foreign" table only, and \code{3L} if joined from both tables
 \item{select, select.DT, select.i}{Character vectors of columns to be selected
 from either input if present (\code{select}) or specifically from one or
 other (\code{select.DT}, \code{select.i}). \code{NULL} (the default)
-selects all columns. Use \code{NA} or \code{""} to select no columns. Join
+selects all columns. Use \code{""} or \code{NA} to select no columns. Join
 columns are always selected. See Details.}
+
+\item{preserve}{Whether to include equality join columns from the "foreign"
+table separately in the output, instead of combining them with those from
+the "home" table. Default \code{FALSE}. Note that non-equality join columns
+from the foreign table are always included separately.}
 
 \item{on.first}{Whether to place the join columns from both inputs first in
 the join result. Default \code{FALSE}.}
 
 \item{i.home}{Whether to treat \code{.i} as the "home" table and \code{.DT}
 as the "foreign" table for column prefixing and \code{indicate}. Default
-\code{FALSE}, i.e. \code{.DT} is the "home" table, as in \code{[.data.table}.}
+\code{FALSE}, i.e. \code{.DT} is the "home" table, as in
+\code{[.data.table}.}
 
 \item{i.first}{Whether to place \code{.i}'s columns before \code{.DT}'s in
 the join result. The default is to use the value of \code{i.home}, i.e.
@@ -86,10 +93,10 @@ are the same as a column name in the "home" table. The default is
 \code{FALSE}) and \code{"x."} if it is \code{.DT} (\code{i.home} is
 \code{TRUE}).}
 
-\item{preserve}{(rarely used) Whether to include the "foreign" table's
-equality join column(s) in addition to the "home" table's (equivalent to
-\code{keep} in dplyr). Default \code{FALSE}. Note that non-equality join
-columns from the foreign table are always included separately.}
+\item{i.class}{Whether the \code{class} of the output should be based on
+\code{.i} instead of \code{.DT}. The default follows \code{i.home} (default
+\code{FALSE}). See Details for how output \code{class} and other attributes
+are set.}
 
 \item{do}{Whether to execute the join. Default is \code{TRUE} unless
 \code{.DT} and \code{.i} are both omitted/\code{NULL}, in which case a mock
@@ -105,9 +112,9 @@ print information to the console during execution. Default \code{FALSE}.}
 \item{...}{Further arguments (for internal use).}
 }
 \value{
-A \code{data.frame}, \code{data.table}, tibble, \code{sf}, or
-\code{sf}-tibble, or else \code{NULL} if \code{do} is \code{FALSE}.
-See Details.
+A \code{data.frame}, \code{data.table}, (grouped) tibble, \code{sf},
+or \code{sf}-tibble, or else \code{NULL} if \code{do} is \code{FALSE}. See
+Details.
 }
 \description{
 Write (and optionally run) \pkg{data.table} code for a join
@@ -137,15 +144,20 @@ interface for join operations. These functions are recommended over
 Each input can be any object with class \code{data.frame}, or a plain
 \code{list} of same-length vectors.
 
-The output class follows these rules:
+The output class depends on \code{.DT} by default (but \code{.i} with
+\code{i.class = TRUE}) and is as follows:
 \itemize{
-  \item if either input is an \code{sf} with its active geometry selected in
-  the join, create an \code{sf}
-  \item otherwise, return a \code{data.table} if either input is a
-  \code{data.table}, or else create a plain \code{data.frame}
-  \item finally, if either input is a tibble and the result is not a
-  \code{data.table}, add tibble class \code{"tbl-df"}.
+  \item a \code{data.table} if the input is a pure \code{data.table}
+  \item a tibble if it is a tibble (and a grouped tibble if it has class
+  \code{grouped_df})
+  \item an \code{sf} if it is an \code{sf} with its active geometry selected
+  in the join
+  \item a plain \code{data.frame} in all other cases
 }
+The following attributes are carried through and refreshed: \code{data.table}
+key, tibble \code{groups}, \code{sf} \code{agr} (and \code{bbox} etc. of all
+individual \code{sfc}-class columns regardless of output class). See below
+for specifics. Other classes and attributes are not carried through.
 }
 
 \subsection{Using \code{select}, \code{select.DT}, and \code{select.i}}{
@@ -157,8 +169,8 @@ If \code{select.DT} is provided (and similarly for \code{select.i}) then:
  \item if \code{select} is also specified, non-join columns of \code{.DT}
  named in either \code{select} or \code{select.DT} are included
  \item if \code{select} is not specified, only non-join columns named in
- \code{select.DT} are included from \code{.DT}. Thus e.g. \code{select.DT = ""}
- excludes all of \code{.DT}'s non-join columns.
+ \code{select.DT} are included from \code{.DT}. Thus e.g.
+ \code{select.DT = ""} excludes all of \code{.DT}'s non-join columns.
 }
 Non-existent column names are ignored without warning.
 }
@@ -205,22 +217,27 @@ and/or \code{sf} if applicable. Note that \pkg{fjoin} departs from the usual
 of columns when casting inputs or outputs to different classes.)
 }
 
-\subsection{\pkg{data.table} \code{key}s}{
-If \code{.i} is a \code{key}ed \code{data.table} and the output is also a
-\code{data.table}, it inherits \code{.i}'s \code{key} provided
-\code{nomatch.DT} is \code{NULL} (i.e. the non-matching rows of \code{.DT}
-are not included in the result). This differs from a \pkg{data.table}
-\code{DT[i]} join, in which the output inherits the \code{key} of \code{DT}
-provided it remains sorted on those columns.
+\subsection{tibble \code{groups}}{
+If the relevant input is a grouped tibble (class \code{grouped_df}), the
+output is grouped by the grouping columns that are selected in the result.
 }
 
-\subsection{Additional notes for \pkg{sf} users}{
-If \code{.DT} and \code{.i} are both \code{sf} objects whose active geometries
-are selected in the result, the result sets \code{.i}'s geometry as active.
+\subsection{\pkg{data.table} \code{key}s}{
+If \code{.i} is a \code{key}ed \code{data.table} and the output is also a
+\code{data.table}, it inherits \code{.i}'s key provided
+\code{nomatch.DT} is \code{NULL} (i.e. the non-matching rows of \code{.DT}
+are not included in the result). This differs from a \pkg{data.table}
+\code{DT[i]} join, in which the output inherits the key of \code{DT}
+provided it remains sorted on those columns. If not all of the key columns
+are selected in the result, the leading subset is used.
+}
 
-Regardless of whether or not the inputs and output are \code{sf}, all
-\code{sfc}-class columns in the join result are refreshed after joining (using
-\code{sf::st_sfc()} with \code{recompute_bbox = TRUE}).
+\subsection{\pkg{sf} objects and \code{sfc}-class columns}{
+Joins between two \code{sf} objects are supported. The relation-to-geometry
+attribute \code{agr} is inherited from the input supplying the active
+geometry. All \code{sfc}-class columns in the output are refreshed after
+joining (using \code{sf::st_sfc()} with \code{recompute_bbox = TRUE}); this
+is true regardless of whether or not the inputs and output are \code{sf}s.
 }
 }
 \examples{

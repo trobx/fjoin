@@ -24,8 +24,8 @@
 #' \code{dtjoin} for most users and cases.
 #'
 #' @param .DT,.i \code{data.frame}-like objects (plain, \code{data.table}, tibble,
-#'   \code{sf}, \code{list}, etc.), or else both omitted (\code{NULL}) for a mock
-#'   join statement with no data.
+#'   \code{sf}, \code{list}, etc.), or else both omitted for a mock join
+#'   statement with no data.
 #' @param on A character vector of join predicates, e.g. \code{c("id", "col_DT
 #'   == col_i", "date < date")}.
 #' @param match.na If \code{TRUE}, allow equality matches between \code{NA}s or
@@ -102,11 +102,12 @@
 #'   \code{grouped_df})
 #'   \item an \code{sf} if it is an \code{sf} with its active geometry selected
 #'   in the join
-#'   \item a plain \code{data.frame} in all other cases.
+#'   \item a plain \code{data.frame} in all other cases
 #' }
 #' The following attributes are carried through and refreshed: \code{data.table}
-#' key, grouped tibble \code{groups}, \code{sf} bounding box, etc. See below for
-#' specifics. Other classes and attributes are not carried through.
+#' key, tibble \code{groups}, \code{sf} \code{agr} (and \code{bbox} etc. of all
+#' individual \code{sfc}-class columns regardless of output class). See below
+#' for specifics. Other classes and attributes are not carried through.
 #' }
 #'
 #' \subsection{Using \code{select}, \code{select.DT}, and \code{select.i}}{
@@ -118,8 +119,8 @@
 #'  \item if \code{select} is also specified, non-join columns of \code{.DT}
 #'  named in either \code{select} or \code{select.DT} are included
 #'  \item if \code{select} is not specified, only non-join columns named in
-#'  \code{select.DT} are included from \code{.DT}. Thus e.g. \code{select.DT = ""}
-#'  excludes all of \code{.DT}'s non-join columns.
+#'  \code{select.DT} are included from \code{.DT}. Thus e.g.
+#'  \code{select.DT = ""} excludes all of \code{.DT}'s non-join columns.
 #' }
 #' Non-existent column names are ignored without warning.
 #' }
@@ -182,10 +183,11 @@
 #' }
 #'
 #' \subsection{\pkg{sf} objects and \code{sfc}-class columns}{
-#' Joins between two \code{sf} objects are supported. All \code{sfc}-class
-#' columns in the output are refreshed after joining (using \code{sf::st_sfc()}
-#' with \code{recompute_bbox = TRUE}); this is true regardless of whether or not
-#' the inputs and output are \code{sf}s.
+#' Joins between two \code{sf} objects are supported. The relation-to-geometry
+#' attribute \code{agr} is inherited from the input supplying the active
+#' geometry. All \code{sfc}-class columns in the output are refreshed after
+#' joining (using \code{sf::st_sfc()} with \code{recompute_bbox = TRUE}); this
+#' is true regardless of whether or not the inputs and output are \code{sf}s.
 #' }
 #'
 #' @seealso
@@ -597,7 +599,7 @@ dtjoin <- function(
   if (do) {
 
     if (as_DT) {
-      # key from .i always
+      # keyed data.table (currently keying from .i always)
       set_key <- asis.i && data.table::haskey(.i) && !outer.DT
       if (set_key) {
         kcols <- subset_while_in(data.table::key(orig.i), cols.i$name[cols.i$is_joincol | cols.i$is_nonjoincol])
@@ -617,9 +619,11 @@ dtjoin <- function(
       }
 
     } else {
+
       as_tbl_df <- as_grouped_df <- as_sf <- FALSE
       whose_class <- if (i.class) orig.i else orig.DT
       whose_cols  <- if (i.class) cols.i else cols.DT
+
       # (grouped) tibble
       if (requireNamespace("dplyr", quietly = TRUE)) {
         if (inherits(whose_class, "grouped_df")) {
@@ -629,17 +633,48 @@ dtjoin <- function(
         }
         if (!as_grouped_df) as_tbl_df <- (inherits(whose_class, "tbl_df"))
       }
+
       # sf data frame
       if (inherits(whose_class, "sf") && requireNamespace("sf", quietly = TRUE)) {
         sf_col_idx <- match(attr(whose_class, "sf_column"), whose_cols$name)
         if (whose_cols$has_jvar[sf_col_idx]) {
           as_sf <- TRUE
           sf_col <- substr_until(whose_cols$jvar[sf_col_idx], until=" = ")
+          # non-NA agr attribute values
+          agr <- fast_na.omit(attr(whose_class, "agr"))
+          set_agr <- length(agr) > 0L
+          if (set_agr) {
+            if (i.class == i.home) {
+              if (!is.null(if (i.class) select.i else select.DT)) {
+                agr <- agr[names(agr) %in% whose_cols$name[whose_cols$has_jvar]]
+              }
+            } else {
+              cols.agr <- data.table::setDT(list(agr=agr, name=names(agr)))
+              # use data.table for ease; null bindings to dodge R CMD check
+              # e.g. https://github.com/Rdatatable/data.table/issues/5436
+              name <- jvar <- i.has_jvar <- i.is_joincol <- NULL
+              cols.agr[whose_cols,
+                       on="name",
+                       jvar := data.table::fcase(
+                         i.has_jvar==TRUE,
+                           jvar,
+                         i.is_joincol==TRUE,
+                           if (i.class) {
+                             cols.on$jvar.i[match(name,cols.on$joincol.DT)]
+                           } else {
+                             cols.on$jvar.DT[match(name,cols.on$joincol.i)]
+                           }
+                       )]
+              agr <- cols.agr[!is.na(jvar), stats::setNames(agr, substr_until(jvar, " = "))]
+            }
+            if (length(agr) == 0L) set_agr <- FALSE
+          }
         }
       }
     }
   }
 
+  # sfc columns
   has_sfc <-
     requireNamespace("sf", quietly = TRUE) &&
     (any_inherits(.DT, "sfc", mask=cols.DT$is_nonjoincol) || any_inherits(.i, "sfc", mask=cols.i$is_nonjoincol))
@@ -891,7 +926,10 @@ dtjoin <- function(
       } else {
         if (as_tbl_df) ans <- dplyr::as_tibble(ans)
       }
-      if (as_sf) ans <- sf::st_as_sf(ans, sf_column_name=sf_col, sfc_last=FALSE)
+      if (as_sf) {
+        ans <- sf::st_as_sf(ans, sf_column_name=sf_col, sfc_last=FALSE)
+        if (set_agr) attr(ans, "agr")[names(agr)] <- agr
+      }
     }
     if (has_sfc) ans <- refresh_sfc_cols(ans)
     ans

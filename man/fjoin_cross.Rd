@@ -18,8 +18,8 @@ fjoin_cross(
 }
 \arguments{
 \item{x, y}{\code{data.frame}-like objects (plain, \code{data.table},
-tibble, \code{sf}, \code{list}, etc.) or else both omitted
-(\code{NULL}) for a mock join statement with no data. See Details.}
+tibble, \code{sf}, \code{list}, etc.) or else both omitted for a mock join
+statement with no data. See Details.}
 
 \item{order}{Whether the row order of the result should reflect \code{x} then
 \code{y} (\code{"left"}) or \code{y} then \code{x} (\code{"right"}).
@@ -28,7 +28,7 @@ Default \code{"left"}.}
 \item{select, select.x, select.y}{Character vectors of columns to be selected
 from either input if present (\code{select}) or specifically from one or
 other of them (e.g. \code{select.x}). \code{NULL} (the default) selects
-all columns. Use \code{""} (or \code{NA}) to select no columns. Join
+all columns. Use \code{""} or \code{NA} to select no columns. Join
 columns are always selected. See Details.}
 
 \item{prefix.y}{A prefix to attach to column names in \code{y} that are the
@@ -45,9 +45,9 @@ console. Default is the opposite of \code{do}. If \code{x} and \code{y} are
 both omitted/\code{NULL}, mock join code is displayed.}
 }
 \value{
-A \code{data.frame}, \code{data.table}, tibble, \code{sf}, or
-\code{sf}-tibble, or else \code{NULL} if \code{do} is \code{FALSE}.
-See Details.
+A \code{data.frame}, \code{data.table}, (grouped) tibble, \code{sf},
+or \code{sf}-tibble, or else \code{NULL} if \code{do} is \code{FALSE}. See
+Details.
 }
 \description{
 Cross join of \code{x} and \code{y}

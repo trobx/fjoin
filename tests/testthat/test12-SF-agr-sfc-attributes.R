@@ -47,6 +47,158 @@ test_that("df no active geometry selected", {
 })
 
 # ______________________________________________________________________________
+# agr attribute in sf output
+
+SF3_A <- data.table::as.data.table(SF2_A)
+data.table::setnames(SF3_A, "id", "id_A")
+SF3_A[, v_A:=1L]
+SF3_A <- sf::st_as_sf(SF3_A)
+
+SF3_B <- data.table::as.data.table(SF2_B)
+data.table::setnames(SF3_B, "id", "id_B")
+SF3_B[, v_B:=1L]
+SF3_B <- sf::st_as_sf(SF3_B)
+
+as_agr <- function(x) factor(x, levels=c("constant", "aggregate", "identity"))
+
+test_that("sf no non-NA agr", {
+  result <- dtjoin(SF3_A, SF3_B, on="id_A == id_B", select="c")
+  expect_identical(sf::st_agr(result), as_agr(c(id_A=NA, c=NA, i.c=NA)))
+  result <- dtjoin_cross(SF3_A, SF3_B, select="c")
+  expect_identical(sf::st_agr(result), as_agr(c(c=NA, i.c=NA)))
+  expected <- as_agr(c(id_A=NA, c=NA, v_A=NA, geom_other_A=NA))
+  result <- dtjoin_semi(SF3_A, SF3_B, on="id_A == id_B")
+  expect_identical(sf::st_agr(result), expected)
+  result <- dtjoin_anti(SF3_A, SF3_B, on="id_A == id_B")
+  expect_identical(sf::st_agr(result), expected)
+})
+test_that("sf no non-NA agr, i.home/i.class TRUE", {
+  result <- dtjoin(SF3_A, SF3_B, on="id_A == id_B", select="c", i.home=TRUE)
+  expect_identical(sf::st_agr(result), as_agr(c(id_B=NA, c=NA, x.c=NA)))
+  result <- dtjoin_cross(SF3_A, SF3_B, select="c", i.home=TRUE)
+  expect_identical(sf::st_agr(result), as_agr(c(c=NA, x.c=NA)))
+})
+
+# add some non-NA agr attribute values
+attr(SF3_A,"agr")[c("id_A", "c")] <- c("identity","aggregate")
+attr(SF3_B,"agr")[c("c","v_B")] <- c("constant","constant")
+
+test_that("sf with non-NA agr", {
+  result <- dtjoin(SF3_A, SF3_B, on="id_A == id_B")
+  expect_identical(
+    sf::st_agr(result),
+    as_agr(c(id_A="identity",
+             c="aggregate",
+             v_A=NA,
+             geom_other_A=NA,
+             i.c=NA,
+             v_B=NA,
+             geom_active_B=NA))
+  )
+  result <- dtjoin_cross(SF3_A, SF3_B)
+  expect_identical(
+    sf::st_agr(result),
+    as_agr(c(id_A="identity",
+             c="aggregate",
+             v_A=NA,
+             geom_other_A=NA,
+             id_B=NA,
+             i.c=NA,
+             v_B=NA,
+             geom_active_B=NA))
+  )
+  expected <- as_agr(c(id_A="identity", c="aggregate", v_A=NA, geom_other_A=NA))
+  result <- dtjoin_semi(SF3_A, SF3_B, on="id_A == id_B")
+  expect_identical(sf::st_agr(result), expected)
+  result <- dtjoin_anti(SF3_A, SF3_B, on="id_A == id_B")
+  expect_identical(sf::st_agr(result), expected)
+})
+test_that("sf with non-NA agr, with select", {
+  result <- dtjoin(SF3_A, SF3_B, on="id_A == id_B", select=c("geom_active_A", "c"))
+  expect_identical(
+    sf::st_agr(result),
+    as_agr(c(id_A="identity",
+             c="aggregate",
+             i.c=NA))
+  )
+  result <- dtjoin_cross(SF3_A, SF3_B, select=c("geom_active_A", "c"))
+  expect_identical(
+    sf::st_agr(result),
+    as_agr(c(c="aggregate",
+             i.c=NA))
+  )
+  expected <- as_agr(c(id_A="identity", c="aggregate"))
+  result <- dtjoin_semi(SF3_A, SF3_B, on="id_A == id_B", select=c("geom_active_A", "c"))
+  expect_identical(sf::st_agr(result), expected)
+  result <- dtjoin_anti(SF3_A, SF3_B, on="id_A == id_B", select=c("geom_active_A", "c"))
+  expect_identical(sf::st_agr(result), expected)
+})
+test_that("sf with non-NA agr, i.class=FALSE, i.home=TRUE", {
+  result <- dtjoin(SF3_A, SF3_B, on="id_A == id_B", i.home=TRUE, i.class=FALSE)
+  expect_identical(
+    sf::st_agr(result),
+    as_agr(c(id_B=NA,
+             c=NA,
+             v_B=NA,
+             geom_active_B=NA,
+             x.c="aggregate",
+             v_A=NA,
+             geom_other_A=NA))
+  )
+  result <- dtjoin_cross(SF3_A, SF3_B, i.home=TRUE, i.class=FALSE)
+  expect_identical(
+    sf::st_agr(result),
+    as_agr(c(id_B=NA,
+             c=NA,
+             v_B=NA,
+             geom_active_B=NA,
+             id_A="identity",
+             x.c="aggregate",
+             v_A=NA,
+             geom_other_A=NA))
+  )
+})
+test_that("sf with non-NA agr, i.class=TRUE, i.home=FALSE", {
+  result <- dtjoin(SF3_A, SF3_B, on="id_A == id_B", i.home=FALSE, i.class=TRUE)
+  expect_identical(
+    sf::st_agr(result),
+    as_agr(c(id_A=NA,
+             c=NA,
+             v_A=NA,
+             geom_active_A=NA,
+             geom_other_A=NA,
+             i.c="constant",
+             v_B="constant"))
+  )
+  result <- dtjoin_cross(SF3_A, SF3_B, i.home=FALSE, i.class=TRUE)
+  expect_identical(
+    sf::st_agr(result),
+    as_agr(c(id_A=NA,
+             c=NA,
+             v_A=NA,
+             geom_active_A=NA,
+             geom_other_A=NA,
+             id_B=NA,
+             i.c="constant",
+             v_B="constant"))
+  )
+})
+test_that("sf with non-NA agr, but none of those columns selected", {
+  result <- dtjoin(SF3_A, SF3_B, on="id_A == id_B", i.class=TRUE, select="geom_active_B")
+  expect_identical(
+    sf::st_agr(result),
+    as_agr(c(id_A=NA))
+  )
+  result <- dtjoin_cross(SF3_A, SF3_B, i.class=TRUE, select="geom_active_B")
+  expect_true(length(sf::st_agr(result))==0)
+  expected <- as_agr(c(v_A=NA))
+  result <- dtjoin_semi(SF3_A, SF3_B, on="v_A == v_B", select="")
+  expect_identical(sf::st_agr(result), expected)
+  result <- dtjoin_anti(SF3_A, SF3_B, on="v_A == v_B", select="")
+  expect_identical(sf::st_agr(result), expected)
+})
+
+# ______________________________________________________________________________
 # bboxes updated for sfc columns
 
 test_that("sfc bboxes with sf output", {

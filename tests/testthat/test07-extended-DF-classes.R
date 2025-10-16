@@ -1,9 +1,3 @@
-# tibble/DT
-# tibble/DF
-# SF/DT
-# SF/tibble
-# SF-tibble/DT
-
 # ______________________________________________________________________________
 # extended data.frame output classes (but not other extended attributes)
 DF_class     <- "data.frame"

@@ -9,8 +9,8 @@
 # - whether they delegate to `dtjoin_semi()` or `dtjoin_anti()`
 #
 # These are distinct functions with documentation populated for
-# `fjoin_inner()` and inherited by the others. Would prefer to avoid repetitive
-# function bodies by using e.g. two unexported intermediate wrappers with public
+# `fjoin_inner()` and inherited by the others. Could avoid repetitive function
+# bodies by using e.g. two unexported intermediate wrappers with public
 # functions like
 # `fjoin_inner <- function(...) .fjoin_true(style = "inner", ...)`
 # `fjoin_left_semi <- function(...) .fjoin_semi_anti(style1 = "left", style2 = "semi", ...)`
@@ -27,8 +27,8 @@
 #' Inner join of \code{x} and \code{y}
 #'
 #' @param x,y \code{data.frame}-like objects (plain, \code{data.table},
-#'   tibble, \code{sf}, \code{list}, etc.) or else both omitted
-#'   (\code{NULL}) for a mock join statement with no data. See Details.
+#'   tibble, \code{sf}, \code{list}, etc.) or else both omitted for a mock join
+#'   statement with no data. See Details.
 #' @param on A character vector of join predicates, e.g. \code{c("id", "col_x ==
 #'   col_y", "date > date", "cost <= budget")}.
 #' @param match.na Whether to allow equality matches between \code{NA}s or
@@ -56,7 +56,7 @@
 #' @param prefix.y A prefix to attach to column names in \code{y} that are the
 #'   same as a column name in \code{x}. Default \code{"R."}.
 #' @param preserve Whether to include \code{y}'s equality join column(s)
-#'   separately in the output, instead of combining them with code{x}'s
+#'   separately in the output, instead of combining them with \code{x}'s
 #'   Default \code{FALSE}. Note that non-equality join columns from \code{x} are
 #'   always included separately.
 #' @param do Whether to execute the join. If \code{FALSE}, \code{show} is set to
@@ -84,11 +84,12 @@
 #'   \code{grouped_df})
 #'   \item an \code{sf} if it is an \code{sf} with its active geometry selected
 #'   in the output
-#'   \item a plain \code{data.frame} in all other cases.
+#'   \item a plain \code{data.frame} in all other cases
 #' }
-#' In the first three cases, standard attributes such as keys, \code{groups},
-#' and \code{bbox} are carried through and refreshed. See below for some
-#' specifics.
+#' The following attributes are carried through and refreshed: \code{data.table}
+#' key, tibble \code{groups}, \code{sf} \code{agr} (and \code{bbox} etc. of all
+#' individual \code{sfc}-class columns regardless of output class). See below
+#' for specifics.
 #' }
 #'
 #' \subsection{Using \code{select}, \code{select.x}, and \code{select.y}}{
@@ -162,10 +163,11 @@
 #' }
 #'
 #' \subsection{\pkg{sf} objects and \code{sfc}-class columns}{
-#' Joins between two \code{sf} objects are supported. All \code{sfc}-class
-#' columns in the join result are refreshed (using \code{sf::st_sfc()} with
-#' \code{recompute_bbox = TRUE}); this is true regardless of whether or not the
-#' inputs and output are \code{sf}s.
+#' Joins between two \code{sf} objects are supported. The relation-to-geometry
+#' attribute \code{agr} is inherited from the input supplying the active
+#' geometry. All \code{sfc}-class columns in the output are refreshed after
+#' joining (using \code{sf::st_sfc()} with \code{recompute_bbox = TRUE}); this
+#' is true regardless of whether or not the inputs and output are \code{sf}s.
 #' }
 #'
 #' @seealso

@@ -188,6 +188,20 @@ dtjoin_cross <- function(
         if (whose_cols$is_selected[sf_col_idx]) {
           as_sf <- TRUE
           sf_col <- substr_until(whose_cols$jvar[sf_col_idx], until=" = ")
+          # non-NA agr attribute values
+          agr <- fast_na.omit(attr(whose_class, "agr"))
+          set_agr <- length(agr) > 0L
+          if (set_agr) {
+            if (i.class == i.home) {
+              agr <- agr[names(agr) %in% whose_cols$name[whose_cols$is_selected]]
+            } else {
+              cols.agr <- data.table::setDT(list(agr=agr, name=names(agr)))
+              jvar <- NULL # for R CMD check
+              cols.agr[whose_cols, on="name", jvar := jvar]
+              agr <- cols.agr[!is.na(jvar), stats::setNames(agr, substr_until(jvar, " = "))]
+            }
+            if (length(agr) == 0L) set_agr <- FALSE
+          }
         }
       }
     }
@@ -239,7 +253,10 @@ dtjoin_cross <- function(
       } else {
         if (as_tbl_df) ans <- dplyr::as_tibble(ans)
       }
-      if (as_sf) ans <- sf::st_as_sf(ans, sf_column_name=sf_col, sfc_last=FALSE)
+      if (as_sf) {
+        ans <- sf::st_as_sf(ans, sf_column_name=sf_col, sfc_last=FALSE)
+        if (set_agr) attr(ans, "agr")[names(agr)] <- agr
+      }
     }
     if (has_sfc) ans <- refresh_sfc_cols(ans)
     ans
