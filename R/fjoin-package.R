@@ -1,11 +1,10 @@
 #' fjoin
 #'
-#' \pkg{fjoin} performs fast and flexible joins on any data frames by
-#' combining \pkg{data.table} code with efficient, automatic class-handling. It
-#' slots into tidyverse pipelines and general workflows in a single line, and
-#' provides NA-safe matching by default, on-the-fly column selection, flexible
-#' row-order preservation, multiple-match handling on both sides, and an
-#' indicator column for row origin.
+#' \pkg{fjoin} builds on \pkg{data.table} to provide fast, flexible joins on any
+#' data frames. It slots into tidyverse pipelines and general workflows in a
+#' single line, and provides NA-safe matching by default, on-the-fly column
+#' selection, flexible row-order preservation, multiple-match handling on both
+#' sides, and an indicator column for row origin.
 #'
 #' @section Vignette:
 #' View the \href{https://https://trobx.github.io/fjoin/articles/fjoin.html}{Get started}

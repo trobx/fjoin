@@ -1,7 +1,7 @@
 Package: fjoin
 Type: Package
 Title: Data Frame Joins Leveraging 'data.table'
-Version: 0.1.0
+Version: 0.0.0.9000
 Authors@R: c(
     person(
       "Toby", "Robertson",
@@ -9,13 +9,16 @@ Authors@R: c(
       role = c("aut", "cre")
     )
   )
-Description: Joins any data frames by combining automatic, no-copy
-  class-handling with use of 'data.table'. Slots into tidyverse pipelines and
-  general workflows in a single line, and provides NA-safe matching by default,
-  on-the-fly column selection, flexible row-order preservation, multiple-match
-  handling on both sides, and an indicator column for row origin. Supports
-  inner, left, right, full, semi-, and anti-joins with equality and
-  inequality conditions, plus cross joins.
+Description: Extends 'data.table' join functionality and provides a familiar
+  'x'/'y'-style interface that works directly on any data frames. Provides
+  NA-safe matching by default, on-the-fly column selection, flexible row-order
+  preservation, multiple-match handling on both sides, and an indicator column
+  for row origin. Supports inner, left, right, full, semi- and anti-joins with
+  equality and inequality conditions, plus cross joins. Specific support for
+  'data.table', (grouped) tibble, and 'sf'/'sfc' objects and their attributes;
+  prudently returns a plain data frame otherwise. Avoids data-copying of inputs
+  and outputs. Allows displaying the 'data.table' code instead of (or as well
+  as) executing it. Experimental but heavily tested; feedback and FRs welcome.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Depends: R (>= 3.3.0)
