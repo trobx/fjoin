@@ -70,7 +70,7 @@ test_that(desc, {
   result <-
     fjoin_right_semi(DF_A, DF_B, on=c("id_A == id_B", "t_A > t_B"), select="c")
   compare <-
-    fjoin_right(DF_A, DF_B, on=c("id_A == id_B", "t_A > t_B"), preserve=TRUE, indicate=TRUE) |>
+    fjoin_right(DF_A, DF_B, on=c("id_A == id_B", "t_A > t_B"), both=TRUE, indicate=TRUE) |>
     data.table::setDT() |>
     _[.join==3, .(id_B, t_B, c=R.c)] |>
     unique() |>
@@ -100,7 +100,7 @@ test_that(desc, {
   result <-
     fjoin_right_anti(DF_A, DF_B, on=c("id_A == id_B", "t_A > t_B"), select="c")
   compare <-
-    fjoin_right(DF_A, DF_B, on=c("id_A == id_B", "t_A > t_B"), preserve=TRUE, indicate=TRUE) |>
+    fjoin_right(DF_A, DF_B, on=c("id_A == id_B", "t_A > t_B"), both=TRUE, indicate=TRUE) |>
     data.table::setDT() |>
     _[.join==2, .(id_B, t_B, c=R.c)] |>
     unique() |>

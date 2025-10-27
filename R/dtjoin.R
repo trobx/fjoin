@@ -27,7 +27,7 @@
 #'   \code{sf}, \code{list}, etc.), or else both omitted for a mock join
 #'   statement with no data.
 #' @param on A character vector of join predicates, e.g. \code{c("id", "col_DT
-#'   == col_i", "date < date")}.
+#'   == col_i", "date < date", "cost <= budget")}.
 #' @param match.na If \code{TRUE}, allow equality matches between \code{NA}s or
 #'   \code{NaN}s. Default \code{FALSE}.
 #' @param mult (as in \code{[.data.table}) When a row of \code{.i} has multiple
@@ -67,7 +67,7 @@
 #'   \code{"i."} if the "foreign" table is \code{.i} (\code{i.home} is
 #'   \code{FALSE}) and \code{"x."} if it is \code{.DT} (\code{i.home} is
 #'   \code{TRUE}).
-#' @param preserve Whether to include equality join columns from the "foreign"
+#' @param both Whether to include equality join columns from the "foreign"
 #'   table separately in the output, instead of combining them with those from
 #'   the "home" table. Default \code{FALSE}. Note that non-equality join columns
 #'   from the foreign table are always included separately.
@@ -248,7 +248,7 @@ dtjoin <- function(
   select     = NULL,
   select.DT  = NULL,
   select.i   = NULL,
-  preserve   = FALSE,
+  both       = FALSE,
   on.first   = FALSE,
   i.home     = FALSE,
   i.first    = i.home,
@@ -284,7 +284,7 @@ dtjoin <- function(
   check_arg_TF(i.home)
   check_arg_TF(i.first)
   check_arg_TF(i.class)
-  check_arg_TF(preserve)
+  check_arg_TF(both)
   check_arg_TF(verbose)
 
   dots <- list(...)
@@ -400,13 +400,13 @@ dtjoin <- function(
 
       cols.on$jvar.DT <-
         data.table::fifelse(
-          cols.on$op == "==" & !preserve,
+          cols.on$op == "==" & !both,
           cols.on$joincol.DT,
           sprintf("%s = x.%s", cols.on$joincol.DT, cols.on$joincol.DT))
 
       cols.on$jvar.i  <-
         data.table::fifelse(
-          cols.on$op == "==" & !preserve,
+          cols.on$op == "==" & !both,
           NA_character_,
           data.table::fifelse(
             cols.on$joincol.i == cols.on$joincol.DT,
@@ -425,7 +425,7 @@ dtjoin <- function(
 
       cols.on$jvar.DT <-
         data.table::fifelse(
-          cols.on$op == "==" & !preserve,
+          cols.on$op == "==" & !both,
           NA_character_,
           data.table::fifelse(
             cols.on$joincol.DT == cols.on$joincol.i,
@@ -450,7 +450,7 @@ dtjoin <- function(
 
       cols.on$jvar.DT <-
         data.table::fifelse(
-          cols.on$op == "==" & !preserve,
+          cols.on$op == "==" & !both,
           data.table::fifelse(
             cols.on$joincol.DT == cols.on$joincol.i,
             sprintf("%s = i.%s", cols.on$joincol.DT, cols.on$joincol.DT),
@@ -459,7 +459,7 @@ dtjoin <- function(
 
       cols.on$jvar.i  <-
         data.table::fifelse(
-          cols.on$op == "==" & !preserve,
+          cols.on$op == "==" & !both,
           NA_character_,
           data.table::fifelse(
             cols.on$joincol.i == cols.on$joincol.DT,
@@ -478,7 +478,7 @@ dtjoin <- function(
 
       cols.on$jvar.DT <-
         data.table::fifelse(
-          cols.on$op == "==" & !preserve,
+          cols.on$op == "==" & !both,
           NA_character_,
           data.table::fifelse(
             cols.on$joincol.DT == cols.on$joincol.i,
@@ -558,11 +558,11 @@ dtjoin <- function(
       # join cols:
       cols.on$jvar_anti.DT <-
         data.table::fcase(
-          cols.on$op == "==" & !preserve & cols.on$joincol.DT != cols.on$joincol.i,
-            # equality and not preserve, and different names: id1 -> id2
+          cols.on$op == "==" & !both & cols.on$joincol.DT != cols.on$joincol.i,
+            # equality and not preserve both, and different names: id1 -> id2
             sprintf("%s = %s", cols.on$joincol.i, cols.on$joincol.DT),
-          (cols.on$op != "==" | preserve) & cols.on$joincol.DT == cols.on$joincol.i,
-            # preserve, and same names: id -> PREF.id=id
+          (cols.on$op != "==" | both) & cols.on$joincol.DT == cols.on$joincol.i,
+            # preserve both, and same names: id -> PREF.id=id
             sprintf("%s%s = %s", prefix, cols.on$joincol.DT, cols.on$joincol.DT),
           default = cols.on$joincol.DT
       )
