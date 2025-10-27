@@ -44,7 +44,7 @@ pre code, code {
 
     <a class="navbar-brand me-2" href="../index.html">fjoin</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -55,6 +55,7 @@ pre code, code {
       <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/fjoin.html">Get started</a></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="../articles/index.html">Articles</a></li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/trobx/fjoin/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
@@ -90,7 +91,7 @@ pre code, code {
 <span>  select.y <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  prefix.y <span class="op">=</span> <span class="st">"R."</span>,</span>
 <span>  on.first <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  preserve <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  both <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  do <span class="op">=</span> <span class="op">!</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">&amp;&amp;</span> <span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  show <span class="op">=</span> <span class="op">!</span><span class="va">do</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -102,8 +103,8 @@ pre code, code {
 
 <dl><dt id="arg-x-y">x, y<a class="anchor" aria-label="anchor" href="#arg-x-y"></a></dt>
 <dd><p><code>data.frame</code>-like objects (plain, <code>data.table</code>,
-tibble, <code>sf</code>, <code>list</code>, etc.) or else both omitted
-(<code>NULL</code>) for a mock join statement with no data. See Details.</p></dd>
+tibble, <code>sf</code>, <code>list</code>, etc.) or else both omitted for a mock join
+statement with no data. See Details.</p></dd>
 
 
 <dt id="arg-on">on<a class="anchor" aria-label="anchor" href="#arg-on"></a></dt>
@@ -145,7 +146,7 @@ Default <code>"left"</code>.</p></dd>
 <dd><p>Character vectors of columns to be selected
 from either input if present (<code>select</code>) or specifically from one or
 other of them (e.g. <code>select.x</code>). <code>NULL</code> (the default) selects
-all columns. Use <code>""</code> (or <code>NA</code>) to select no columns. Join
+all columns. Use <code>""</code> or <code>NA</code> to select no columns. Join
 columns are always selected. See Details.</p></dd>
 
 
@@ -159,11 +160,11 @@ same as a column name in <code>x</code>. Default <code>"R."</code>.</p></dd>
 Default <code>FALSE</code>.</p></dd>
 
 
-<dt id="arg-preserve">preserve<a class="anchor" aria-label="anchor" href="#arg-preserve"></a></dt>
-<dd><p>Whether to include <code>y</code>'s equality join column(s) in
-addition to <code>x</code>'s (equivalent to <code>keep</code> in dplyr). Default
-<code>FALSE</code>. Note that non-equality join columns from <code>x</code> are always
-included separately.</p></dd>
+<dt id="arg-both">both<a class="anchor" aria-label="anchor" href="#arg-both"></a></dt>
+<dd><p>Whether to include <code>y</code>'s equality join column(s)
+separately in the output, instead of combining them with <code>x</code>'s
+Default <code>FALSE</code>. Note that non-equality join columns from <code>x</code> are
+always included separately.</p></dd>
 
 
 <dt id="arg-do">do<a class="anchor" aria-label="anchor" href="#arg-do"></a></dt>
@@ -182,9 +183,9 @@ both omitted/<code>NULL</code>, mock join code is displayed.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A <code>data.frame</code>, <code>data.table</code>, tibble, <code>sf</code>, or
-<code>sf</code>-tibble, or else <code>NULL</code> if <code>do</code> is <code>FALSE</code>.
-See Details.</p>
+    <p>A <code>data.frame</code>, <code>data.table</code>, (grouped) tibble, <code>sf</code>,
+or <code>sf</code>-tibble, or else <code>NULL</code> if <code>do</code> is <code>FALSE</code>. See
+Details.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -193,13 +194,17 @@ See Details.</p>
 <h3 id="input-and-output-class">Input and output class<a class="anchor" aria-label="anchor" href="#input-and-output-class"></a></h3>
 <p>Each input can be any object with class <code>data.frame</code>, or a plain
 <code>list</code> of same-length vectors.</p>
-<p>The output class follows these rules:</p><ul><li><p>if either input is an <code>sf</code> with its active geometry selected in
-  the join, create an <code>sf</code></p></li>
-<li><p>otherwise, return a <code>data.table</code> if either input is a
-  <code>data.table</code>, or else create a plain <code>data.frame</code></p></li>
-<li><p>finally, if either input is a tibble and the result is not a
-  <code>data.table</code>, add tibble class <code>"tbl-df"</code>.</p></li>
-</ul></div>
+<p>The output class depends on <code>x</code> as follows:</p><ul><li><p>a <code>data.table</code> if <code>x</code> is a pure <code>data.table</code></p></li>
+<li><p>a tibble if it is a tibble (and a grouped tibble if it has class
+  <code>grouped_df</code>)</p></li>
+<li><p>an <code>sf</code> if it is an <code>sf</code> with its active geometry selected
+  in the output</p></li>
+<li><p>a plain <code>data.frame</code> in all other cases</p></li>
+</ul><p>The following attributes are carried through and refreshed: <code>data.table</code>
+key, tibble <code>groups</code>, <code>sf</code> <code>agr</code> (and <code>bbox</code> etc. of all
+individual <code>sfc</code>-class columns regardless of output class). See below
+for specifics.</p>
+</div>
 
 <div class="section">
 <h3 id="using-select-select-x-and-select-y">Using <code>select</code>, <code>select.x</code>, and <code>select.y</code><a class="anchor" aria-label="anchor" href="#using-select-select-x-and-select-y"></a></h3>
@@ -229,8 +234,8 @@ non-join columns from either input in the order given in <code>select</code>.</p
 <div class="section">
 <h3 id="using-mult-x-and-mult-y">Using <code>mult.x</code> and <code>mult.y</code><a class="anchor" aria-label="anchor" href="#using-mult-x-and-mult-y"></a></h3>
 <p>See the Examples for an application of using <code>mult.x</code> and <code>mult.y</code>
-together. Note that <code>mult.y</code> is applied after <code>mult.x</code> except in a
-right join.</p>
+together. Note that <code>mult.y</code> is applied after <code>mult.x</code> except with
+<code>order = "right"</code>.</p>
 </div>
 
 <div class="section">
@@ -250,21 +255,28 @@ of columns when casting inputs or outputs to different classes.)</p>
 </div>
 
 <div class="section">
+<h3 id="tibble-groups">tibble <code>groups</code><a class="anchor" aria-label="anchor" href="#tibble-groups"></a></h3>
+<p>If <code>x</code> is a grouped tibble (class <code>grouped_df</code>), the
+output is grouped by the grouping columns that are selected in the result.</p>
+</div>
+
+<div class="section">
 <h3 id="data-table-keys"><span class="pkg">data.table</span> <code>key</code>s<a class="anchor" aria-label="anchor" href="#data-table-keys"></a></h3>
-<p>When the output is a <code>data.table</code>, it inherits a <code>key</code> as follows:</p><ul><li><p><code>fjoin_inner</code> or <code>fjoin_left</code> with <code>order = "left"</code>
+<p>If the output is a <code>data.table</code>, it inherits a <code>key</code> as follows:</p><ul><li><p><code>fjoin_inner</code> or <code>fjoin_left</code> with <code>order = "left"</code>
   (default): <code>x</code>'s <code>key</code> if present</p></li>
 <li><p><code>fjoin_inner</code> or <code>fjoin_right</code> with <code>order = "right"</code>:
   <code>y</code>'s <code>key</code> if present</p></li>
-</ul></div>
+</ul><p>If not all of the key columns are selected in the result, the leading subset
+is used.</p>
+</div>
 
 <div class="section">
-<h3 id="additional-notes-for-sf-users">Additional notes for <span class="pkg">sf</span> users<a class="anchor" aria-label="anchor" href="#additional-notes-for-sf-users"></a></h3>
-<p>Joins (non-spatial) between two <code>sf</code> objects are supported. If both
-active geometries are selected in the result, the result sets <code>x</code>'s
-or <code>y</code>'s geometry as active according to the value of <code>order</code>.</p>
-<p>All <code>sfc</code>-class columns in the join result are refreshed (using
-<code><a href="https://r-spatial.github.io/sf/reference/sfc.html" class="external-link">sf::st_sfc()</a></code> with <code>recompute_bbox = TRUE</code>), whether or not the
-output is <code>sf</code>.</p>
+<h3 id="sf-objects-and-sfc-class-columns"><span class="pkg">sf</span> objects and <code>sfc</code>-class columns<a class="anchor" aria-label="anchor" href="#sf-objects-and-sfc-class-columns"></a></h3>
+<p>Joins between two <code>sf</code> objects are supported. The active geometry and
+relation-to-geometry attribute <code>agr</code> are determined by <code>x</code>. All
+<code>sfc</code>-class columns in the output are refreshed after joining (using
+<code><a href="https://r-spatial.github.io/sf/reference/sfc.html" class="external-link">sf::st_sfc()</a></code> with <code>recompute_bbox = TRUE</code>); this is true
+regardless of whether or not the inputs and output are <code>sf</code>s.</p>
 </div>
 
     </div>
@@ -378,7 +390,7 @@ output is <code>sf</code>.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3  3  bananas    20        7                     </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4 NA   apples    10        8 oranges (not listed)</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># (3) indicator column (in Stata since 1985)</span></span></span>
+<span class="r-in"><span><span class="co"># (3) indicator column (in Stata since 1984)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="fjoin_full.html">fjoin_full</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">dfQ</span>,</span></span>
 <span class="r-in"><span>  <span class="va">dfP</span>,</span></span>
@@ -421,7 +433,7 @@ output is <code>sf</code>.</p>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> .DT : x = dfQ (cast as data.table)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> .i  : y = dfP (cast as data.table)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Join: setDF(with(list(fjoin.temp = setDT(.DT[, fjoin.which.DT := .I][, na.omit(.SD, cols = "id"), .SDcols = c("id", "quantity", "fjoin.which.DT")][, fjoin.ind.DT := TRUE][.i, on = "id", data.frame(.join = fifelse(is.na(fjoin.ind.DT), 2L, 3L), id, item, price, quantity, fjoin.which.DT), allow.cartesian = TRUE])), rbind(fjoin.temp, setDT(.DT[!fjoin.temp$fjoin.which.DT, data.frame(id, quantity, fjoin.which.DT, .join = 1L)]), fill = TRUE))[, fjoin.which.DT := NULL])[]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Join: setDF(with(list(fjoin.temp = setDT(.DT[, fjoin.which.DT := .I][, na.omit(.SD, cols = "id"), .SDcols = c("id", "quantity", "fjoin.which.DT")][, fjoin.ind.DT := TRUE][.i, on = "id", data.frame(.join = fifelse(is.na(fjoin.ind.DT), 2L, 3L), id, item, price, quantity, fjoin.which.DT), allow.cartesian = TRUE])), rbind(fjoin.temp, setDT(.DT[!fjoin.temp$fjoin.which.DT, data.frame(id, quantity, fjoin.which.DT, .join = rep(1L, .N))]), fill = TRUE))[, fjoin.which.DT := NULL])[]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># ---------------------------------------------------------------------------</span></span></span>

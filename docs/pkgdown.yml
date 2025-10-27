@@ -1,10 +1,10 @@
-pandoc: '3.4'
+pandoc: 3.6.3
 pkgdown: 2.1.3
 pkgdown_sha: ~
 articles:
   fjoin-performance: fjoin-performance.html
   fjoin: fjoin.html
-last_built: 2025-09-24T19:17Z
+last_built: 2025-10-27T08:04Z
 urls:
   reference: https://trobx.github.io/fjoin/reference
   article: https://trobx.github.io/fjoin/articles

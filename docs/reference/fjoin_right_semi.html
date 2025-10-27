@@ -46,7 +46,7 @@ pre code, code {
 
     <a class="navbar-brand me-2" href="../index.html">fjoin</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -57,6 +57,7 @@ pre code, code {
       <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/fjoin.html">Get started</a></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="../articles/index.html">Articles</a></li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/trobx/fjoin/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
@@ -98,8 +99,8 @@ pre code, code {
 
 <dl><dt id="arg-x-y">x, y<a class="anchor" aria-label="anchor" href="#arg-x-y"></a></dt>
 <dd><p><code>data.frame</code>-like objects (plain, <code>data.table</code>,
-tibble, <code>sf</code>, <code>list</code>, etc.) or else both omitted
-(<code>NULL</code>) for a mock join statement with no data. See Details.</p></dd>
+tibble, <code>sf</code>, <code>list</code>, etc.) or else both omitted for a mock join
+statement with no data. See Details.</p></dd>
 
 
 <dt id="arg-on">on<a class="anchor" aria-label="anchor" href="#arg-on"></a></dt>
@@ -146,9 +147,9 @@ both omitted/<code>NULL</code>, mock join code is displayed.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A <code>data.frame</code>, <code>data.table</code>, tibble, <code>sf</code>, or
-<code>sf</code>-tibble, or else <code>NULL</code> if <code>do</code> is <code>FALSE</code>.
-See Details.</p>
+    <p>A <code>data.frame</code>, <code>data.table</code>, (grouped) tibble, <code>sf</code>,
+or <code>sf</code>-tibble, or else <code>NULL</code> if <code>do</code> is <code>FALSE</code>. See
+Details.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
