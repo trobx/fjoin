@@ -18,7 +18,7 @@ fjoin_right(
   select.y = NULL,
   prefix.y = "R.",
   on.first = FALSE,
-  preserve = FALSE,
+  both = FALSE,
   do = !(is.null(x) && is.null(y)),
   show = !do
 )
@@ -63,7 +63,7 @@ same as a column name in \code{x}. Default \code{"R."}.}
 \item{on.first}{Whether to place the join columns first in the join result.
 Default \code{FALSE}.}
 
-\item{preserve}{Whether to include \code{y}'s equality join column(s)
+\item{both}{Whether to include \code{y}'s equality join column(s)
 separately in the output, instead of combining them with \code{x}'s
 Default \code{FALSE}. Note that non-equality join columns from \code{x} are
 always included separately.}
@@ -139,8 +139,8 @@ In all other cases:
 
 \subsection{Using \code{mult.x} and \code{mult.y}}{
 See the Examples for an application of using \code{mult.x} and \code{mult.y}
-together. Note that \code{mult.y} is applied after \code{mult.x} except in a
-right join.
+together. Note that \code{mult.y} is applied after \code{mult.x} except with
+\code{order = "right"}.
 }
 
 \subsection{Displaying code and 'mock joins'}{
@@ -177,11 +177,11 @@ is used.
 }
 
 \subsection{\pkg{sf} objects and \code{sfc}-class columns}{
-Joins between two \code{sf} objects are supported. The relation-to-geometry
-attribute \code{agr} is inherited from the input supplying the active
-geometry. All \code{sfc}-class columns in the output are refreshed after
-joining (using \code{sf::st_sfc()} with \code{recompute_bbox = TRUE}); this
-is true regardless of whether or not the inputs and output are \code{sf}s.
+Joins between two \code{sf} objects are supported. The active geometry and
+relation-to-geometry attribute \code{agr} are determined by \code{x}. All
+\code{sfc}-class columns in the output are refreshed after joining (using
+\code{sf::st_sfc()} with \code{recompute_bbox = TRUE}); this is true
+regardless of whether or not the inputs and output are \code{sf}s.
 }
 }
 \examples{
@@ -251,7 +251,7 @@ NULL # section break
 # (an aside) equality matches on NA if you insist
 fjoin_full(dfQ, dfP, on = "id", select = c("item", "price", "quantity", "notes"), match.na = TRUE)
 
-# (3) indicator column (in Stata since 1985)
+# (3) indicator column (in Stata since 1984)
 fjoin_full(
   dfQ,
   dfP,

@@ -18,7 +18,7 @@ dtjoin(
   select = NULL,
   select.DT = NULL,
   select.i = NULL,
-  preserve = FALSE,
+  both = FALSE,
   on.first = FALSE,
   i.home = FALSE,
   i.first = i.home,
@@ -36,7 +36,7 @@ dtjoin(
 statement with no data.}
 
 \item{on}{A character vector of join predicates, e.g. \code{c("id", "col_DT
-== col_i", "date < date")}.}
+== col_i", "date < date", "cost <= budget")}.}
 
 \item{match.na}{If \code{TRUE}, allow equality matches between \code{NA}s or
 \code{NaN}s. Default \code{FALSE}.}
@@ -70,7 +70,7 @@ other (\code{select.DT}, \code{select.i}). \code{NULL} (the default)
 selects all columns. Use \code{""} or \code{NA} to select no columns. Join
 columns are always selected. See Details.}
 
-\item{preserve}{Whether to include equality join columns from the "foreign"
+\item{both}{Whether to include equality join columns from the "foreign"
 table separately in the output, instead of combining them with those from
 the "home" table. Default \code{FALSE}. Note that non-equality join columns
 from the foreign table are always included separately.}
