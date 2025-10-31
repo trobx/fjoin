@@ -270,7 +270,7 @@ pre.sourceCode {
 5 NA   apples    10       NA</code></pre>
 </div>
 </div>
-<p>This is equivalent to the following in <span class="pkgname">dplyr</span> (where the first two lines avoid inflating the size of the join with irrelevant columns):</p>
+<p>This is a lot easier to write and read than the equivalent operation in <span class="pkgname">dplyr</span> (where the first two lines avoid inflating the size of the join with irrelevant columns):</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="va">dfQ</span> <span class="op">|&gt;</span> <span class="fu">select</span><span class="op">(</span><span class="va">id</span>, <span class="va">quantity</span><span class="op">)</span></span>
@@ -320,7 +320,6 @@ pre.sourceCode {
 5     1 NA     &lt;NA&gt;    NA        8</code></pre>
 </div>
 </div>
-<p>With a full (or inner) join we could just swap the tables instead. But this feature works with left and right joins too.</p>
 </section><section class="level3"><h4 id="display-code-instead-of-executing">(5) Display code instead of executing<a class="anchor" aria-label="anchor" href="#display-code-instead-of-executing"></a>
 </h4>
 <p>For <span class="pkgname">data.table</span> users.</p>
@@ -495,7 +494,7 @@ Join: setDF(with(list(fjoin.temp = setDT(setDT(.i[, fjoin.which.i := .I][.DT[, f
 3    1    x1  &lt;NA&gt;</code></pre>
 </div>
 </div>
-<p>The difference in the <code>order</code> argument passed to <code>fjoin_*()</code> is reflected at <code><a href="../reference/dtjoin.html">dtjoin()</a></code> level in the identity of the tables passed to <code>.DT</code> and <code>.i</code>, the values of the extended arguments <code>nomatch.DT</code> and <code>mult.DT</code> (counterparts to the familiar <span class="pkgname">data.table</span> arguments <code>nomatch</code> and <code>mult</code> on the other side of the join), and a compensating argument <code>i.home</code> which toggles the “home” and “foreign” table for the purposes of column order and prefixing (as well as <code>indicate</code> and output class). <code><a href="../reference/dtjoin.html">dtjoin()</a></code> in turn translates these specifications into <span class="pkgname">data.table</span> code for execution. See the <code><a href="../reference/dtjoin.html">dtjoin()</a></code> documentation for full details of this extended <code>DT[i]</code>-style syntax.</p>
+<p>The difference in the <code>order</code> argument passed to <code>fjoin_*()</code> is reflected at <code><a href="../reference/dtjoin.html">dtjoin()</a></code> level in the identity of the tables passed to <code>.DT</code> and <code>.i</code>, the values of the extended arguments <code>nomatch.DT</code> and <code>mult.DT</code> (counterparts to the familiar <span class="pkgname">data.table</span> arguments <code>nomatch</code> and <code>mult</code> on the other side of the join), and a compensating argument <code>i.home</code> which toggles the “home” and “foreign” table for the purposes of column order and prefixing (as well as for <code>indicate</code> and output class). <code><a href="../reference/dtjoin.html">dtjoin()</a></code> in turn translates these specifications into <span class="pkgname">data.table</span> code for execution. See the <code><a href="../reference/dtjoin.html">dtjoin()</a></code> documentation for full details of this extended <code>DT[i]</code>-style syntax.</p>
 </section></section><section class="section level2"><h2 id="performance">Performance<a class="anchor" aria-label="anchor" href="#performance"></a>
 </h2>
 <div class="cell">
@@ -686,8 +685,8 @@ Geodetic CRS:  WGS 84</code></pre>
 <pre><code># A tibble: 2 × 3
   expression   median mem_alloc
   &lt;bch:expr&gt; &lt;bch:tm&gt; &lt;bch:byt&gt;
-1 data.table    552ms     752MB
-2 fjoin         231ms     367MB</code></pre>
+1 data.table    582ms     752MB
+2 fjoin         243ms     367MB</code></pre>
 </div>
 </div>
 <p>Here <span class="pkgname">fjoin</span> avoids a call to <code>as.data.table.data.frame</code> on the way in, and a call to <code>as.data.table.list</code> on the way out, both of which (currently) always deep-copy. The <code><a href="https://bench.r-lib.org/reference/mark.html" class="external-link">bench::mark</a></code> memory measurements <a href="https://rdatatable-community.github.io/The-Raft/posts/2025-07-14-memory_R-jangorecki/" target="_blank" class="external-link">exclude C-level allocations</a>, but the difference between them reflects these R-level copies. This behaviour will eventually change in <span class="pkgname">data.table</span>, at which point <span class="pkgname">fjoin</span> will revert to the more familiar <code>j = list()</code> idiom.</p>

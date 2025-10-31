@@ -17,8 +17,12 @@
 
 # fjoin <img src="man/figures/logo.png" align="right" width="120" alt="fjoin logo" />
 
-Fast and friendly data frame joins leveraging
-<span class="pkgname">data.table</span>
+**Fast and friendly data frame joins leveraging
+<span class="pkgname">data.table</span>**
+
+*Please view this on the [package
+website](https://trobx.github.io/fjoin/) and head to the [Get
+started](https://trobx.github.io/fjoin/articles/fjoin.html) guide next.*
 
 ## Description
 

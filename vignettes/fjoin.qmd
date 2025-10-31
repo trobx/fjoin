@@ -158,8 +158,9 @@ Use `select` to restrict the join to particular columns:
 fjoin_full(dfQ, dfP, on = "id", select = c("item", "price", "quantity"))
 ```
 
-This is equivalent to the following in `r pkg("dplyr")` (where the first two
-lines avoid inflating the size of the join with irrelevant columns):
+This is a lot easier to write and read than the equivalent operation in 
+`r pkg("dplyr")` (where the first two lines avoid inflating the size of the join
+with irrelevant columns):
 ```{r eval = FALSE}
 x <- dfQ |> select(id, quantity)
 y <- dfP |> select(id, item, price)
@@ -171,7 +172,6 @@ full_join(x, y, join_by(id), na.matches = "never") |>
 `1L`: left only, `2L`: right only, `3L`: joined from both. In Stata since
 1984!^[See p. 99 of the <a href="https://www.statalist.org/forums/forum/general-stata-discussion/general/1638352-stata-1-reference-manual-now-available-to-anyone-who-wants-it" target="_blank">Stata 1.0 manual</a>. 
 Thanks to Nick Cox for providing this link.]
-  
 
 ```{r}
 fjoin_full(
@@ -194,8 +194,6 @@ fjoin_full(
   order = "right"
 )
 ```
-With a full (or inner) join we could just swap the tables instead. But this
-feature works with left and right joins too.
 
 ### (5) Display code instead of executing
 For `r pkg("data.table")` users.
@@ -325,7 +323,7 @@ The difference in the `order` argument passed to `fjoin_*()` is reflected at
 values of the extended arguments `nomatch.DT` and `mult.DT` (counterparts to the
 familiar `r pkg("data.table")` arguments `nomatch` and `mult` on the other side
 of the join), and a compensating argument `i.home` which toggles the "home" and
-"foreign" table for the purposes of column order and prefixing (as well as
+"foreign" table for the purposes of column order and prefixing (as well as for
 `indicate` and output class). `dtjoin()` in turn translates these specifications
 into `r pkg("data.table")` code for execution. See the `dtjoin()` documentation
 for full details of this extended `DT[i]`-style syntax.
