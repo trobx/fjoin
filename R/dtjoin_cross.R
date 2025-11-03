@@ -246,7 +246,7 @@ dtjoin_cross <- function(
     if (asis.i) on.exit(drop_temp_cols(.i), add=TRUE)
     ans <- eval(parse(text=jointext), envir=list2env(list(.DT=.DT, .i=.i), parent=getNamespace("data.table")))
     if (as_DT) {
-      if (set_key) attr(ans, "sorted") <- key
+      if (set_key) data.table::setattr(ans, "sorted", key)
     } else{
       if (as_grouped_df) {
         ans <- dplyr::group_by(ans, !!!dplyr::syms(groups))
