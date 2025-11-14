@@ -14,8 +14,10 @@ check_arg_order <- function(x) {
     stop(sprintf("'%s' must be \"left\" or \"right\"", deparse(substitute(x))))
 }
 check_arg_on <- function(x) {
-  if (!(is.character(x) && length(x) > 0L && all(nzchar(x)) && !anyNA(x)))
-    stop(sprintf("'%s' must be a non-empty character vector with no empty strings or NAs", deparse(substitute(x))))
+  if (!(length(x) == 1L && is.na(x))) {
+    if (!(is.character(x) && length(x) > 0L && all(nzchar(x)) && !anyNA(x)))
+      stop(sprintf("'%s' must be a non-empty character vector with no empty strings or NAs", deparse(substitute(x))))
+  }
 }
 check_arg_select <- function(x) {
   if (!(is.null(x) || is.character(x) || ((length(x) == 1L && is.na(x)))))

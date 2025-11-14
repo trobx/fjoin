@@ -36,7 +36,8 @@ dtjoin(
 statement with no data.}
 
 \item{on}{A character vector of join predicates, e.g. \code{c("id", "col_DT
-== col_i", "date < date", "cost <= budget")}.}
+== col_i", "date < date", "cost <= budget")}, or else \code{NA} for a
+natural join (an equality join on all same-named columns).}
 
 \item{match.na}{If \code{TRUE}, allow equality matches between \code{NA}s or
 \code{NaN}s. Default \code{FALSE}.}
@@ -158,6 +159,13 @@ The following attributes are carried through and refreshed: \code{data.table}
 key, tibble \code{groups}, \code{sf} \code{agr} (and \code{bbox} etc. of all
 individual \code{sfc}-class columns regardless of output class). See below
 for specifics. Other classes and attributes are not carried through.
+}
+
+\subsection{Specifying join conditions with \code{on}}{
+\code{on} is a required argument. For a natural join (a join by equality on
+all same-named column pairs), you must specify \code{on = NA}; you can't just
+omit \code{on} as in other packages. This is to prevent a natural join being
+specified by mistake, which may then go unnoticed.
 }
 
 \subsection{Using \code{select}, \code{select.DT}, and \code{select.i}}{

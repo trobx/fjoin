@@ -27,7 +27,8 @@ dtjoin_anti(
 statement with no data.}
 
 \item{on}{A character vector of join predicates, e.g. \code{c("id", "col_DT
-== col_i", "date < date", "cost <= budget")}.}
+== col_i", "date < date", "cost <= budget")}, or else \code{NA} for a
+natural join (an equality join on all same-named columns).}
 
 \item{match.na}{If \code{TRUE}, allow equality matches between \code{NA}s or
 \code{NaN}s. Default \code{FALSE}.}

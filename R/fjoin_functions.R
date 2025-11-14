@@ -30,7 +30,8 @@
 #'   tibble, \code{sf}, \code{list}, etc.) or else both omitted for a mock join
 #'   statement with no data. See Details.
 #' @param on A character vector of join predicates, e.g. \code{c("id", "col_x ==
-#'   col_y", "date > date", "cost <= budget")}.
+#'   col_y", "date > date", "cost <= budget")}, or else \code{NA} for a natural
+#'   join (an equality join on all same-named columns).
 #' @param match.na Whether to allow equality matches between \code{NA}s or
 #'   \code{NaN}s. Default \code{FALSE}.
 #' @param mult.x When a row of \code{x} has multiple matching rows in \code{y},
@@ -56,7 +57,7 @@
 #' @param prefix.y A prefix to attach to column names in \code{y} that are the
 #'   same as a column name in \code{x}. Default \code{"R."}.
 #' @param both Whether to include \code{y}'s equality join column(s)
-#'   separately in the output, instead of combining them with \code{x}'s
+#'   separately in the output, instead of combining them with \code{x}'s.
 #'   Default \code{FALSE}. Note that non-equality join columns from \code{x} are
 #'   always included separately.
 #' @param do Whether to execute the join. If \code{FALSE}, \code{show} is set to
@@ -90,6 +91,13 @@
 #' key, tibble \code{groups}, \code{sf} \code{agr} (and \code{bbox} etc. of all
 #' individual \code{sfc}-class columns regardless of output class). See below
 #' for specifics.
+#' }
+#'
+#' \subsection{Specifying join conditions with \code{on}}{
+#' \code{on} is a required argument. For a natural join (a join by equality on
+#' all same-named column pairs), you must specify \code{on = NA}; you can't just
+#' omit \code{on} as in other packages. This is to prevent a natural join being
+#' specified by mistake, which may then go unnoticed.
 #' }
 #'
 #' \subsection{Using \code{select}, \code{select.x}, and \code{select.y}}{

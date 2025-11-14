@@ -22,7 +22,8 @@ tibble, \code{sf}, \code{list}, etc.) or else both omitted for a mock join
 statement with no data. See Details.}
 
 \item{on}{A character vector of join predicates, e.g. \code{c("id", "col_x ==
-col_y", "date > date", "cost <= budget")}.}
+col_y", "date > date", "cost <= budget")}, or else \code{NA} for a natural
+join (an equality join on all same-named columns).}
 
 \item{match.na}{Whether to allow equality matches between \code{NA}s or
 \code{NaN}s. Default \code{FALSE}.}

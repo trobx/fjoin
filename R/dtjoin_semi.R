@@ -62,8 +62,6 @@ dtjoin_semi <- function(
   dots <- list(...)
   check_dots_names(dots)
 
-  cols.on <- on_vec_to_df(on)
-
   mock <- is.null(.DT) && is.null(.i)
   if (mock) do <- FALSE
   if (!do) show <- TRUE
@@ -76,6 +74,13 @@ dtjoin_semi <- function(
         c(make_label_dtjoin(.DT, substitute(.DT)), make_label_dtjoin(.i, substitute(.i)))
       }
   }
+
+  if (length(on) == 1L && is.na(on)) {
+    if (mock) stop("A natural join ('on' = NA) requires non-NULL inputs")
+    on <- intersect(names(.DT), names(.i))
+    if (!length(on)) stop("Natural join requested ('on' = NA) but there are no columns with common names")
+  }
+  cols.on <- on_vec_to_df(on)
 
   if (mock) {
     tmp <- make_mock_tables(cols.on)
