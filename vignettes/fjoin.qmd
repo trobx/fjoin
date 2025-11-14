@@ -80,8 +80,9 @@ inequality conditions, plus cross joins.
 same-length vectors, and returns a plain `data.frame`, (grouped) tibble,
 `data.table`, `sf`, or `sf`-tibble. Refreshes dynamic attributes like `groups`,
 keys, `agr`, and `bbox` in the output.
-- **Performance:** Uses case-specific `r pkg("data.table")` solutions developed
-for high performance, and avoids data-copying at any stage for memory-efficiency.
+- **Performance:** Uses case-specific `r pkg("data.table")` solutions specially
+developed for high performance, and avoids data-copying at any stage for
+memory-efficiency.
 - **Transparency:** "Just works" for general users, but you can also view the
 resulting `r pkg("data.table")` code instead of (or as well as) executing it, or
 run “mock” joins without data that output template code.
@@ -470,10 +471,13 @@ or dedicated overlap joins (although these are easily written in terms of
 inequalities). These features will be added.
 
 The implementation of joins in the `r pkg("data.table")`-backed packages
-`r pkg("dtplyr")` and `r pkg("tidytable")` needs maintenance. It only supports
-equality joins, malfunctions in the presence of same-named non-join columns on
-each side (try it), and silently ignores `r pkg("dplyr")`'s additional join
-arguments such as `na.matches` and `multiple` (as well as `relationship`).
+`r pkg("dtplyr")` and `r pkg("tidytable")` needs maintenance. In both cases it
+only supports equality joins, malfunctions in the presence of same-named
+non-join columns on each side (try it), and silently ignores `r pkg("dplyr")`'s
+additional join arguments such as `na.matches` and `multiple` (as well as
+`relationship`). This is not to say that these packages aren't excellent
+tools, and of course they do vastly more than just joins. But do be aware of
+these limitations.
 
 # Notes for `r pkg("sf")` users
 
@@ -525,8 +529,9 @@ fjoin_left(as.data.frame(countries), as.data.frame(capitals), on = "country_id")
 `r pkg("data.table")`, while solving frustrations such as garbled join columns
 in inequality joins and the lack of an effective `incomparables` argument, and 
 providing other useful options. Even for very simple joins, there is no reason
-*not* to use it, since it has negligible overhead and can sometimes actually
-slightly outperform `merge` and even native `r pkg("data.table")` (see below).
+*not* to use it, since it has negligible overhead and if anything will actually
+slightly outperform `merge` (see above) and even native `r pkg("data.table")`
+(see below).
 
 That said, `r pkg("fjoin")` is not a comprehensive wrapper for 
 `r pkg("data.table")`'s rich join functionality. Some things it cannot do are:

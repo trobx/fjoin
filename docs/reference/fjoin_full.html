@@ -109,7 +109,8 @@ statement with no data. See Details.</p></dd>
 
 <dt id="arg-on">on<a class="anchor" aria-label="anchor" href="#arg-on"></a></dt>
 <dd><p>A character vector of join predicates, e.g. <code>c("id", "col_x ==
-col_y", "date &gt; date", "cost &lt;= budget")</code>.</p></dd>
+col_y", "date &gt; date", "cost &lt;= budget")</code>, or else <code>NA</code> for a natural
+join (an equality join on all same-named columns).</p></dd>
 
 
 <dt id="arg-match-na">match.na<a class="anchor" aria-label="anchor" href="#arg-match-na"></a></dt>
@@ -162,7 +163,7 @@ same as a column name in <code>x</code>. Default <code>"R."</code>.</p></dd>
 
 <dt id="arg-both">both<a class="anchor" aria-label="anchor" href="#arg-both"></a></dt>
 <dd><p>Whether to include <code>y</code>'s equality join column(s)
-separately in the output, instead of combining them with <code>x</code>'s
+separately in the output, instead of combining them with <code>x</code>'s.
 Default <code>FALSE</code>. Note that non-equality join columns from <code>x</code> are
 always included separately.</p></dd>
 
@@ -204,6 +205,14 @@ Details.</p>
 key, tibble <code>groups</code>, <code>sf</code> <code>agr</code> (and <code>bbox</code> etc. of all
 individual <code>sfc</code>-class columns regardless of output class). See below
 for specifics.</p>
+</div>
+
+<div class="section">
+<h3 id="specifying-join-conditions-with-on">Specifying join conditions with <code>on</code><a class="anchor" aria-label="anchor" href="#specifying-join-conditions-with-on"></a></h3>
+<p><code>on</code> is a required argument. For a natural join (a join by equality on
+all same-named column pairs), you must specify <code>on = NA</code>; you can't just
+omit <code>on</code> as in other packages. This is to prevent a natural join being
+specified by mistake, which may then go unnoticed.</p>
 </div>
 
 <div class="section">

@@ -4,7 +4,7 @@ pkgdown_sha: ~
 articles:
   fjoin-performance: fjoin-performance.html
   fjoin: fjoin.html
-last_built: 2025-10-31T03:58Z
+last_built: 2025-11-14T17:49Z
 urls:
   reference: https://trobx.github.io/fjoin/reference
   article: https://trobx.github.io/fjoin/articles
