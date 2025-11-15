@@ -80,7 +80,7 @@ pre code, code {
 
     <a class="navbar-brand me-2" href="../index.html">fjoin</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -411,8 +411,7 @@ is true regardless of whether or not the inputs and output are <code>sf</code>s.
 <span class="r-in"><span><span class="va">df_x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>id_x <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, col_x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"x"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span>, val <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">df_y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>id_y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">4</span><span class="op">:</span><span class="fl">2</span>, each <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>, col_y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"y"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">)</span>, val <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">6</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="cn">NULL</span> <span class="co"># section break</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
+<span class="r-in"><span><span class="co"># ---------------------------------------------------------------------------</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># (1) fjoin_left(df_x, df_y, on = "id_x == id_y", mult.x = "first")</span></span></span>
 <span class="r-in"><span><span class="fu">dtjoin</span><span class="op">(</span></span></span>

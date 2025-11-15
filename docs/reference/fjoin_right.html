@@ -44,7 +44,7 @@ pre code, code {
 
     <a class="navbar-brand me-2" href="../index.html">fjoin</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -316,8 +316,9 @@ regardless of whether or not the inputs and output are <code>sf</code>s.</p>
 <span class="r-in"><span><span class="st">  Denmark      15.8</span></span></span>
 <span class="r-in"><span><span class="st">"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="cn">NULL</span> <span class="co"># section break</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
+<span class="r-in"><span><span class="co"># ---------------------------------------------------------------------------</span></span></span>
+<span class="r-in"><span><span class="co"># `indicate = TRUE` adds a front column ".join" indicating whether a row is</span></span></span>
+<span class="r-in"><span><span class="co"># from `x` only (1L), from `y` only (2L), or joined from both (3L)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="fjoin_full.html">fjoin_full</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">y</span>, on <span class="op">=</span> <span class="st">"country"</span>, indicate <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .join   country pop_m forest_pc</span>
@@ -361,8 +362,7 @@ regardless of whether or not the inputs and output are <code>sf</code>s.</p>
 <span class="r-in"><span><span class="st"> 1    dates    40        ...</span></span></span>
 <span class="r-in"><span><span class="st"> "</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="cn">NULL</span> <span class="co"># section break</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
+<span class="r-in"><span><span class="co"># ---------------------------------------------------------------------------</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># (1) basic syntax</span></span></span>
 <span class="r-in"><span><span class="co"># cf. dplyr: full_join(dfQ, dfP, join_by(id), na.matches = "never")</span></span></span>
@@ -388,8 +388,7 @@ regardless of whether or not the inputs and output are <code>sf</code>s.</p>
 <span class="r-in"><span><span class="co"># y &lt;- dfP |&gt; select(id, item, price)</span></span></span>
 <span class="r-in"><span><span class="co"># full_join(x, y, join_by(id), na.matches = "never") |&gt;</span></span></span>
 <span class="r-in"><span><span class="co">#   select(id, item, price, quantity)</span></span></span>
-<span class="r-in"><span><span class="cn">NULL</span> <span class="co"># section break</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
+<span class="r-in"><span><span class="co"># ---------------------------------------------------------------------------</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># (an aside) equality matches on NA if you insist</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="fjoin_full.html">fjoin_full</a></span><span class="op">(</span><span class="va">dfQ</span>, <span class="va">dfP</span>, on <span class="op">=</span> <span class="st">"id"</span>, select <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"item"</span>, <span class="st">"price"</span>, <span class="st">"quantity"</span>, <span class="st">"notes"</span><span class="op">)</span>, match.na <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
@@ -471,8 +470,7 @@ regardless of whether or not the inputs and output are <code>sf</code>s.</p>
 <span class="r-in"><span><span class="st">          2          50</span></span></span>
 <span class="r-in"><span><span class="st">          3          60</span></span></span>
 <span class="r-in"><span><span class="st">"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="cn">NULL</span> <span class="co"># section break</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
+<span class="r-in"><span><span class="co"># ---------------------------------------------------------------------------</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># (1) for each event, all subsequent reactions (M:M)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="fjoin_left.html">fjoin_left</a></span><span class="op">(</span></span></span>
@@ -514,6 +512,25 @@ regardless of whether or not the inputs and output are <code>sf</code>s.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1        1       10          NA          NA</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2        2       20           1          30</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3        3       40           2          50</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># ---------------------------------------------------------------------------</span></span></span>
+<span class="r-in"><span><span class="co"># Natural join</span></span></span>
+<span class="r-in"><span><span class="co"># ---------------------------------------------------------------------------</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="fjoin_inner.html">fjoin_inner</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">y</span>, on <span class="op">=</span> <span class="cn">NA</span><span class="op">)</span> <span class="co"># note `NA` not `NULL`/omitted</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   country pop_m forest_pc</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  Brazil   212      59.1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2    Chad     3       3.2</span>
+<span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/try.html" class="external-link">try</a></span><span class="op">(</span><span class="fu"><a href="fjoin_left.html">fjoin_left</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">y</span><span class="op">)</span><span class="op">)</span> <span class="co"># to prevent accidental natural joins</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Error in fjoin_left(x, y) : argument "on" is missing, with no default</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># ---------------------------------------------------------------------------</span></span></span>
+<span class="r-in"><span><span class="co"># Mock join (code "ghostwriter" for data.table users)</span></span></span>
+<span class="r-in"><span><span class="co"># ---------------------------------------------------------------------------</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="fjoin_inner.html">fjoin_inner</a></span><span class="op">(</span>on <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"id"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> .DT : y (unnamed)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> .i  : x (unnamed)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Join: setDT(na.omit(.DT, cols = "id")[.i, on = "id", nomatch = NULL, data.frame(id = i.id, col_i, col_c = i.col_c, col_DT, R.col_c = col_c), allow.cartesian = TRUE])[]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
