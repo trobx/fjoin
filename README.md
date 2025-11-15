@@ -26,29 +26,28 @@ started](https://trobx.github.io/fjoin/articles/fjoin.html) guide next.*
 
 ## Description
 
-Extends <span class="pkgname">data.table</span> join functionality and
-provides a familiar `x`/`y`-style interface that works directly on any
-data frames. Provides NA-safe matching by default, on-the-fly column
-selection, flexible row-order preservation, multiple-match handling on
-both sides, and an indicator column for row origin. Supports inner,
-left, right, full, semi- and anti-joins with equality and inequality
-conditions, plus cross joins. Specific support for `data.table`,
-(grouped) tibble, and `sf`/`sfc` objects and their attributes; prudently
-returns a plain data frame otherwise. Avoids data-copying of inputs and
-outputs. Allows displaying the <span class="pkgname">data.table</span>
-code instead of (or as well as) executing it. Experimental but heavily
-tested; feedback and FRs welcome.
+Extends <span class="pkgname">data.table</span> join functionality, lets
+it work directly on any data frames, and adds a conventional
+`x`/`y`-style interface. Provides NA-safe matching by default,
+on-the-fly column selection, flexible row-order preservation,
+multiple-match handling on both sides, and an indicator column for row
+origin. Supports inner, left, right, full, semi- and anti-joins with
+equality and inequality conditions, plus cross joins. Specific support
+for `data.table`, (grouped) tibble, and `sf`/`sfc` objects and their
+attributes; prudently returns a plain data frame otherwise. Avoids
+data-copying of inputs and outputs. Allows displaying the
+<span class="pkgname">data.table</span> code instead of (or as well as)
+executing it. Experimental but heavily tested; feedback and FRs welcome.
 
 ## Installation
 
-<!-- 
-Stable release from CRAN:
-```r
+Stable release (CRAN):
+
+``` r
 install.packages("fjoin")
 ```
--->
 
-Latest version from [R-universe](https://trobx.r-universe.dev):
+Latest development version ([R-universe](https://trobx.r-universe.dev)):
 
 ``` r
 install.packages("fjoin",

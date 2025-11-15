@@ -33,9 +33,9 @@ head to the
 
 ## Description
 
-Extends `r pkg("data.table")` join functionality and provides a familiar
-`x`/`y`-style interface that works directly on any data frames. Provides NA-safe
-matching by default, on-the-fly column selection, flexible row-order
+Extends `r pkg("data.table")` join functionality, lets it work directly on 
+any data frames, and adds a conventional `x`/`y`-style interface. Provides
+NA-safe matching by default, on-the-fly column selection, flexible row-order
 preservation, multiple-match handling on both sides, and an indicator column for
 row origin. Supports inner, left, right, full, semi- and anti-joins with
 equality and inequality conditions, plus cross joins. Specific support for
@@ -47,14 +47,12 @@ welcome.
 
 ## Installation
 
-<!-- 
-Stable release from CRAN:
+Stable release (CRAN):
 ```r
 install.packages("fjoin")
 ```
--->
- 
-Latest version from [R-universe](https://trobx.r-universe.dev):
+
+Latest development version ([R-universe](https://trobx.r-universe.dev)):
 ```r
 install.packages("fjoin",
   repos = c("https://trobx.r-universe.dev", "https://cloud.r-project.org"))
