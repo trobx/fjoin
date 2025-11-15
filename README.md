@@ -41,11 +41,12 @@ executing it. Experimental but heavily tested; feedback and FRs welcome.
 
 ## Installation
 
+<!--
 Stable release (CRAN):
-
-``` r
+```r
 install.packages("fjoin")
 ```
+&#10;-->
 
 Latest development version ([R-universe](https://trobx.r-universe.dev)):
 

@@ -47,11 +47,13 @@ welcome.
 
 ## Installation
 
+<!--
 Stable release (CRAN):
 ```r
 install.packages("fjoin")
 ```
 
+-->
 Latest development version ([R-universe](https://trobx.r-universe.dev)):
 ```r
 install.packages("fjoin",
