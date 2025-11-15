@@ -1,5 +1,4 @@
-# ------------------------------------------------------------------------------
-# as-is data.table inputs left intact
+# as-is data.table inputs left intact-------------------------------------------
 test_that("as-is data.table inputs left intact", {
   addr_A <- data.table::address(DT_A)
   DT_A_copy <- data.table::copy(DT_A)
@@ -21,15 +20,32 @@ test_that("as-is data.table inputs left intact", {
   expect_true(all.equal(DT_B, DT_B_copy))
 })
 
-# ------------------------------------------------------------------------------
-# invalid input
+# data.table outputs do not trigger shallow copy when assigned to------------------
+test_that("data.table outputs are good to go", {
+  ans <- fjoin_inner(data.table::setkey(data.table::copy(DT_A),"id_A"),DT_B,on=c("id_A==id_B"))
+  attr(ans, "sorted") <- "id_A" # previously used this, now `setattr(ans, "sorted", key)`
+  expect_warning(ans[, new := 1L], "^A shallow copy of this data.table")
+
+  ans <- fjoin_inner(data.table::setkey(data.table::copy(DT_A),"id_A"),DT_B,on=c("id_A==id_B"))
+  expect_no_warning(ans[, new := 1L])
+  ans <- fjoin_semi(data.table::setkey(data.table::copy(DT_A),"id_A"),DT_B,on=c("id_A==id_B"))
+  expect_no_warning(ans[, new := 1L])
+  ans <- fjoin_anti(data.table::setkey(data.table::copy(DT_A),"id_A"),DT_B,on=c("id_A==id_B"))
+  expect_no_warning(ans[, new := 1L])
+  ans <- fjoin_cross(data.table::setkey(data.table::copy(DT_A),"id_A"),DT_B)
+  expect_no_warning(ans[, new := 1L])
+
+  rm(ans)
+})
+
+# invalid .DT, .i input---------------------------------------------------------
 test_that("invalid input", {
   expect_error(dtjoin(DF_A,letters,on="id"), "^'.i' must be")
   expect_error(dtjoin(letters,letters,on="id"), "^'.DT' must be")
 })
 
-# ------------------------------------------------------------------------------
-# zero-length outputs (esp. with indicate and setDF(list()))
+
+# zero-length outputs (esp. with indicate and setDF(list()))--------------------
 test_that("empty output", {
   x <- data.frame(id=1)
   y <- data.frame(id=2)
@@ -56,8 +72,40 @@ test_that("right join with empty inner join and indicate", {
   expect_no_error(fjoin_right(x,y,on="id",indicate=TRUE))
 })
 
-# ------------------------------------------------------------------------------
-# mock joins
+# natural joins-----------------------------------------------------------------
+df1 <- data.frame(id=1:3,a=c("a","a","b"),v1=1L)
+df2 <- data.frame(id=2:4,a=c("a","a","b"),v2=2L)
+df3 <- df2; names(df3) <- c("i","j","k")
+
+test_that("natural joins", {
+  expect_identical(dtjoin(df1,df2,on=NA), dtjoin(df1,df2,on=intersect(names(df1),names(df2))))
+  expect_identical(dtjoin_semi(df1,df2,on=NA), dtjoin_semi(df1,df2,on=intersect(names(df1),names(df2))))
+  expect_identical(dtjoin_anti(df1,df2,on=NA), dtjoin_anti(df1,df2,on=intersect(names(df1),names(df2))))
+})
+test_that("'on' is a required argument", {
+  expected_error <- "argument \"on\" is missing, with no default"
+  expect_error(dtjoin(df1,df2), expected_error)
+  expect_error(dtjoin_semi(df1,df2), expected_error)
+  expect_error(dtjoin_anti(df1,df2), expected_error)
+})
+test_that("natural join fails if no common names", {
+  expected_error <- "Natural join requested \\('on' = NA\\) but there are no columns with common names"
+  expect_error(dtjoin(df1,df3,on=NA), expected_error)
+  expect_error(dtjoin_semi(df1,df3,on=NA), expected_error)
+  expect_error(dtjoin_anti(df1,df3,on=NA), expected_error)
+})
+test_that("mock natural join is not allowed", {
+  expected_error <- "A natural join \\('on' = NA\\) requires non-NULL inputs"
+  expect_error(dtjoin(on=NA), expected_error)
+  expect_error(dtjoin_semi(on=NA), expected_error)
+  expect_error(dtjoin_anti(on=NA), expected_error)
+  expected_error <- "'on' must be a non-empty character vector with no empty strings or NAs"
+  expect_error(dtjoin(on=c(NA,NA)))
+  expect_error(dtjoin_semi(on=c(NA,NA)))
+  expect_error(dtjoin_anti(on=c(NA,NA)))
+})
+
+# mock joins--------------------------------------------------------------------
 test_that("dtjoin mock", {
   expect_output(dtjoin(on="id"))
   expect_null(dtjoin(on="id"))
@@ -82,8 +130,7 @@ test_that("dtjoin_cross mock", {
   expect_no_error(dtjoin_cross())
 })
 
-# ------------------------------------------------------------------------------
-# non-valid/reserved column names
+# non-valid/reserved column names-----------------------------------------------
 test_that("non-valid column name", {
   x <- data.table::data.table(id=1, `non valid`=1L)
   y <- data.table::copy(x)
@@ -115,8 +162,7 @@ test_that("reserved join column name in mock join", {
   dtjoin(on=c("blah_fjoin.")) |> expect_no_error()
 })
 
-# ------------------------------------------------------------------------------
-# non-existent join columns
+# non-existent join columns-----------------------------------------------------
 test_that("dtjoin non-existent join column .DT", {
   dtjoin(DF_A, DF_B, on=c("id_A == id_B", "foo == col1")) |>
     expect_error("Join column\\(s\\) not found in `.DT`: foo")
@@ -147,8 +193,7 @@ test_that("dtjoin_anti non-existent join column .i", {
     expect_error("Join column\\(s\\) not found in `.i`: foo")
 })
 
-# ------------------------------------------------------------------------------
-# na.match=FALSE but no equality predicates
+# na.match=FALSE but no equality predicates-------------------------------------
 test_that("na.match=FALSE with no equality predicates", {
   out <- capture.output(dtjoin(DF_A, DF_B, on=c("t_A > t_B"), do=FALSE))
   expect_false(any(grepl("na\\.omit", out)))
