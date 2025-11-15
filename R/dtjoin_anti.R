@@ -13,7 +13,11 @@
 #' @inherit dtjoin_semi params return details seealso
 #'
 #' @examples
-#' # TODO
+#' # Mock joins
+#'
+#' dtjoin_anti(on = "id")
+#' dtjoin_anti(on = c("id", "date <= date"))
+#' dtjoin_anti(on = c("id", "date <= date"), mult = "last")
 #'
 #' @export
 dtjoin_anti <- function(

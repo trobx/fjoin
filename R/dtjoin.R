@@ -213,7 +213,7 @@
 #' df_x <- data.frame(id_x = 1:3, col_x = paste0("x", 1:3), val = runif(3))
 #' df_y <- data.frame(id_y = rep(4:2, each = 2), col_y = paste0("y", 1:6), val = runif(6))
 #'
-#' NULL # section break
+#' # ---------------------------------------------------------------------------
 #'
 #' # (1) fjoin_left(df_x, df_y, on = "id_x == id_y", mult.x = "first")
 #' dtjoin(

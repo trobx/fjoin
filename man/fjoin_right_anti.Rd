@@ -110,7 +110,7 @@ reaction_id reaction_ts
           2          50
           3          60
 ")
-NULL # section break
+# ---------------------------------------------------------------------------
 
 # for each event, the next reaction, provided there was no intervening event (1:1)
 fjoin_full(
@@ -137,6 +137,22 @@ fjoin_anti(
   mult.x = "first",
   mult.y = "last"
 )
+
+# ---------------------------------------------------------------------------
+# Natural join
+# ---------------------------------------------------------------------------
+fjoin_semi(x, y, on = NA)
+
+fjoin_anti(x, y, on = NA)
+
+# ---------------------------------------------------------------------------
+# Mock join
+# ---------------------------------------------------------------------------
+fjoin_semi(on="id")
+
+fjoin_semi(on=c("id", "date"))
+
+fjoin_semi(on=c("id"), mult.y = "last")
 
 }
 \seealso{

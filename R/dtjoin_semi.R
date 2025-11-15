@@ -25,7 +25,12 @@
 #' the order and prefixing of output columns, which do not apply.
 #'
 #' @examples
-#' # TODO
+#' # Mock joins
+#'
+#' dtjoin_semi(on = "id")
+#' dtjoin_semi(on = c("id", "date <= date"))
+#' dtjoin_semi(on = c("id", "date <= date"), mult = "last")
+#'
 #'
 #' @export
 dtjoin_semi <- function(

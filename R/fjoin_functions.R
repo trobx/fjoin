@@ -202,7 +202,9 @@
 #'   Denmark      15.8
 #' ")
 #'
-#' NULL # section break
+#' # ---------------------------------------------------------------------------
+#' # `indicate = TRUE` adds a front column ".join" indicating whether a row is
+#' # from `x` only (1L), from `y` only (2L), or joined from both (3L)
 #'
 #' fjoin_full(x, y, on = "country", indicate = TRUE)
 #' fjoin_left(x, y, on = "country", indicate = TRUE)
@@ -230,7 +232,7 @@
 #'  1    dates    40        ...
 #'  ")
 #'
-#' NULL # section break
+#' # ---------------------------------------------------------------------------
 #'
 #' # (1) basic syntax
 #' # cf. dplyr: full_join(dfQ, dfP, join_by(id), na.matches = "never")
@@ -244,7 +246,7 @@
 #' # y <- dfP |> select(id, item, price)
 #' # full_join(x, y, join_by(id), na.matches = "never") |>
 #' #   select(id, item, price, quantity)
-#' NULL # section break
+#' # ---------------------------------------------------------------------------
 #'
 #' # (an aside) equality matches on NA if you insist
 #' fjoin_full(dfQ, dfP, on = "id", select = c("item", "price", "quantity", "notes"), match.na = TRUE)
@@ -305,7 +307,7 @@
 #'           2          50
 #'           3          60
 #' ")
-#' NULL # section break
+#' # ---------------------------------------------------------------------------
 #'
 #' # (1) for each event, all subsequent reactions (M:M)
 #' fjoin_left(
@@ -330,6 +332,17 @@
 #'   mult.x = "first",
 #'   mult.y = "last"
 #' )
+#'
+#' # ---------------------------------------------------------------------------
+#' # Natural join
+#' # ---------------------------------------------------------------------------
+#' fjoin_inner(x, y, on = NA) # note `NA` not `NULL`/omitted
+#' try(fjoin_left(x, y)) # to prevent accidental natural joins
+#'
+#' # ---------------------------------------------------------------------------
+#' # Mock join (code "ghostwriter" for data.table users)
+#' # ---------------------------------------------------------------------------
+#' fjoin_inner(on = c("id"))
 #'
 #' @export
 fjoin_inner <- function(
@@ -608,7 +621,7 @@ fjoin_full <- function(
 #'           2          50
 #'           3          60
 #' ")
-#' NULL # section break
+#' # ---------------------------------------------------------------------------
 #'
 #' # for each event, the next reaction, provided there was no intervening event (1:1)
 #' fjoin_full(
@@ -635,6 +648,22 @@ fjoin_full <- function(
 #'   mult.x = "first",
 #'   mult.y = "last"
 #' )
+#'
+#' # ---------------------------------------------------------------------------
+#' # Natural join
+#' # ---------------------------------------------------------------------------
+#' fjoin_semi(x, y, on = NA)
+#'
+#' fjoin_anti(x, y, on = NA)
+#'
+#' # ---------------------------------------------------------------------------
+#' # Mock join
+#' # ---------------------------------------------------------------------------
+#' fjoin_semi(on="id")
+#'
+#' fjoin_semi(on=c("id", "date"))
+#'
+#' fjoin_semi(on=c("id"), mult.y = "last")
 #'
 #' @export
 fjoin_left_semi <- function(

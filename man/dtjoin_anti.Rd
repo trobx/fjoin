@@ -79,7 +79,11 @@ Details are as for \code{\link{dtjoin}} except for arguments controlling
 the order and prefixing of output columns, which do not apply.
 }
 \examples{
-# TODO
+# Mock joins
+
+dtjoin_anti(on = "id")
+dtjoin_anti(on = c("id", "date <= date"))
+dtjoin_anti(on = c("id", "date <= date"), mult = "last")
 
 }
 \seealso{
