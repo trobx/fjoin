@@ -138,10 +138,8 @@ pre.sourceCode {
   pointer-events: none;
 }
 </style>
-<section class="section level2"><h2 id="description">Description<a class="anchor" aria-label="anchor" href="#description"></a>
-</h2>
 <p><span class="pkgname">fjoin</span> builds on <span class="pkgname">data.table</span> to provide fast, flexible joins on any data frames. It slots into tidyverse pipelines and general workflows in a single line, and provides NA-safe matching by default, on-the-fly column selection, flexible row-order preservation, multiple-match handling on both sides, and an indicator column for row origin.</p>
-</section><section class="section level2"><h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+<section class="section level2"><h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
 <!--
 Stable release (CRAN):
@@ -150,7 +148,7 @@ install.packages("fjoin")
 ```
 
 -->
-<p><span class="pkgname">fjoin</span> is currently in submission to CRAN.</p>
+<p><span class="pkgname">fjoin</span> is currently in submission with CRAN.</p>
 <p>Latest development version (<a href="https://trobx.r-universe.dev" class="external-link">R-universe</a>):</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"fjoin"</span>,</span>
@@ -278,7 +276,7 @@ install.packages("fjoin")
 5 NA   apples    10       NA</code></pre>
 </div>
 </div>
-<p>This is a lot easier to write and read than the equivalent operation in <span class="pkgname">dplyr</span> (where the first two lines avoid inflating the size of the join with irrelevant columns):</p>
+<p>This is easier to write and read than the equivalent operation in <span class="pkgname">dplyr</span>, where the first two lines avoid inflating the size of the join with irrelevant columns:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="va">dfQ</span> <span class="op">|&gt;</span> <span class="fu">select</span><span class="op">(</span><span class="va">id</span>, <span class="va">quantity</span><span class="op">)</span></span>
@@ -288,7 +286,7 @@ install.packages("fjoin")
 </div>
 </section><section class="level3"><h4 id="indicator-column-for-row-origin">(3) Indicator column for row origin<a class="anchor" aria-label="anchor" href="#indicator-column-for-row-origin"></a>
 </h4>
-<p><code>1L</code>: left only, <code>2L</code>: right only, <code>3L</code>: joined from both. In Stata since 1984!<a class="footnote-ref" role="doc-noteref" tabindex="0" data-bs-toggle="popover" data-bs-content='&lt;p&gt;See p. 99 of the &lt;a href="https://www.statalist.org/forums/forum/general-stata-discussion/general/1638352-stata-1-reference-manual-now-available-to-anyone-who-wants-it" target="_blank" class="external-link"&gt;Stata 1.0 manual&lt;/a&gt;. Thanks to Nick Cox for providing this link.&lt;/p&gt;'><sup>1</sup></a></p>
+<p><code>1L</code>: left only, <code>2L</code>: right only, <code>3L</code>: joined from both. In Stata since 1984!<a class="footnote-ref" role="doc-noteref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;See p. 99 of the Stata 1 reference manual, which has been linked to on Statalist and can be found by searching online. Thanks to Nick Cox for providing the links, which can’t be shared here as they are behind Cloudflare and trip CRAN checks.&lt;/p&gt;"><sup>1</sup></a></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/fjoin_full.html">fjoin_full</a></span><span class="op">(</span></span>
@@ -542,7 +540,7 @@ Join: setDF(with(list(fjoin.temp = setDT(setDT(.i[, fjoin.which.i := .I][.DT[, f
 </div>
 </div>
 <p>Please note that <span class="pkgname">fjoin</span>, for now, has no equivalent of <code>dplyr::*_join()</code>’s <code>relationship</code> validation: it is silent and permissive about cardinality. It also doesn’t yet support rolling joins on unordered data, which <span class="pkgname">dplyr</span> implements elegantly via a helper function in <code>join_by</code>, or dedicated overlap joins (although these are easily written in terms of inequalities). These features will be added.</p>
-<p>The implementation of joins in the <span class="pkgname">data.table</span>-backed packages <span class="pkgname">dtplyr</span> and <span class="pkgname">tidytable</span> needs maintenance. In both cases it only supports equality joins, malfunctions in the presence of same-named non-join columns on each side (try it), and silently ignores <span class="pkgname">dplyr</span>’s additional join arguments such as <code>na.matches</code> and <code>multiple</code> (as well as <code>relationship</code>). This is not to say that these packages aren’t excellent tools, and of course they do vastly more than just joins. But do be aware of these limitations.</p>
+<p>The implementation of joins in the <span class="pkgname">data.table</span>-backed packages <span class="pkgname">dtplyr</span> and <span class="pkgname">tidytable</span> needs maintenance. In both cases it only supports equality joins, malfunctions in the presence of same-named non-join columns on each side (try it), and silently ignores <span class="pkgname">dplyr</span>’s additional join arguments such as <code>na.matches</code> and <code>multiple</code> (as well as <code>relationship</code>). These packages are excellent tools, and of course they do vastly more than just joins, but do be aware of these limitations.</p>
 </section><section class="section level2"><h2 id="notes-for-sf-users">Notes for <span class="pkgname">sf</span> users<a class="anchor" aria-label="anchor" href="#notes-for-sf-users"></a>
 </h2>
 <div class="cell">
@@ -693,12 +691,12 @@ Geodetic CRS:  WGS 84</code></pre>
 <pre><code># A tibble: 2 × 3
   expression   median mem_alloc
   &lt;bch:expr&gt; &lt;bch:tm&gt; &lt;bch:byt&gt;
-1 data.table    382ms     752MB
-2 fjoin         171ms     367MB</code></pre>
+1 data.table    417ms     752MB
+2 fjoin         179ms     367MB</code></pre>
 </div>
 </div>
 <p>Here <span class="pkgname">fjoin</span> avoids a call to <code>as.data.table.data.frame</code> on the way in, and a call to <code>as.data.table.list</code> on the way out, both of which (currently) always deep-copy. The <code><a href="https://bench.r-lib.org/reference/mark.html" class="external-link">bench::mark</a></code> memory measurements <a href="https://rdatatable-community.github.io/The-Raft/posts/2025-07-14-memory_R-jangorecki/" target="_blank" class="external-link">exclude C-level allocations</a>, but the difference between them reflects these R-level copies. This behaviour will eventually change in <span class="pkgname">data.table</span>, at which point <span class="pkgname">fjoin</span> will revert to the more familiar <code>j = list()</code> idiom.</p>
-<p>Finally, please note that <code><a href="../reference/dtjoin.html">dtjoin()</a></code> differs from <span class="pkgname">data.table</span> in its preservation of keys. In a <span class="pkgname">data.table</span> <code>DT[i]</code> join, the output inherits the key of <code>DT</code> provided it happens to remain sorted on those columns; this is consistent with <span class="pkgname">data.table</span>’s conception that <code>DT[i]</code> joins are a subsetting-like operation on <code>DT</code>, even though it is the <code>i</code>-table that dictates the row order. With <code><a href="../reference/dtjoin.html">dtjoin()</a></code>, the output always inherits the key of <code>.i</code> (unless the non-joining rows of <code>.DT</code> are appended, in which case the key is <code>NULL</code> since sortedness on <code>.i</code>’s key columns can no longer be guaranteed). This design choice ensures intuitive behaviour of the <code>fjoin_*()</code> functions: for example, <code>fjoin_left(x, y)</code> with the default <code>order = "left"</code> preserves <code>x</code>’s key, as a user would surely expect.</p>
+<p>Finally, please note that <code><a href="../reference/dtjoin.html">dtjoin()</a></code> differs from <span class="pkgname">data.table</span> in its preservation of keys. In a <span class="pkgname">data.table</span> <code>DT[i]</code> join, the output inherits the key of <code>DT</code> provided it happens to remain sorted on those columns; this is consistent with <span class="pkgname">data.table</span>’s conception of joins as a subsetting-like operation on <code>DT</code>, even though it is the <code>i</code>-table that dictates the row order. With <code><a href="../reference/dtjoin.html">dtjoin()</a></code>, the output always inherits the key of <code>.i</code> (unless the non-joining rows of <code>.DT</code> are appended, in which case the key is <code>NULL</code> since sortedness on <code>.i</code>’s key columns can no longer be guaranteed). This design choice ensures intuitive behaviour of the <code>fjoin_*()</code> functions: for example, <code>fjoin_left(x, y)</code> with the default <code>order = "left"</code> preserves <code>x</code>’s key, as a user would surely expect.</p>
 </section><section class="section level2"><h2 id="internals">“Internals”<a class="anchor" aria-label="anchor" href="#internals"></a>
 </h2>
 <p>With <code>match.na = FALSE</code> (the default), <span class="pkgname">fjoin</span> inspects the data and, if the join permits, chooses which table to omit <code>NA</code>-containing rows from using a heuristic. The only thing that is not reflected in the <span class="pkgname">data.table</span> code that <span class="pkgname">fjoin</span> produces are the input and output handling steps:</p>
