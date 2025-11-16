@@ -40,11 +40,14 @@ instead of (or as well as) executing it.
 
 ## Installation
 
+<!--
 Stable release (CRAN):
-
-``` r
+```r
 install.packages("fjoin")
 ```
+&#10;-->
+
+<span class="pkgname">fjoin</span> is currently in submission with CRAN.
 
 Latest development version ([R-universe](https://trobx.r-universe.dev)):
 
