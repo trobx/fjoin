@@ -1,7 +1,7 @@
 Package: fjoin
 Type: Package
-Title: Data Frame Joins Leveraging 'data.table'
-Version: 0.1.0.9000
+Title: Universal Data Frame Joins Leveraging 'data.table'
+Version: 0.1.0
 Authors@R: c(
     person(
       "Toby", "Robertson",
@@ -9,16 +9,16 @@ Authors@R: c(
       role = c("aut", "cre")
     )
   )
-Description: Extends 'data.table' join functionality, lets it work directly on 
-  any data frames, and adds a conventional 'x'/'y'-style interface. Provides
-  NA-safe matching by default, on-the-fly column selection, flexible row-order
-  preservation, multiple-match handling on both sides, and an indicator column
-  for row origin. Supports inner, left, right, full, semi- and anti-joins with
-  equality and inequality conditions, plus cross joins. Specific support for
-  'data.table', (grouped) tibble, and 'sf'/'sfc' objects and their attributes;
-  prudently returns a plain data frame otherwise. Avoids data-copying of inputs
-  and outputs. Allows displaying the 'data.table' code instead of (or as well
-  as) executing it.
+Description: Extends 'data.table' join functionality, lets it work with any
+  data frame class, and provides a familiar 'x'/'y'-style interface, enabling
+  broad use across R. Offers NA-safe matching by default, on-the-fly column
+  selection, multiple match-handling on both sides, 'x' or 'y' row order, and a
+  row origin indicator. Performs inner, left, right, full, semi- and anti-joins
+  with equality and inequality conditions, plus cross joins. Specific support
+  for 'data.table', (grouped) tibble, and 'sf'/'sfc' objects and their
+  attributes; returns a plain data frame otherwise. Avoids data-copying of
+  inputs and outputs. Allows displaying the 'data.table' code instead of (or as
+  well as) executing it.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Depends: R (>= 3.3.0)
@@ -32,7 +32,7 @@ Suggests:
     quarto,
     bench,
     ggplot2
-URL: https://trobx.github.io/fjoin
+URL: https://trobx.github.io/fjoin/
 BugReports: https://github.com/trobx/fjoin/issues
 Config/testthat/edition: 3
 VignetteBuilder: knitr, quarto

@@ -7,7 +7,7 @@
 
 <a href="https://trobx.r-universe.dev"><img src="https://trobx.r-universe.dev/badges/fjoin" alt="R-universe version"></a>
 <a href="https://github.com/trobx/fjoin/actions/workflows/R-CMD-check.yaml"><img src="https://github.com/trobx/fjoin/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a>
-<a href="https://codecov.io/gh/trobx/fjoin"><img src="https://codecov.io/gh/trobx/fjoin/branch/main/graph/badge.svg?token=CMINLAO40Y" alt="codecov"></a>
+<a href="https://app.codecov.io/gh/trobx/fjoin"><img src="https://codecov.io/gh/trobx/fjoin/branch/main/graph/badge.svg?token=CMINLAO40Y" alt="codecov"></a>
 <!-- <a href="https://tinyverse.netlify.app/badge/fjoin"><img src="https://tinyverse.netlify.app/badge/fjoin" alt="Dependencies (tinyverse)"></a> -->
 <a><img src="https://img.shields.io/badge/dependencies-1/1-green" alt="Dependencies (placeholder)"></a>
 <a href="https://lifecycle.r-lib.org/articles/stages.html#experimental"><img src="https://img.shields.io/badge/lifecycle-experimental-orange.svg" alt="Lifecycle: experimental"></a>
@@ -17,7 +17,7 @@
 
 # fjoin <img src="man/figures/logo.png" align="right" width="120" alt="fjoin logo" />
 
-**Fast and friendly data frame joins leveraging
+**Universal data frame joins leveraging
 <span class="pkgname">data.table</span>**
 
 *Please view this on the [package
@@ -27,26 +27,24 @@ started](https://trobx.github.io/fjoin/articles/fjoin.html) guide next.*
 ## Description
 
 Extends <span class="pkgname">data.table</span> join functionality, lets
-it work directly on any data frames, and adds a conventional
-`x`/`y`-style interface. Provides NA-safe matching by default,
-on-the-fly column selection, flexible row-order preservation,
-multiple-match handling on both sides, and an indicator column for row
-origin. Supports inner, left, right, full, semi- and anti-joins with
-equality and inequality conditions, plus cross joins. Specific support
-for `data.table`, (grouped) tibble, and `sf`/`sfc` objects and their
-attributes; prudently returns a plain data frame otherwise. Avoids
-data-copying of inputs and outputs. Allows displaying the
-<span class="pkgname">data.table</span> code instead of (or as well as)
-executing it. Experimental but heavily tested; feedback and FRs welcome.
+it work with any data frame class, and provides a familiar `x`/`y`-style
+interface, enabling broad use across R. Offers NA-safe matching by
+default, on-the-fly column selection, multiple match-handling on both
+sides, `x` or `y` row order, and a row origin indicator. Performs inner,
+left, right, full, semi- and anti-joins with equality and inequality
+conditions, plus cross joins. Specific support for `data.table`,
+(grouped) tibble, and `sf`/`sfc` objects and their attributes; returns a
+plain data frame otherwise. Avoids data-copying of inputs and outputs.
+Allows displaying the <span class="pkgname">data.table</span> code
+instead of (or as well as) executing it.
 
 ## Installation
 
-<!--
 Stable release (CRAN):
-```r
+
+``` r
 install.packages("fjoin")
 ```
-&#10;-->
 
 Latest development version ([R-universe](https://trobx.r-universe.dev)):
 

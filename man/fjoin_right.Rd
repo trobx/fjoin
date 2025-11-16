@@ -35,13 +35,9 @@ join (an equality join on all same-named columns).}
 \item{match.na}{Whether to allow equality matches between \code{NA}s or
 \code{NaN}s. Default \code{FALSE}.}
 
-\item{mult.x}{When a row of \code{x} has multiple matching rows in \code{y},
-which to accept: \code{"all"} (the default), \code{"first"}, or
-\code{"last"}.}
-
-\item{mult.y}{When a row of \code{y} has multiple matching rows in \code{x},
-which to accept: \code{"all"} (the default), \code{"first"}, or
-\code{"last"}. Can be combined with \code{mult.x}.}
+\item{mult.x, mult.y}{When a row of \code{x} (\code{y}) has multiple matching
+rows in \code{y} (\code{x}), which to accept: \code{"all"} (the default),
+\code{"first"}, or \code{"last"}. May be used in combination.}
 
 \item{indicate}{Whether to add a column \code{".join"}  at the front of the
 result, with values \code{1L} if from \code{x} only, \code{2L} if from

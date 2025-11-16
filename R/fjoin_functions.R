@@ -34,12 +34,9 @@
 #'   join (an equality join on all same-named columns).
 #' @param match.na Whether to allow equality matches between \code{NA}s or
 #'   \code{NaN}s. Default \code{FALSE}.
-#' @param mult.x When a row of \code{x} has multiple matching rows in \code{y},
-#'   which to accept: \code{"all"} (the default), \code{"first"}, or
-#'   \code{"last"}.
-#' @param mult.y When a row of \code{y} has multiple matching rows in \code{x},
-#'   which to accept: \code{"all"} (the default), \code{"first"}, or
-#'   \code{"last"}. Can be combined with \code{mult.x}.
+#' @param mult.x,mult.y When a row of \code{x} (\code{y}) has multiple matching
+#'   rows in \code{y} (\code{x}), which to accept: \code{"all"} (the default),
+#'   \code{"first"}, or \code{"last"}. May be used in combination.
 #' @param select,select.x,select.y Character vectors of columns to be selected
 #'   from either input if present (\code{select}) or specifically from one or
 #'   other of them (e.g. \code{select.x}). \code{NULL} (the default) selects

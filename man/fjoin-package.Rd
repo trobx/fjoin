@@ -34,7 +34,7 @@ or access locally in R with \code{vignette("fjoin")}.
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://trobx.github.io/fjoin}
+  \item \url{https://trobx.github.io/fjoin/}
   \item Report bugs at \url{https://github.com/trobx/fjoin/issues}
 }
 

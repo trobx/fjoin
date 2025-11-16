@@ -56,8 +56,6 @@ pkg <- function(x) {
 }
 ```  
   
-# Description
-
 `r pkg("fjoin")` builds on `r pkg("data.table")` to provide fast, flexible joins
 on any data frames. It slots into tidyverse pipelines and general workflows in a
 single line, and provides NA-safe matching by default, on-the-fly column
@@ -66,14 +64,10 @@ sides, and an indicator column for row origin.
 
 # Installation
 
-<!--
 Stable release (CRAN):
 ```r
 install.packages("fjoin")
 ```
-
--->
-`r pkg("fjoin")` is currently in submission to CRAN.
 
 Latest development version ([R-universe](https://trobx.r-universe.dev)):
 ```r
@@ -168,9 +162,9 @@ Use `select` to restrict the join to particular columns:
 fjoin_full(dfQ, dfP, on = "id", select = c("item", "price", "quantity"))
 ```
 
-This is a lot easier to write and read than the equivalent operation in 
-`r pkg("dplyr")` (where the first two lines avoid inflating the size of the join
-with irrelevant columns):
+This is easier to write and read than the equivalent operation in 
+`r pkg("dplyr")`, where the first two lines avoid inflating the size of the join
+with irrelevant columns:
 ```{r eval = FALSE}
 x <- dfQ |> select(id, quantity)
 y <- dfP |> select(id, item, price)
@@ -180,8 +174,10 @@ full_join(x, y, join_by(id), na.matches = "never") |>
 
 ### (3) Indicator column for row origin
 `1L`: left only, `2L`: right only, `3L`: joined from both. In Stata since
-1984!^[See p. 99 of the <a href="https://www.statalist.org/forums/forum/general-stata-discussion/general/1638352-stata-1-reference-manual-now-available-to-anyone-who-wants-it" target="_blank">Stata 1.0 manual</a>. 
-Thanks to Nick Cox for providing this link.]
+1984!^[See p. 99 of the Stata 1 reference manual, which has been linked to on
+Statalist and can be found by searching online. Thanks to Nick Cox for providing
+the links, which can't be shared here as they are behind Cloudflare and trip
+CRAN checks.]
 
 ```{r}
 fjoin_full(
@@ -484,9 +480,8 @@ The implementation of joins in the `r pkg("data.table")`-backed packages
 only supports equality joins, malfunctions in the presence of same-named
 non-join columns on each side (try it), and silently ignores `r pkg("dplyr")`'s
 additional join arguments such as `na.matches` and `multiple` (as well as
-`relationship`). This is not to say that these packages aren't excellent
-tools, and of course they do vastly more than just joins. But do be aware of
-these limitations.
+`relationship`). These packages are excellent tools, and of course they do
+vastly more than just joins, but do be aware of these limitations.
 
 # Notes for `r pkg("sf")` users
 
@@ -627,8 +622,8 @@ will revert to the more familiar `j = list()` idiom.
 Finally, please note that `dtjoin()` differs from `r pkg("data.table")` in
 its preservation of keys. In a `r pkg("data.table")` `DT[i]` join, the output
 inherits the key of `DT` provided it happens to remain sorted on those
-columns; this is consistent with `r pkg("data.table")`'s conception that
-`DT[i]` joins are a subsetting-like operation on `DT`, even though it is the
+columns; this is consistent with `r pkg("data.table")`'s conception of
+joins as a subsetting-like operation on `DT`, even though it is the
 `i`-table that dictates the row order. With `dtjoin()`, the output always
 inherits the key of `.i` (unless the non-joining rows of `.DT` are appended, in
 which case the key is `NULL` since sortedness on `.i`'s key columns can no
