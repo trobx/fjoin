@@ -46,13 +46,13 @@ it.
 
 ## Installation
 
+<!--
 Stable release (CRAN):
 ```r
 install.packages("fjoin")
 ```
-<!--
-`r pkg("fjoin")` is currently in submission with CRAN.
 -->
+`r pkg("fjoin")` is currently in submission with CRAN.
 
 Latest development version ([R-universe](https://trobx.r-universe.dev)):
 ```r
