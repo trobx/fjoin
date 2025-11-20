@@ -146,7 +146,6 @@ Stable release (CRAN):
 ```r
 install.packages("fjoin")
 ```
-
 -->
 <p><span class="pkgname">fjoin</span> is currently in submission with CRAN.</p>
 <p>Latest development version (<a href="https://trobx.r-universe.dev" class="external-link">R-universe</a>):</p>
@@ -222,7 +221,7 @@ install.packages("fjoin")
 </h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://trobx.github.io/fjoin">fjoin</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://trobx.github.io/fjoin/">fjoin</a></span><span class="op">)</span></span>
 <span><span class="va">read_df</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="va">x</span>, quote <span class="op">=</span> <span class="st">"'"</span>, data.table <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 </div>
 <section class="level2"><h3 id="example-1-basic-use-and-options">Example 1: Basic use and options<a class="anchor" aria-label="anchor" href="#example-1-basic-use-and-options"></a>
@@ -570,9 +569,12 @@ Geometry type: POLYGON
 Dimension:     XY
 Bounding box:  xmin: 1 ymin: 1 xmax: 3 ymax: 3
 Geodetic CRS:  WGS 84
-  country_id country_name                  country_shape capital_name     capital_loc
-1          2    Country B POLYGON ((1 1, 2 1, 2 2, 1 ...       City B POINT (1.5 1.5)
-2          3    Country C POLYGON ((2 2, 3 2, 3 3, 2 ...       City C POINT (2.5 2.5)</code></pre>
+  country_id country_name                  country_shape capital_name
+1          2    Country B POLYGON ((1 1, 2 1, 2 2, 1 ...       City B
+2          3    Country C POLYGON ((2 2, 3 2, 3 3, 2 ...       City C
+      capital_loc
+1 POINT (1.5 1.5)
+2 POINT (2.5 2.5)</code></pre>
 </div>
 </div>
 <p>This is useful in workflows where you want to hold multiple geometries in the same <code>sf</code> data frame. In <span class="pkgname">dplyr</span> such joins are prohibited:</p>
@@ -691,8 +693,8 @@ Geodetic CRS:  WGS 84</code></pre>
 <pre><code># A tibble: 2 × 3
   expression   median mem_alloc
   &lt;bch:expr&gt; &lt;bch:tm&gt; &lt;bch:byt&gt;
-1 data.table    417ms     752MB
-2 fjoin         179ms     367MB</code></pre>
+1 data.table    415ms     752MB
+2 fjoin         171ms     367MB</code></pre>
 </div>
 </div>
 <p>Here <span class="pkgname">fjoin</span> avoids a call to <code>as.data.table.data.frame</code> on the way in, and a call to <code>as.data.table.list</code> on the way out, both of which (currently) always deep-copy. The <code><a href="https://bench.r-lib.org/reference/mark.html" class="external-link">bench::mark</a></code> memory measurements <a href="https://rdatatable-community.github.io/The-Raft/posts/2025-07-14-memory_R-jangorecki/" target="_blank" class="external-link">exclude C-level allocations</a>, but the difference between them reflects these R-level copies. This behaviour will eventually change in <span class="pkgname">data.table</span>, at which point <span class="pkgname">fjoin</span> will revert to the more familiar <code>j = list()</code> idiom.</p>
