@@ -25,10 +25,10 @@ pkg <- function(name) {
 }
 ```  
 # fjoin <img src="man/figures/logo.png" align="right" width="120" alt="fjoin logo" />
-**Universal data frame joins leveraging `r pkg("data.table")`**
+**Data frame joins leveraging `r pkg("data.table")`**
 
-*Please view this on the [package website](https://trobx.github.io/fjoin/) and
-head to the 
+*Please view this page on the [package website](https://trobx.github.io/fjoin/)
+and head to the 
 [Get started](https://trobx.github.io/fjoin/articles/fjoin.html) guide next.*
 
 ## Description
@@ -46,14 +46,13 @@ it.
 
 ## Installation
 
-<!--
 Stable release (CRAN):
 ```r
 install.packages("fjoin")
 ```
-
--->
+<!--
 `r pkg("fjoin")` is currently in submission with CRAN.
+-->
 
 Latest development version ([R-universe](https://trobx.r-universe.dev)):
 ```r

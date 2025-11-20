@@ -49,7 +49,9 @@ pre.sourceCode {
 </style>
 
 ```{r setup, include=FALSE}
-options(width = 100) # console output width 100 characters (default 80) 
+# https://contributor.r-project.org/cran-cookbook/code_issues.html#change-of-options-graphical-parameters-and-working-directory
+old <- options(width = 100)  # console output width 100 chars (default 80)
+on.exit(options(old))
 pkg <- function(x) {
   # style "pkgname" is defined in _pkgdown.yml 
   sprintf('<span class="pkgname">%s</span>', x)
@@ -64,15 +66,14 @@ sides, and an indicator column for row origin.
 
 # Installation
 
-<!--
 Stable release (CRAN):
 ```r
 install.packages("fjoin")
 ```
 
--->
+<!--
 `r pkg("fjoin")` is currently in submission with CRAN.
-
+-->
 Latest development version ([R-universe](https://trobx.r-universe.dev)):
 ```r
 install.packages("fjoin",

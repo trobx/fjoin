@@ -17,10 +17,9 @@
 
 # fjoin <img src="man/figures/logo.png" align="right" width="120" alt="fjoin logo" />
 
-**Universal data frame joins leveraging
-<span class="pkgname">data.table</span>**
+**Data frame joins leveraging <span class="pkgname">data.table</span>**
 
-*Please view this on the [package
+*Please view this page on the [package
 website](https://trobx.github.io/fjoin/) and head to the [Get
 started](https://trobx.github.io/fjoin/articles/fjoin.html) guide next.*
 
@@ -40,14 +39,15 @@ instead of (or as well as) executing it.
 
 ## Installation
 
-<!--
 Stable release (CRAN):
-```r
+
+``` r
 install.packages("fjoin")
 ```
-&#10;-->
 
+<!--
 <span class="pkgname">fjoin</span> is currently in submission with CRAN.
+-->
 
 Latest development version ([R-universe](https://trobx.r-universe.dev)):
 
