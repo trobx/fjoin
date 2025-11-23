@@ -231,7 +231,7 @@ dtjoin_anti <- function(
         sprintf("%s[!%s, on = %s%s%s]",
                 .DTtext,
                 .itext,
-                deparse(on_df_to_vec(cols.on)),
+                deparse1(on_df_to_vec(cols.on)),
                 if (has_select) sprintf(", %s", jtext) else "",
                 argtext_verbose)
       }
@@ -242,7 +242,7 @@ dtjoin_anti <- function(
             .DTtext,
             .DTtext,
             .itext,
-            deparse(on_df_to_vec(cols.on)),
+            deparse1(on_df_to_vec(cols.on)),
             deparse(mult),
             argtext_verbose,
             if (has_select) sprintf(", %s", jtext) else "")
@@ -254,7 +254,7 @@ dtjoin_anti <- function(
             .DTtext,
             .itext,
             .DTtext,
-            deparse(on_df_to_vec(cols.on, flip=TRUE)),
+            deparse1(on_df_to_vec(cols.on, flip=TRUE)),
             deparse(mult.DT),
             argtext_verbose,
             if (has_select) sprintf(", %s]", jtext) else "][, fjoin.which.DT := NULL][]")

@@ -48,7 +48,7 @@ check_names <- function(x) {
   if (any(grepl("^fjoin\\.", names(x))))
     stop(sprintf(
       "Column names beginning with \"fjoin.\" are reserved. Found in '%s': %s",
-      deparse(substitute(x)),
+      deparse1(substitute(x)),
       paste(names(x)[grep("^fjoin.", names(x))], collapse = ", ")))
 }
 check_input_class <- function(x) {
@@ -103,13 +103,13 @@ na_omit_text <- function(x, na_cols=NULL, sd_cols=NULL) {
     if (is.null(na_cols)) {
       sprintf("na.omit(%s)", x)
     } else {
-      sprintf("na.omit(%s, cols = %s)", x, deparse(na_cols))
+      sprintf("na.omit(%s, cols = %s)", x, deparse1(na_cols))
     }
   } else {
     if (is.null(na_cols) || identical(na_cols, sd_cols)) {
-      sprintf("%s[, na.omit(.SD), .SDcols = %s]", x, deparse(sd_cols))
+      sprintf("%s[, na.omit(.SD), .SDcols = %s]", x, deparse1(sd_cols))
     } else {
-      sprintf("%s[, na.omit(.SD, cols = %s), .SDcols = %s]", x, deparse(na_cols), deparse(sd_cols))
+      sprintf("%s[, na.omit(.SD, cols = %s), .SDcols = %s]", x, deparse1(na_cols), deparse1(sd_cols))
     }
   }
 }
@@ -209,10 +209,16 @@ on_df_to_vec <- function(df, flip = FALSE) {
   }
 }
 # ------------------------------------------------------------------------------
+if(getRversion() < "4.0") {
+  # Back-port base::deparse1() utility if necessary
+  deparse1 <- function(expr, collapse = " ", width.cutoff = 500L, ...)
+    paste(deparse(expr, width.cutoff, ...), collapse = collapse)
+}
+# ------------------------------------------------------------------------------
 vcat <- function(x) {
-  cat(deparse(substitute(x)),": ",paste(x,collapse=", "),"\n", sep="")
+  cat(deparse1(substitute(x)),": ",paste(x,collapse=", "),"\n", sep="")
 }
 vprint <- function(x) {
-  cat(deparse(substitute(x)),"\n")
+  cat(deparse1(substitute(x)),"\n")
   print(x)
 }

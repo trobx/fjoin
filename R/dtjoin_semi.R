@@ -265,7 +265,7 @@ dtjoin_semi <- function(
         sprintf("%s[%s, on = %s, nomatch = NULL, mult = %s, %s%s]",
                 .itext,
                 .DTtext,
-                deparse(on_df_to_vec(cols.on, flip=TRUE)),
+                deparse1(on_df_to_vec(cols.on, flip=TRUE)),
                 if (has_mult.DT) deparse(mult.DT) else "\"first\"",
                 jtext,
                 argtext_verbose)
@@ -294,7 +294,7 @@ dtjoin_semi <- function(
               .DTtext,
               .DTtext,
               .itext,
-              deparse(on_df_to_vec(cols.on)),
+              deparse1(on_df_to_vec(cols.on)),
               deparse(mult),
               argtext_verbose,
               jtext
