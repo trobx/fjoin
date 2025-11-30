@@ -46,12 +46,18 @@ pre.sourceCode {
   text-decoration: none !important;
   pointer-events: none;
 }
+/* 4. Reduce code and output font sizes and line spacing */
+div.sourceCode pre,
+pre.sourceCode,
+.cell-output-stdout pre,
+.cell-output-display pre,
+.cell-output pre {
+  font-size: 0.90em !important;
+  line-height: 1.2em !important;
+}
 </style>
 
 ```{r setup, include=FALSE}
-# https://contributor.r-project.org/cran-cookbook/code_issues.html#change-of-options-graphical-parameters-and-working-directory
-old <- options(width = 100)  # console output width 100 chars (default 80)
-on.exit(options(old))
 pkg <- function(x) {
   # style "pkgname" is defined in _pkgdown.yml 
   sprintf('<span class="pkgname">%s</span>', x)
@@ -146,11 +152,11 @@ NA   apples    10        ...
 ")
 
 dfQ <- read_df("
-id quantity                   notes other_cols
- 2        5                      ''        ...
- 1        6                      ''        ...
- 3        7                      ''        ...
-NA        8  'oranges (not listed)'        ...
+id quantity      notes  other_cols
+ 2        5         ''         ...
+ 1        6         ''         ...
+ 3        7         ''         ...
+NA        8  'oranges'         ...
 ")
 ```
 
