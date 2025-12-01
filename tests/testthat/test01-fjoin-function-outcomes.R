@@ -1,6 +1,3 @@
-
-# TODO test mult args in fjoin functions
-
 # ------------------------------------------------------------------------------
 make_A <- function() {
   data.table::data.table(id=as.integer(c(1,2,2,3,NA,NA)))[, c := paste0("row A", .I)]

@@ -311,6 +311,8 @@ dtjoin <- function(
       }
   }
 
+  default_prefix <- (!i.home && prefix=="i.") || (i.home && prefix=="x.")
+
   if (length(on) == 1L && is.na(on)) {
     if (mock) stop("A natural join ('on' = NA) requires non-NULL inputs")
     on <- intersect(names(.DT), names(.i))
@@ -396,129 +398,79 @@ dtjoin <- function(
   cols.DT$is_nonjoincol <- if (is.null(select.DT)) !cols.DT$is_joincol else !cols.DT$is_joincol & (cols.DT$name %in% select.DT)
   cols.i$is_nonjoincol  <- if (is.null(select.i)) !cols.i$is_joincol else !cols.i$is_joincol & (cols.i$name %in% select.i)
 
+  data.table::set(cols.DT, NULL, "is_col", cols.DT$is_joincol | cols.DT$is_nonjoincol)
+  data.table::set(cols.i, NULL, "is_col", cols.i$is_joincol | cols.i$is_nonjoincol)
+  data.table::set(cols.DT, which(cols.DT$is_col), "collide", cols.DT$name[cols.DT$is_col] %in% cols.i$name)
+  data.table::set(cols.i, which(cols.i$is_col), "collide", cols.i$name[cols.i$is_col] %in% cols.DT$name)
+
+  cols.on$both <- cols.on$op != "==" | both
+
   ### join column jvars ###
 
-  if (case %in% c(1L, 3L)) {
-    # Cases 1 and 3: jvars used at stage 1 select-on-join
+  cols.on$jvar.DT <-
 
-    if (!i.home) {
-      # .DT home table
+    if (case %in% c(1L, 3L)) {
+      # Cases 1 and 3: jvars used at stage 1 select-on-join (garbling applies)
 
-      # equality and not preserve both:
-      #   (id, id)   -> (id, NULL)  (id garbles to id=i.id)
-      #   (id1, id2) -> (id1, NULL) (id1 garbles to id1=i.id2)
-      # otherwise preserve both:
-      #   (id, id)   -> (id=x.id, PREF.id=id)
-      #   (id1, id2) -> (id1=x.id1, id2) (*)
-      # (*) if name collision outside the predicate:
-      #   .DT side: (no action)
-      #   .i  side: PREF.id2 = i.id2 (TODO only PREF if the .DT collider is selected)
-
-      cols.on$jvar.DT <-
+      if (!i.home) {
+        # .DT home table
         data.table::fifelse(
-          cols.on$op == "==" & !both,
-          cols.on$joincol.DT,
-          sprintf("%s = x.%s", cols.on$joincol.DT, cols.on$joincol.DT))
-
-      cols.on$jvar.i  <-
+          test = cols.on$both,
+          no   = data.table::fifelse(
+            # data.table gotcha: unlike bare `x[i]`, with explicit `x[i,j]` we don't get garbling when <dtjncol> collides with an <inonjncol>
+            test = (cols.on$joincol.DT != cols.on$joincol.i) & cols.DT$collide[cols.on$idx.DT],
+            yes  = sprintf("%s = i.%s", cols.on$joincol.DT, cols.on$joincol.i),  # manually garble
+            no   = cols.on$joincol.DT), # auto garbles
+          yes    = sprintf("%s = x.%s", cols.on$joincol.DT, cols.on$joincol.DT))
+      } else {
+        # .i home table
         data.table::fifelse(
-          cols.on$op == "==" & !both,
-          NA_character_,
-          data.table::fifelse(
-            cols.on$joincol.i %in% cols.DT$name,
-            sprintf("%s%s = i.%s", prefix, cols.on$joincol.i, cols.on$joincol.i),
-            cols.on$joincol.i))
+          test = cols.on$both,
+          no   = NA_character_,
+          yes  = data.table::fifelse(
+            test = cols.DT$collide[cols.on$idx.DT],
+            yes  = if (default_prefix) sprintf("x.%s", cols.on$joincol.DT) else sprintf("%s%s = x.%s", prefix, cols.on$joincol.DT, cols.on$joincol.DT),
+            no   = sprintf("%s = x.%s", cols.on$joincol.DT, cols.on$joincol.DT)))
+      }
 
     } else {
-      # .i home table
+      # Cases 2 and 4: jvars used at stage 2 join on fjoin.which.i
 
-      # equality and not preserve both:
-      #   (id, id)   -> (NULL, id)  (id garbles to id=i.id)
-      #   (id1, id2) -> (NULL, id2) (no garbling) (*)
-      # otherwise preserve both:
-      #   (id, id)   -> (PREF.id=x.id, id) (id garbles to id=i.id)
-      #   (id1, id2) -> (id1=x.id1, id2)   (avoid id1 garbling) (*)
-      # (*) if name collision outside the predicate:
-      #   .DT side: PREF.id1 = x.id1 (TODO only PREF if the .i collider is selected)
-      #   .i  side: id2 = i.id2 (and the .DT collider will get prefixed if selected)
-
-      cols.on$jvar.DT <-
+      if (!i.home) {
+        # .DT home table
         data.table::fifelse(
-          cols.on$op == "==" & !both,
-          NA_character_,
-          data.table::fifelse(
-            cols.on$joincol.DT %in% cols.i$name,
-            sprintf("%s%s = x.%s", prefix, cols.on$joincol.DT, cols.on$joincol.DT),
-            sprintf("%s = x.%s", cols.on$joincol.DT, cols.on$joincol.DT)))
-
-      cols.on$jvar.i  <-
+          test = cols.on$both,
+          no   = sprintf("%s = i.%s", cols.on$joincol.DT, cols.on$joincol.i), # manually garble
+          yes  = cols.on$joincol.DT)
+      } else {
+        # .i home table
         data.table::fifelse(
-          cols.on$joincol.i %in% cols.DT$name,
-          sprintf("%s = i.%s", cols.on$joincol.i, cols.on$joincol.i),
-          cols.on$joincol.i)
+          test = cols.on$both,
+          no   = NA_character_,
+          yes  = data.table::fifelse(
+            test = cols.DT$collide[cols.on$idx.DT],
+            yes  = if (default_prefix) sprintf("x.%s", cols.on$joincol.DT) else sprintf("%s%s = %s", prefix, cols.on$joincol.DT, cols.on$joincol.DT),
+            no   = sprintf("%s = %s", cols.on$joincol.DT, cols.on$joincol.DT)))
+      }
     }
 
-  } else {
-    # Cases 2 and 4: jvars used at stage 2 join onto .i on fjoin.which.i (not the on arg)
-
+  cols.on$jvar.i <-
     if (!i.home) {
       # .DT home table
-
-      # equality and not preserve both:
-      #   (id, id)   -> (id=i.id, NULL) (manually garble)
-      #   (id1, id2) -> (id1=i.id2, NULL) (manually garble)
-      # otherwise preserve both:
-      #   (id, id)   -> (id, PREF.id=i.id) (do not garble)
-      #   (id1, id2) -> (id1, id2)         (do not garble) (*)
-      # (*) if name collision outside the predicate:
-      #   .DT side: (no action)
-      #   .i  side: PREF.id2 = i.id2 (TODO only PREF if the .DT collider is selected)
-
-      cols.on$jvar.DT <-
-        data.table::fifelse(
-          cols.on$op == "==" & !both,
-          data.table::fifelse(
-            cols.on$joincol.DT %in% cols.i$name,
-            sprintf("%s = i.%s", cols.on$joincol.DT, cols.on$joincol.DT),
-            sprintf("%s = %s", cols.on$joincol.DT, cols.on$joincol.i)),
-          cols.on$joincol.DT)
-
-      cols.on$jvar.i  <-
-        data.table::fifelse(
-          cols.on$op == "==" & !both,
-          NA_character_,
-          data.table::fifelse(
-            cols.on$joincol.i %in% cols.DT$name,
-            sprintf("%s%s = i.%s", prefix, cols.on$joincol.i, cols.on$joincol.i),
-            cols.on$joincol.i))
-
+      data.table::fifelse(
+        test = cols.on$both,
+        no   = NA_character_,
+        yes  = data.table::fifelse(
+          test = cols.i$collide[cols.on$idx.i],
+          yes  = if (default_prefix) sprintf("i.%s", cols.on$joincol.i) else sprintf("%s%s = i.%s", prefix, cols.on$joincol.i, cols.on$joincol.i),
+          no   = cols.on$joincol.i))
     } else {
       # .i home table
-
-      # equality and not preserve both:
-      #   (id, id)   -> (NULL, id=i.id) (manually garble)
-      #   (id1, id2) -> (NULL, id2)     (no garbling)
-      # otherwise preserve both:
-      #   (id, id)   -> (PREF.id=id, id=i.id) (do not garble)
-      #   (id1, id2) -> (id1, id2)            (do not garble)
-
-      cols.on$jvar.DT <-
-        data.table::fifelse(
-          cols.on$op == "==" & !both,
-          NA_character_,
-          data.table::fifelse(
-            cols.on$joincol.DT %in% cols.i$name,
-            sprintf("%s%s = %s", prefix, cols.on$joincol.DT, cols.on$joincol.DT),
-            cols.on$joincol.DT))
-
-      cols.on$jvar.i  <-
-        data.table::fifelse(
-          cols.on$joincol.i %in% cols.DT$joincol.names,
-          sprintf("%s = i.%s", cols.on$joincol.i, cols.on$joincol.i),
-          cols.on$joincol.i)
-
+      data.table::fifelse(
+        test = cols.i$collide[cols.on$idx.i],
+        yes  = sprintf("%s = i.%s", cols.on$joincol.i, cols.on$joincol.i),
+        no   = cols.on$joincol.i)
     }
-  }
 
   data.table::set(cols.DT, cols.on$idx.DT, "jvar", cols.on$jvar.DT)
   data.table::set(cols.i, cols.on$idx.i, "jvar", cols.on$jvar.i)
@@ -534,7 +486,7 @@ dtjoin <- function(
         cols.i$is_nonjoincol,
         data.table::fifelse(
           cols.i$name %in% cols.DT$name,
-          sprintf("%s%s = i.%s",prefix,cols.i$name,cols.i$name), cols.i$name),
+          if (default_prefix) sprintf("i.%s",cols.i$name) else sprintf("%s%s = i.%s",prefix,cols.i$name,cols.i$name), cols.i$name),
         cols.i$jvar)
   } else {
     # (c,c) -> (PREF.c=c,c=i.c)
@@ -543,7 +495,7 @@ dtjoin <- function(
         cols.DT$is_nonjoincol,
         data.table::fifelse(
           cols.DT$name %in% cols.i$name,
-          sprintf("%s%s = %s",prefix,cols.DT$name,cols.DT$name),
+          if (default_prefix) sprintf("x.%s",cols.DT$name) else sprintf("%s%s = %s",prefix,cols.DT$name,cols.DT$name),
           cols.DT$name),
         cols.DT$jvar)
     cols.i$jvar  <-
@@ -568,6 +520,7 @@ dtjoin <- function(
       list(name          = "fjoin.which.DT",
            is_joincol    = FALSE,
            is_nonjoincol = TRUE,
+           collide       = FALSE,
            jvar          = "fjoin.which.DT",
            has_jvar      = TRUE),
       use.names = TRUE,
@@ -577,22 +530,25 @@ dtjoin <- function(
 
     if (i.home) {
       # apply garbling and prefixing to .DT's columns in anti-join
-
-      # non-join cols: copy from jvar i.e. if name collision, v -> x.v
-      cols.DT$jvar_anti <- data.table::fifelse(cols.DT$is_nonjoincol, cols.DT$jvar, NA_character_)
-
-      # join cols:
+      # non-join cols
+      cols.DT$jvar_anti <- data.table::fcase(
+        cols.DT$is_nonjoincol,
+          data.table::fcase(cols.DT$collide,
+                              sprintf("%s%s = %s", prefix, cols.DT$name, cols.DT$name),
+                            default = cols.DT$name),
+        default = NA_character_)
+      # join cols
       cols.on$jvar_anti.DT <-
-        data.table::fcase(
-          cols.on$op == "==" & !both & cols.on$joincol.DT != cols.on$joincol.i,
-            # equality and not preserve both, and different names: id1 -> id2
-            sprintf("%s = %s", cols.on$joincol.i, cols.on$joincol.DT),
-          # (cols.on$op != "==" | both) & cols.on$joincol.DT == cols.on$joincol.i,
-          (cols.on$op != "==" | both) & cols.on$joincol.DT %in% cols.i$name,
-          # preserve both, and same names: id -> PREF.id=id
-            sprintf("%s%s = %s", prefix, cols.on$joincol.DT, cols.on$joincol.DT),
-          default = cols.on$joincol.DT
-      )
+        data.table::fifelse(
+          test = cols.on$both,
+          no   = data.table::fifelse(
+            test = cols.on$joincol.i != cols.on$joincol.DT,
+            yes  = sprintf("%s = %s", cols.on$joincol.i, cols.on$joincol.DT),
+            no   = cols.on$joincol.DT),
+          yes  = data.table::fifelse(
+            test = cols.DT$collide[cols.on$idx.DT],
+            yes  = sprintf("%s%s = %s", prefix, cols.on$joincol.DT, cols.on$joincol.DT),
+            no   = cols.on$joincol.DT))
       data.table::set(cols.DT, cols.on$idx.DT, "jvar_anti", cols.on$jvar_anti.DT)
     }
   }
