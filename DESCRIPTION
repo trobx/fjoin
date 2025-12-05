@@ -1,7 +1,7 @@
 Package: fjoin
 Type: Package
 Title: Data Frame Joins Leveraging 'data.table'
-Version: 0.1.0.9000
+Version: 0.1.0
 Authors@R: c(
     person(
       "Toby", "Robertson",
