@@ -235,6 +235,9 @@
 #' # cf. dplyr: full_join(dfQ, dfP, join_by(id), na.matches = "never")
 #' fjoin_full(dfQ, dfP, on = "id")
 #'
+#' # (an aside) equality matches on NA if you insist
+#' fjoin_full(dfQ, dfP, on = "id", select = c("item", "price", "quantity", "notes"), match.na = TRUE)
+#'
 #' # (2) join-select in one line
 #' fjoin_full(dfQ, dfP, on = "id", select = c("item", "price", "quantity"))
 #'
@@ -243,10 +246,6 @@
 #' # y <- dfP |> select(id, item, price)
 #' # full_join(x, y, join_by(id), na.matches = "never") |>
 #' #   select(id, item, price, quantity)
-#' # ---------------------------------------------------------------------------
-#'
-#' # (an aside) equality matches on NA if you insist
-#' fjoin_full(dfQ, dfP, on = "id", select = c("item", "price", "quantity", "notes"), match.na = TRUE)
 #'
 #' # (3) indicator column (in Stata since 1984)
 #' fjoin_full(
@@ -334,7 +333,7 @@
 #' # Natural join
 #' # ---------------------------------------------------------------------------
 #' fjoin_inner(x, y, on = NA) # note `NA` not `NULL`/omitted
-#' try(fjoin_left(x, y)) # to prevent accidental natural joins
+#' try(fjoin_inner(x, y)) # to prevent accidental natural joins
 #'
 #' # ---------------------------------------------------------------------------
 #' # Mock join (code "ghostwriter" for data.table users)
@@ -650,16 +649,13 @@ fjoin_full <- function(
 #' # Natural join
 #' # ---------------------------------------------------------------------------
 #' fjoin_semi(x, y, on = NA)
-#'
 #' fjoin_anti(x, y, on = NA)
 #'
 #' # ---------------------------------------------------------------------------
 #' # Mock join
 #' # ---------------------------------------------------------------------------
 #' fjoin_semi(on="id")
-#'
 #' fjoin_semi(on=c("id", "date"))
-#'
 #' fjoin_semi(on=c("id"), mult.y = "last")
 #'
 #' @export

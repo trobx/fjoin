@@ -12,6 +12,11 @@
 #'
 #' @inherit dtjoin_semi params return details seealso
 #'
+#' @param mult.DT Permitted for consistency with \code{dtjoin} but
+#'   has no effect on the resulting anti-join.
+#' @param nomatch,nomatch.DT Permitted for consistency with \code{dtjoin} but
+#'   have no effect on the resulting anti-join.
+#'
 #' @examples
 #' # Mock joins
 #'
