@@ -72,19 +72,13 @@ sides, and an indicator column for row origin.
 
 # Installation
 
-<!--
+Latest development version ([R-universe](https://trobx.r-universe.dev)):
+```r
+install.packages("fjoin", repos = c("https://trobx.r-universe.dev"))
+```
 Stable release (CRAN):
 ```r
 install.packages("fjoin")
-```
-
--->
-`r pkg("fjoin")` is currently in submission with CRAN.
-
-Latest development version ([R-universe](https://trobx.r-universe.dev)):
-```r
-install.packages("fjoin",
-  repos = c("https://trobx.r-universe.dev", "https://cloud.r-project.org"))
 ```
 
 # Features
