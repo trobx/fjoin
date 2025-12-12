@@ -1,10 +1,10 @@
-# fjoin 0.1.0.9000 (2025-12-05)
+# fjoin 0.1.0.9000
 
 Latest development version
 
-# fjoin 0.1.0 (2025-12-05)
+# fjoin 0.1.0 (2025-12-11)
 
-Initial CRAN submission
+Initial CRAN release
 
 # fjoin 0.0.0.9000 (2025-10-27)
 
