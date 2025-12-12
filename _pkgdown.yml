@@ -47,6 +47,12 @@ template:
         font-family: inherit; /* match surrounding text */
       }
 
+      /* But if pkgname is inside bold/strong text, inherit boldness */
+      strong .pkgname,
+      b .pkgname {
+        font-weight: inherit;
+      }
+
       </style>
 
 home:

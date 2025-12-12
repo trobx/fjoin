@@ -107,7 +107,7 @@ dependency-free package emphasising long-term stability.
 `r pkg("fjoin")` provides several distinctive options and controls, including:
 
 - **NA-safe joins by default:** Missing values are treated sensibly (no matches
-on `NA` unless overridden with `match.na`).
+on `NA` unless you actually ask for them with `match.na = TRUE`).
 - **On-the-fly column selection:** Choose and order columns with `select` for
 efficient one-liners.
 - **Row origin tagging:** Add a Stata-style marker column showing each row’s
@@ -128,9 +128,9 @@ result (without expensive sorting) using `order`.
 | `fjoin_cross()` | `dtjoin_cross()` |
 
 The `fjoin_*` family consists of conventional left/right-style join functions. 
-They are wrappers around the `dtjoin_*` functions (also exported), which use a
-generalisation of `r pkg("data.table")`'s `DT[i]` join syntax, and which write
-the join code and handle execution.
+They are wrappers around the `dtjoin_*` functions (also exported), which write
+the join code and handle execution, using an interface that generalises 
+`r pkg("data.table")`'s `DT[i]` join syntax.
 
 # Examples
 
@@ -153,7 +153,7 @@ NA   apples    10        ...
 ")
 
 dfQ <- read_df("
-id quantity      notes  other_cols
+id quantity       note  other_cols
  2        5         ''         ...
  1        6         ''         ...
  3        7         ''         ...
@@ -165,16 +165,17 @@ NA        8  'oranges'         ...
 ```{r}
 fjoin_full(dfQ, dfP, on = "id")
 ```
-The default `match.na = FALSE` prevents apples-and-oranges matches
-on missing values --- other frameworks would join the last two rows.
+Notice that the default `match.na = FALSE` avoids an apples-and-oranges match
+on missing values --- other R frameworks would join the last two rows.
 
 ### (2) Efficient selective joins in one line
-Use `select` to restrict the join to particular columns and put them in desired order:
+Use `select` to restrict the join to particular columns and put them in desired
+order:
 ```{r}
 fjoin_full(dfQ, dfP, on = "id", select = c("item", "price", "quantity"))
 ```
 
-This is much easier to write and read than the equivalent operation in 
+This code is much easier to write and read than the equivalent operation in 
 `r pkg("dplyr")`, which requires two calls before the join to avoid inflating
 it with irrelevant columns, and a call after it to shuffle column order:
 ```{r eval = FALSE}
@@ -185,10 +186,10 @@ full_join(x, y, join_by(id), na.matches = "never") |>
 ```
 
 ### (3) Indicator column for row origin
-`1L`: left only, `2L`: right only, `3L`: joined from both. In Stata since
-1984!^[See p. 99 of the Stata 1 reference manual, which has been linked to on
-Statalist and can be found by searching online. Thanks to Nick Cox for this
-information.]
+`1L`: left only, `2L`: right only, `3L`: joined from both. This extremely useful
+feature has existed in Stata since 1984^[See p. 99 of the Stata 1 reference
+manual, which has been linked to on Statalist and can be found by searching
+online. Thanks to Nick Cox for this information.]
 
 ```{r}
 fjoin_full(
