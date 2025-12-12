@@ -787,7 +787,7 @@ dtjoin <- function(
               deparse(mult.DT),
               sprintf(if (has_sfc) "setDF(list(%s%s, fjoin.which.i = fjoin.which.i))" else "data.frame(%s%s, fjoin.which.i)",
                       with(list(x=cols.DT$name[cols.DT$has_jvar]), paste(sprintf("%s = i.%s",x,x), collapse=", ")),
-                      if (add_ind.DT) ", fjoin.ind.DT = TRUE" else ""
+                      if (add_ind.DT) ", fjoin.ind.DT = rep(TRUE, .N)" else ""
               ),
               argtext_verbose,
               ".i",                # TODO: make variable
@@ -825,7 +825,7 @@ dtjoin <- function(
                 sprintf(if (has_sfc) "setDF(list(%s%s%s))" else "data.frame(%s%s%s)",
                         paste(jvars, collapse=", "),
                         if (outer.DT) "" else if (has_sfc) ", fjoin.which.DT = fjoin.which.DT" else ", fjoin.which.DT",
-                        if (add_ind.DT) ", fjoin.ind.DT = TRUE" else ""
+                        if (add_ind.DT) ", fjoin.ind.DT = rep(TRUE, .N)" else ""
                 ),
                 argtext_verbose,
                 if (mult.DT=="first") {
@@ -853,7 +853,7 @@ dtjoin <- function(
                         with(list(x=cols.DT$name[cols.DT$has_jvar]), paste(sprintf("%s = x.%s",x,x), collapse=", ")),
                         if (has_sfc) ", fjoin.which.i = fjoin.which.i" else ", fjoin.which.i",
                         if (outer.DT) "" else if (has_sfc) ", fjoin.which.DT = fjoin.which.DT" else ", fjoin.which.DT",
-                        if (add_ind.DT) ", fjoin.ind.DT = TRUE" else ""
+                        if (add_ind.DT) ", fjoin.ind.DT = rep(TRUE, .N)" else ""
                 ),
                 argtext_verbose,
                 if (mult.DT=="first") {
