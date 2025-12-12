@@ -698,8 +698,8 @@ Geodetic CRS:  WGS 84</code></pre>
 <pre><code># A tibble: 2 × 3
   expression   median mem_alloc
   &lt;bch:expr&gt; &lt;bch:tm&gt; &lt;bch:byt&gt;
-1 data.table    378ms     752MB
-2 fjoin         183ms     367MB</code></pre>
+1 data.table    451ms     752MB
+2 fjoin         173ms     367MB</code></pre>
 </div>
 </div>
 <p>Here <span class="pkgname">fjoin</span> avoids a call to <code>as.data.table.data.frame</code> on the way in, and a call to <code>as.data.table.list</code> on the way out, both of which (currently) always deep-copy. The <code><a href="https://bench.r-lib.org/reference/mark.html" class="external-link">bench::mark</a></code> memory measurements <a href="https://rdatatable-community.github.io/The-Raft/posts/2025-07-14-memory_R-jangorecki/" target="_blank" class="external-link">exclude C-level allocations</a>, but the difference between them reflects these R-level copies. This behaviour will eventually change in <span class="pkgname">data.table</span>, at which point <span class="pkgname">fjoin</span> will revert to the more familiar <code>j = list()</code> idiom.</p>
