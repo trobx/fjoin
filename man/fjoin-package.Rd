@@ -14,9 +14,8 @@ sides, and an indicator column for row origin.
 }
 \section{Vignette}{
 
-View the \href{https://trobx.github.io/fjoin/articles/fjoin.html}{Get started}
-guide on the \href{https://trobx.github.io/fjoin/index.html}{package website}
-or access locally in R with \code{vignette("fjoin")}.
+See the \href{https://trobx.github.io/fjoin/articles/fjoin.html}{Get started}
+guide on the \href{https://trobx.github.io/fjoin/index.html}{package website}.
 }
 
 \section{API}{

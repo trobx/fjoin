@@ -44,6 +44,12 @@ pre code, code {
   font-family: inherit; /* match surrounding text */
 }
 
+/* But if pkgname is inside bold/strong text, inherit boldness */
+strong .pkgname,
+b .pkgname {
+  font-weight: inherit;
+}
+
 </style></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
@@ -92,9 +98,8 @@ sides, and an indicator column for row origin.</p>
     <h2 id="vignette">Vignette<a class="anchor" aria-label="anchor" href="#vignette"></a></h2>
 
 
-<p>View the <a href="https://trobx.github.io/fjoin/articles/fjoin.html">Get started</a>
-guide on the <a href="https://trobx.github.io/fjoin/index.html">package website</a>
-or access locally in R with <code><a href="../articles/fjoin.html">vignette("fjoin")</a></code>.</p>
+<p>See the <a href="https://trobx.github.io/fjoin/articles/fjoin.html">Get started</a>
+guide on the <a href="https://trobx.github.io/fjoin/index.html">package website</a>.</p>
     </div>
     <div class="section level2">
     <h2 id="api">API<a class="anchor" aria-label="anchor" href="#api"></a></h2>

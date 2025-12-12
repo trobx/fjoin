@@ -36,6 +36,12 @@ pre code, code {
   font-family: inherit; /* match surrounding text */
 }
 
+/* But if pkgname is inside bold/strong text, inherit boldness */
+strong .pkgname,
+b .pkgname {
+  font-weight: inherit;
+}
+
 </style></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
@@ -368,6 +374,14 @@ regardless of whether or not the inputs and output are <code>sf</code>s.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4 NA        8 oranges (not listed)        ...     &lt;NA&gt;    NA         &lt;NA&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 5 NA       NA                 &lt;NA&gt;       &lt;NA&gt;   apples    10          ...</span>
 <span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># (an aside) equality matches on NA if you insist</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="fjoin_full.html">fjoin_full</a></span><span class="op">(</span><span class="va">dfQ</span>, <span class="va">dfP</span>, on <span class="op">=</span> <span class="st">"id"</span>, select <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"item"</span>, <span class="st">"price"</span>, <span class="st">"quantity"</span>, <span class="st">"notes"</span><span class="op">)</span>, match.na <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   id     item price quantity                notes</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  2 cherries    30        5                     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  1    dates    40        6                     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  3  bananas    20        7                     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 NA   apples    10        8 oranges (not listed)</span>
+<span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># (2) join-select in one line</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="fjoin_full.html">fjoin_full</a></span><span class="op">(</span><span class="va">dfQ</span>, <span class="va">dfP</span>, on <span class="op">=</span> <span class="st">"id"</span>, select <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"item"</span>, <span class="st">"price"</span>, <span class="st">"quantity"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   id     item price quantity</span>
@@ -382,15 +396,6 @@ regardless of whether or not the inputs and output are <code>sf</code>s.</p>
 <span class="r-in"><span><span class="co"># y &lt;- dfP |&gt; select(id, item, price)</span></span></span>
 <span class="r-in"><span><span class="co"># full_join(x, y, join_by(id), na.matches = "never") |&gt;</span></span></span>
 <span class="r-in"><span><span class="co">#   select(id, item, price, quantity)</span></span></span>
-<span class="r-in"><span><span class="co"># ---------------------------------------------------------------------------</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># (an aside) equality matches on NA if you insist</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="fjoin_full.html">fjoin_full</a></span><span class="op">(</span><span class="va">dfQ</span>, <span class="va">dfP</span>, on <span class="op">=</span> <span class="st">"id"</span>, select <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"item"</span>, <span class="st">"price"</span>, <span class="st">"quantity"</span>, <span class="st">"notes"</span><span class="op">)</span>, match.na <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   id     item price quantity                notes</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1  2 cherries    30        5                     </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2  1    dates    40        6                     </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3  3  bananas    20        7                     </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 NA   apples    10        8 oranges (not listed)</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># (3) indicator column (in Stata since 1984)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="fjoin_full.html">fjoin_full</a></span><span class="op">(</span></span></span>
@@ -514,8 +519,8 @@ regardless of whether or not the inputs and output are <code>sf</code>s.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   country pop_m forest_pc</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1  Brazil   212      59.1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2    Chad     3       3.2</span>
-<span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/try.html" class="external-link">try</a></span><span class="op">(</span><span class="fu"><a href="fjoin_left.html">fjoin_left</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">y</span><span class="op">)</span><span class="op">)</span> <span class="co"># to prevent accidental natural joins</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Error in fjoin_left(x, y) : argument "on" is missing, with no default</span>
+<span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/try.html" class="external-link">try</a></span><span class="op">(</span><span class="fu"><a href="fjoin_inner.html">fjoin_inner</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">y</span><span class="op">)</span><span class="op">)</span> <span class="co"># to prevent accidental natural joins</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Error in fjoin_inner(x, y) : argument "on" is missing, with no default</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># ---------------------------------------------------------------------------</span></span></span>
 <span class="r-in"><span><span class="co"># Mock join (code "ghostwriter" for data.table users)</span></span></span>

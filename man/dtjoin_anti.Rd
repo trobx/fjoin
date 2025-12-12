@@ -38,10 +38,10 @@ matching rows in \code{.DT}, which to accept. One of \code{"all"} (the
 default), \code{"first"}, or \code{"last"}.}
 
 \item{mult.DT}{Permitted for consistency with \code{dtjoin} but
-has no effect on the resulting semi-join.}
+has no effect on the resulting anti-join.}
 
 \item{nomatch, nomatch.DT}{Permitted for consistency with \code{dtjoin} but
-have no effect on the resulting semi-join.}
+have no effect on the resulting anti-join.}
 
 \item{select}{Character vector of columns of \code{.DT} to be selected.
 \code{NULL} (the default) selects all columns. Join columns are always

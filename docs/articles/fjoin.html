@@ -58,6 +58,12 @@ pre code, code {
   font-family: inherit; /* match surrounding text */
 }
 
+/* But if pkgname is inside bold/strong text, inherit boldness */
+strong .pkgname,
+b .pkgname {
+  font-weight: inherit;
+}
+
 </style>
 </head>
 <body>
@@ -179,7 +185,7 @@ install.packages("fjoin")
 <p><span class="pkgname">fjoin</span> provides several distinctive options and controls, including:</p>
 <ul>
 <li>
-<strong>NA-safe joins by default:</strong> Missing values are treated sensibly (no matches on <code>NA</code> unless overridden with <code>match.na</code>).</li>
+<strong>NA-safe joins by default:</strong> Missing values are treated sensibly (no matches on <code>NA</code> unless you actually ask for them with <code>match.na = TRUE</code>).</li>
 <li>
 <strong>On-the-fly column selection:</strong> Choose and order columns with <code>select</code> for efficient one-liners.</li>
 <li>
@@ -226,7 +232,7 @@ install.packages("fjoin")
 </tr>
 </tbody>
 </table>
-<p>The <code>fjoin_*</code> family consists of conventional left/right-style join functions. They are wrappers around the <code>dtjoin_*</code> functions (also exported), which use a generalisation of <span class="pkgname">data.table</span>’s <code>DT[i]</code> join syntax, and which write the join code and handle execution.</p>
+<p>The <code>fjoin_*</code> family consists of conventional left/right-style join functions. They are wrappers around the <code>dtjoin_*</code> functions (also exported), which write the join code and handle execution, using an interface that generalises <span class="pkgname">data.table</span>’s <code>DT[i]</code> join syntax.</p>
 </section><section class="section level2"><h2 id="examples">Examples<a class="anchor" aria-label="anchor" href="#examples"></a>
 </h2>
 <div class="cell">
@@ -248,7 +254,7 @@ install.packages("fjoin")
 <span><span class="st">"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">dfQ</span> <span class="op">&lt;-</span> <span class="fu">read_df</span><span class="op">(</span><span class="st">"</span></span>
-<span><span class="st">id quantity      notes  other_cols</span></span>
+<span><span class="st">id quantity       note  other_cols</span></span>
 <span><span class="st"> 2        5         ''         ...</span></span>
 <span><span class="st"> 1        6         ''         ...</span></span>
 <span><span class="st"> 3        7         ''         ...</span></span>
@@ -261,7 +267,7 @@ install.packages("fjoin")
 <div class="sourceCode cell-code" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/fjoin_full.html">fjoin_full</a></span><span class="op">(</span><span class="va">dfQ</span>, <span class="va">dfP</span>, on <span class="op">=</span> <span class="st">"id"</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>  id quantity   notes other_cols     item price R.other_cols
+<pre><code>  id quantity    note other_cols     item price R.other_cols
 1  2        5                ... cherries    30          ...
 2  1        6                ...    dates    40          ...
 3  3        7                ...  bananas    20          ...
@@ -269,7 +275,7 @@ install.packages("fjoin")
 5 NA       NA    &lt;NA&gt;       &lt;NA&gt;   apples    10          ...</code></pre>
 </div>
 </div>
-<p>The default <code>match.na = FALSE</code> prevents apples-and-oranges matches on missing values — other frameworks would join the last two rows.</p>
+<p>Notice that the default <code>match.na = FALSE</code> avoids an apples-and-oranges match on missing values — other R frameworks would join the last two rows.</p>
 </section><section class="level3"><h4 id="efficient-selective-joins-in-one-line">(2) Efficient selective joins in one line<a class="anchor" aria-label="anchor" href="#efficient-selective-joins-in-one-line"></a>
 </h4>
 <p>Use <code>select</code> to restrict the join to particular columns and put them in desired order:</p>
@@ -285,7 +291,7 @@ install.packages("fjoin")
 5 NA   apples    10       NA</code></pre>
 </div>
 </div>
-<p>This is much easier to write and read than the equivalent operation in <span class="pkgname">dplyr</span>, which requires two calls before the join to avoid inflating it with irrelevant columns, and a call after it to shuffle column order:</p>
+<p>This code is much easier to write and read than the equivalent operation in <span class="pkgname">dplyr</span>, which requires two calls before the join to avoid inflating it with irrelevant columns, and a call after it to shuffle column order:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="va">dfQ</span> <span class="op">|&gt;</span> <span class="fu">select</span><span class="op">(</span><span class="va">id</span>, <span class="va">quantity</span><span class="op">)</span></span>
@@ -295,7 +301,7 @@ install.packages("fjoin")
 </div>
 </section><section class="level3"><h4 id="indicator-column-for-row-origin">(3) Indicator column for row origin<a class="anchor" aria-label="anchor" href="#indicator-column-for-row-origin"></a>
 </h4>
-<p><code>1L</code>: left only, <code>2L</code>: right only, <code>3L</code>: joined from both. In Stata since 1984!<a class="footnote-ref" role="doc-noteref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;See p. 99 of the Stata 1 reference manual, which has been linked to on Statalist and can be found by searching online. Thanks to Nick Cox for this information.&lt;/p&gt;"><sup>1</sup></a></p>
+<p><code>1L</code>: left only, <code>2L</code>: right only, <code>3L</code>: joined from both. This extremely useful feature has existed in Stata since 1984<a class="footnote-ref" role="doc-noteref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;See p. 99 of the Stata 1 reference manual, which has been linked to on Statalist and can be found by searching online. Thanks to Nick Cox for this information.&lt;/p&gt;"><sup>1</sup></a></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/fjoin_full.html">fjoin_full</a></span><span class="op">(</span></span>
@@ -506,7 +512,7 @@ Join: setDF(with(list(fjoin.temp = setDT(setDT(.i[, fjoin.which.i := .I][.DT[, f
 </div>
 </div>
 </div>
-<p>The benchmark above is based on a no-frills equality join to allow comparison with <code>merge.data.table</code> and <code><a href="https://sebkrantz.github.io/collapse/reference/join.html" class="external-link">collapse::join()</a></code>; see the <a href="https://trobx.github.io/fjoin/articles/fjoin-performance.html">Performance</a> article for more detail. In the inner and left joins, <span class="pkgname">fjoin</span> and <code>merge.data.table</code> reflect a simple operation in <span class="pkgname">data.table</span>, and straightforwardly inherit its speed and robustness to the order of the tables. But <span class="pkgname">fjoin</span> performs a bit better than <code>merge.data.table</code> on the right and full joins. This is typical: <span class="pkgname">fjoin</span>’s solutions for join types and additional options that are not straightforward in native <span class="pkgname">data.table</span> have been developed with close attention to performance.</p>
+<p>The benchmark above is based on a no-frills equality join to allow comparison with <code>merge.data.table</code> and <code><a href="https://rdrr.io/pkg/collapse/man/join.html" class="external-link">collapse::join()</a></code>; see the <a href="https://trobx.github.io/fjoin/articles/fjoin-performance.html">Performance</a> article for more detail. In the inner and left joins, <span class="pkgname">fjoin</span> and <code>merge.data.table</code> reflect a simple operation in <span class="pkgname">data.table</span>, and straightforwardly inherit its speed and robustness to the order of the tables. But <span class="pkgname">fjoin</span> performs a bit better than <code>merge.data.table</code> on the right and full joins. This is typical: <span class="pkgname">fjoin</span>’s solutions for join types and additional options that are not straightforward in native <span class="pkgname">data.table</span> have been developed with close attention to performance.</p>
 </section><section class="section level2"><h2 id="notes-for-tidyverse-users">Notes for <span class="pkgname">tidyverse</span> users<a class="anchor" aria-label="anchor" href="#notes-for-tidyverse-users"></a>
 </h2>
 <p><span class="pkgname">fjoin</span> is a drop-in alternative to <code>dplyr::*_join()</code> with fast large data performance and useful options that <code>dplyr::*_join()</code> lacks (though the reverse is also true — see below). Joins are fairly infrequent operations, and the package name is short, so you may not feel the need to attach it:</p>
@@ -692,8 +698,8 @@ Geodetic CRS:  WGS 84</code></pre>
 <pre><code># A tibble: 2 × 3
   expression   median mem_alloc
   &lt;bch:expr&gt; &lt;bch:tm&gt; &lt;bch:byt&gt;
-1 data.table    404ms     752MB
-2 fjoin         162ms     367MB</code></pre>
+1 data.table    378ms     752MB
+2 fjoin         183ms     367MB</code></pre>
 </div>
 </div>
 <p>Here <span class="pkgname">fjoin</span> avoids a call to <code>as.data.table.data.frame</code> on the way in, and a call to <code>as.data.table.list</code> on the way out, both of which (currently) always deep-copy. The <code><a href="https://bench.r-lib.org/reference/mark.html" class="external-link">bench::mark</a></code> memory measurements <a href="https://rdatatable-community.github.io/The-Raft/posts/2025-07-14-memory_R-jangorecki/" target="_blank" class="external-link">exclude C-level allocations</a>, but the difference between them reflects these R-level copies. This behaviour will eventually change in <span class="pkgname">data.table</span>, at which point <span class="pkgname">fjoin</span> will revert to the more familiar <code>j = list()</code> idiom.</p>

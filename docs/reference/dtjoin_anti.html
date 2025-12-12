@@ -46,6 +46,12 @@ pre code, code {
   font-family: inherit; /* match surrounding text */
 }
 
+/* But if pkgname is inside bold/strong text, inherit boldness */
+strong .pkgname,
+b .pkgname {
+  font-weight: inherit;
+}
+
 </style></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
@@ -138,12 +144,12 @@ default), <code>"first"</code>, or <code>"last"</code>.</p></dd>
 
 <dt id="arg-mult-dt">mult.DT<a class="anchor" aria-label="anchor" href="#arg-mult-dt"></a></dt>
 <dd><p>Permitted for consistency with <code>dtjoin</code> but
-has no effect on the resulting semi-join.</p></dd>
+has no effect on the resulting anti-join.</p></dd>
 
 
 <dt id="arg-nomatch-nomatch-dt">nomatch, nomatch.DT<a class="anchor" aria-label="anchor" href="#arg-nomatch-nomatch-dt"></a></dt>
 <dd><p>Permitted for consistency with <code>dtjoin</code> but
-have no effect on the resulting semi-join.</p></dd>
+have no effect on the resulting anti-join.</p></dd>
 
 
 <dt id="arg-select">select<a class="anchor" aria-label="anchor" href="#arg-select"></a></dt>

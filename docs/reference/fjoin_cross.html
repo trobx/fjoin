@@ -36,6 +36,12 @@ pre code, code {
   font-family: inherit; /* match surrounding text */
 }
 
+/* But if pkgname is inside bold/strong text, inherit boldness */
+strong .pkgname,
+b .pkgname {
+  font-weight: inherit;
+}
+
 </style></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 

@@ -58,6 +58,12 @@ pre code, code {
   font-family: inherit; /* match surrounding text */
 }
 
+/* But if pkgname is inside bold/strong text, inherit boldness */
+strong .pkgname,
+b .pkgname {
+  font-weight: inherit;
+}
+
 </style>
 </head>
 <body>
@@ -103,24 +109,19 @@ pre code, code {
 <p><strong>Data frame joins leveraging <span class="pkgname">data.table</span></strong></p>
 <p><em>Please view this page on the <a href="https://trobx.github.io/fjoin/">package website</a> and head to the <a href="https://trobx.github.io/fjoin/articles/fjoin.html">Get started</a> guide next.</em></p>
 <div class="section level2">
-<h2 id="description">Description<a class="anchor" aria-label="anchor" href="#description"></a>
+<h2 id="cran-description">CRAN description<a class="anchor" aria-label="anchor" href="#cran-description"></a>
 </h2>
 <p>Extends <span class="pkgname">data.table</span> join functionality, lets it work with any data frame class, and provides a familiar <code>x</code>/<code>y</code>-style interface, enabling broad use across R. Offers NA-safe matching by default, on-the-fly column selection, multiple match-handling on both sides, <code>x</code> or <code>y</code> row order, and a row origin indicator. Performs inner, left, right, full, semi- and anti-joins with equality and inequality conditions, plus cross joins. Specific support for <code>data.table</code>, (grouped) tibble, and <code>sf</code>/<code>sfc</code> objects and their attributes; returns a plain data frame otherwise. Avoids data-copying of inputs and outputs. Allows displaying the <span class="pkgname">data.table</span> code instead of (or as well as) executing it.</p>
 </div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<!--
-Stable release (CRAN):
-```r
-install.packages("fjoin")
-```
-&#10;-->
-<p><span class="pkgname">fjoin</span> is currently in submission with CRAN.</p>
-<p>Latest development version (<a href="https://trobx.r-universe.dev" class="external-link">R-universe</a>):</p>
+<p>Stable release (CRAN):</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"fjoin"</span>,</span>
-<span>  repos <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"https://trobx.r-universe.dev"</span>, <span class="st">"https://cloud.r-project.org"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"fjoin"</span><span class="op">)</span></span></code></pre></div>
+<p>Latest development version (<a href="https://trobx.r-universe.dev" class="external-link">R-universe</a>):</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"fjoin"</span>, repos <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"https://trobx.r-universe.dev"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="more-information">More information<a class="anchor" aria-label="anchor" href="#more-information"></a>
@@ -132,6 +133,7 @@ install.packages("fjoin")
   </main><aside class="col-md-3"><div class="links">
 <h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
+<li><a href="https://cloud.r-project.org/package=fjoin" class="external-link">View on CRAN</a></li>
 <li><a href="https://github.com/trobx/fjoin/" class="external-link">Browse source code</a></li>
 <li><a href="https://github.com/trobx/fjoin/issues" class="external-link">Report a bug</a></li>
 </ul>
@@ -162,10 +164,11 @@ install.packages("fjoin")
 <div class="dev-status">
 <h2 data-toc-skip>Dev status</h2>
 <ul class="list-unstyled">
+<li><a href="https://CRAN.R-project.org/package=fjoin" class="external-link"><img src="https://www.r-pkg.org/badges/version/fjoin" alt="CRAN status"></a></li>
 <li><a href="https://trobx.r-universe.dev" class="external-link"><img src="https://trobx.r-universe.dev/badges/fjoin" alt="R-universe version"></a></li>
 <li><a href="https://github.com/trobx/fjoin/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/trobx/fjoin/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a></li>
 <li><a href="https://app.codecov.io/gh/trobx/fjoin" class="external-link"><img src="https://codecov.io/gh/trobx/fjoin/branch/main/graph/badge.svg?token=CMINLAO40Y" alt="codecov"></a></li>
-<li><a><img src="https://img.shields.io/badge/dependencies-1/1-green" alt="Dependencies (placeholder)"></a></li>
+<li><a href="https://tinyverse.netlify.app/badge/fjoin" class="external-link"><img src="https://tinyverse.netlify.app/badge/fjoin" alt="Dependencies (tinyverse)"></a></li>
 <li><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental" class="external-link"><img src="https://img.shields.io/badge/lifecycle-experimental-orange.svg" alt="Lifecycle: experimental"></a></li>
 <li><a href="https://trobx.github.io/fjoin/"><img src="https://img.shields.io/badge/docs-homepage-blue.svg" alt="Documentation"></a></li>
 <li><a href="https://opensource.org/licenses/MIT" class="external-link"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT"></a></li>
