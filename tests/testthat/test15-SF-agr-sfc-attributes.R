@@ -66,7 +66,7 @@ test_that("sf no non-NA agr", {
   expect_identical(sf::st_agr(result), as_agr(c(id_A=NA, c=NA, i.c=NA)))
   result <- dtjoin_cross(SF3_A, SF3_B, select="c")
   expect_identical(sf::st_agr(result), as_agr(c(c=NA, i.c=NA)))
-  expected <- as_agr(c(id_A=NA, c=NA, v_A=NA, geom_other_A=NA))
+  expected <- as_agr(c(id_A=NA, c=NA, v_A=NA))
   result <- dtjoin_semi(SF3_A, SF3_B, on="id_A == id_B")
   expect_identical(sf::st_agr(result), expected)
   result <- dtjoin_anti(SF3_A, SF3_B, on="id_A == id_B")
@@ -90,10 +90,8 @@ test_that("sf with non-NA agr", {
     as_agr(c(id_A="identity",
              c="aggregate",
              v_A=NA,
-             geom_other_A=NA,
              i.c=NA,
-             v_B=NA,
-             geom_active_B=NA))
+             v_B=NA))
   )
   result <- dtjoin_cross(SF3_A, SF3_B)
   expect_identical(
@@ -101,13 +99,11 @@ test_that("sf with non-NA agr", {
     as_agr(c(id_A="identity",
              c="aggregate",
              v_A=NA,
-             geom_other_A=NA,
              id_B=NA,
              i.c=NA,
-             v_B=NA,
-             geom_active_B=NA))
+             v_B=NA))
   )
-  expected <- as_agr(c(id_A="identity", c="aggregate", v_A=NA, geom_other_A=NA))
+  expected <- as_agr(c(id_A="identity", c="aggregate", v_A=NA))
   result <- dtjoin_semi(SF3_A, SF3_B, on="id_A == id_B")
   expect_identical(sf::st_agr(result), expected)
   result <- dtjoin_anti(SF3_A, SF3_B, on="id_A == id_B")
@@ -140,10 +136,8 @@ test_that("sf with non-NA agr, i.class=FALSE, i.home=TRUE", {
     as_agr(c(id_B=NA,
              c=NA,
              v_B=NA,
-             geom_active_B=NA,
              x.c="aggregate",
-             v_A=NA,
-             geom_other_A=NA))
+             v_A=NA))
   )
   result <- dtjoin_cross(SF3_A, SF3_B, i.home=TRUE, i.class=FALSE)
   expect_identical(
@@ -151,11 +145,9 @@ test_that("sf with non-NA agr, i.class=FALSE, i.home=TRUE", {
     as_agr(c(id_B=NA,
              c=NA,
              v_B=NA,
-             geom_active_B=NA,
              id_A="identity",
              x.c="aggregate",
-             v_A=NA,
-             geom_other_A=NA))
+             v_A=NA))
   )
 })
 test_that("sf with non-NA agr, i.class=TRUE, i.home=FALSE", {
@@ -165,8 +157,6 @@ test_that("sf with non-NA agr, i.class=TRUE, i.home=FALSE", {
     as_agr(c(id_A=NA,
              c=NA,
              v_A=NA,
-             geom_active_A=NA,
-             geom_other_A=NA,
              i.c="constant",
              v_B="constant"))
   )
@@ -176,8 +166,6 @@ test_that("sf with non-NA agr, i.class=TRUE, i.home=FALSE", {
     as_agr(c(id_A=NA,
              c=NA,
              v_A=NA,
-             geom_active_A=NA,
-             geom_other_A=NA,
              id_B=NA,
              i.c="constant",
              v_B="constant"))
