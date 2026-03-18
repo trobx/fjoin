@@ -779,16 +779,20 @@ dtjoin <- function(
         .DTtext <- na_omit_text(.DTtext, na_cols=equi_names.DT, sd_cols=if (is.null(select.DT)) NULL else sdcols.DT)
       }
     }
+    jtext0 <-
+      sprintf(if (has_sfc) "setDF(list(%s))" else "data.frame(%s)",
+              paste0(
+                c(with(list(x=cols.DT$name[cols.DT$has_jvar]), sprintf("%s = i.%s",x,x)),
+                  if (add_ind.DT) "fjoin.ind.DT = rep(TRUE, .N)" else character(0),
+                  with(list(x="fjoin.which.i"), if (has_sfc) sprintf("%s = i.%s",x,x) else x)),
+                collapse=", "))
     jointext <-
       sprintf("setDT(%s[%s, on = %s, nomatch = NULL, mult = %s, %s%s])[%s, on = \"fjoin.which.i\", %s%s%s]",
               .itext,
               .DTtext,
               deparse1(on_df_to_vec(cols.on, flip = TRUE)),
               deparse(mult.DT),
-              sprintf(if (has_sfc) "setDF(list(%s%s, fjoin.which.i = fjoin.which.i))" else "data.frame(%s%s, fjoin.which.i)",
-                      with(list(x=cols.DT$name[cols.DT$has_jvar]), paste(sprintf("%s = i.%s",x,x), collapse=", ")),
-                      if (add_ind.DT) ", fjoin.ind.DT = rep(TRUE, .N)" else ""
-              ),
+              jtext0,
               argtext_verbose,
               ".i",                # TODO: make variable
               argtext_nomatch,
@@ -816,17 +820,20 @@ dtjoin <- function(
           .DTtext <- na_omit_text(.DTtext, na_cols=equi_names.DT, sd_cols=if (is.null(select.DT)) NULL else c(sdcols.DT, "fjoin.which.DT"))
         }
       }
+      jtext0 <-
+        sprintf(if (has_sfc) "setDF(list(%s))" else "data.frame(%s)",
+                paste0(
+                  c(jvars,
+                    if (outer.DT) character(0) else if (has_sfc) "fjoin.which.DT = fjoin.which.DT" else "fjoin.which.DT",
+                    if (add_ind.DT) "fjoin.ind.DT = rep(TRUE, .N)" else character(0)),
+                  collapse=", "))
       jointext <-
         sprintf("setDT(%s[%s, on = %s, nomatch = NULL, %s%s%s])[%s%s]%s",
                 .DTtext,
                 .itext,
                 deparse1(on_df_to_vec(cols.on)),
                 argtext_mult,
-                sprintf(if (has_sfc) "setDF(list(%s%s%s))" else "data.frame(%s%s%s)",
-                        paste(jvars, collapse=", "),
-                        if (outer.DT) "" else if (has_sfc) ", fjoin.which.DT = fjoin.which.DT" else ", fjoin.which.DT",
-                        if (add_ind.DT) ", fjoin.ind.DT = rep(TRUE, .N)" else ""
-                ),
+                jtext0,
                 argtext_verbose,
                 if (mult.DT=="first") {
                   ", first(.SD), by = \"fjoin.which.DT\""
@@ -843,18 +850,21 @@ dtjoin <- function(
       .DTtext <- ".DT[, fjoin.which.DT := .I]"
       .itext  <- ".i[, fjoin.which.i := .I]"
       if (screen_NAs) .DTtext <- na_omit_text(.DTtext, na_cols=equi_names.DT, sd_cols=if (is.null(select.DT)) NULL else c(sdcols.DT, "fjoin.which.DT"))
+      jtext0 <-
+        sprintf(if (has_sfc) "setDF(list(%s))" else "data.frame(%s)",
+                paste0(
+                  c(with(list(x=cols.DT$name[cols.DT$has_jvar]), sprintf("%s = x.%s",x,x)),
+                    if (has_sfc) "fjoin.which.i = fjoin.which.i" else "fjoin.which.i",
+                    if (outer.DT) character(0) else if (has_sfc) "fjoin.which.DT = fjoin.which.DT" else "fjoin.which.DT",
+                    if (add_ind.DT) "fjoin.ind.DT = rep(TRUE, .N)" else character(0)),
+                  collapse=", "))
       jointext <-
         sprintf("setDT(%s[%s, on = %s, nomatch = NULL, %s%s%s])[%s%s][.i, on = \"fjoin.which.i\", %s%s]",
                 .DTtext,
                 .itext,
                 deparse1(on_df_to_vec(cols.on)),
                 argtext_mult,
-                sprintf(if (has_sfc) "setDF(list(%s%s%s%s))" else "data.frame(%s%s%s%s)",
-                        with(list(x=cols.DT$name[cols.DT$has_jvar]), paste(sprintf("%s = x.%s",x,x), collapse=", ")),
-                        if (has_sfc) ", fjoin.which.i = fjoin.which.i" else ", fjoin.which.i",
-                        if (outer.DT) "" else if (has_sfc) ", fjoin.which.DT = fjoin.which.DT" else ", fjoin.which.DT",
-                        if (add_ind.DT) ", fjoin.ind.DT = rep(TRUE, .N)" else ""
-                ),
+                jtext0,
                 argtext_verbose,
                 if (mult.DT=="first") {
                   ", first(.SD), by = \"fjoin.which.DT\""
